@@ -1,0 +1,45 @@
+{
+  "name": "easycd-api",
+  "version": "1.0.0",
+  "description": "Church Management System",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kaio Fabio",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^3.2.3",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.0",
+    "bootable": "^0.2.4",
+    "chai": "^4.3.6",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.1",
+    "electrolyte": "^0.3.0",
+    "express": "^4.17.3",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.3",
+    "mongoose": "^6.3.1",
+    "mongoose-delete": "^0.5.4",
+    "nodemon": "^2.0.15",
+    "supertest": "^6.2.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.14.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KaioRodriguesCT/EasyCD-IFES.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KaioRodriguesCT/EasyCD-IFES/issues"
+  },
+  "homepage": "https://github.com/KaioRodriguesCT/EasyCD-IFES#readme"
+}
