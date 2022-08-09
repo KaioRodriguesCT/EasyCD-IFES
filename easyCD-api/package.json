@@ -1,7 +1,7 @@
 {
   "name": "easycd-api",
   "version": "1.0.0",
-  "description": "Church Management System",
+  "description": "Easy Coordination",
   "main": "index.js",
   "directories": {
     "test": "tests"

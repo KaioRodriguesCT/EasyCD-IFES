@@ -7,11 +7,12 @@ const path = require('path');
 exports = module.exports = function initRoutes(IoC) {
   const app = this;
   // Here shoulde have the path for all index routes files
-  const routes = [
+  const components = [
+    'user',
   ];
 
-  _.each(routes, (route) => {
-    const routerPath = path.resolve('./routes', route);
+  _.each(components, (component) => {
+    const routerPath = path.resolve('./app', 'components', component, 'router');
     app.phase(bootable.di.routes(routerPath));
   });
 };
