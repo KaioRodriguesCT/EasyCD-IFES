@@ -12,11 +12,8 @@ exports = module.exports = function initRouter(UserController) {
   // Update an user
   router.put('/:userId', UserController.update);
 
-  // Get an user
-  router.get('/:userId', UserController.findById);
-
   // Get list of users
-  router.get('/', UserController.findList);
+  router.get('/list', UserController.find);
 
   // Definition
   app.use('/api/user', router);

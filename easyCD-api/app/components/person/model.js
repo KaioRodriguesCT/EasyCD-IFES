@@ -1,40 +1,35 @@
 const mongoose = require('mongoose');
 const mongooseDelete = require('mongoose-delete');
 
-const { ObjectId } = mongoose.Types;
 exports = module.exports = function initModel() {
-  const User = new mongoose.Schema(
+  const Person = new mongoose.Schema(
     {
-      username: {
+      name: {
         type: String,
         required: true,
-        unique: true,
-        index: true,
       },
-      password: {
+      email: {
         type: String,
         required: true,
-        index: true,
       },
-      role: {
+      surname: {
         type: String,
-        enum: ['student', 'teacher'],
         required: true,
-        index: true,
-        default: 'student',
       },
-      person: {
-        type: ObjectId,
-        ref: 'Person',
+      fullName: {
+        type: String,
+      },
+      phone: {
+        type: String,
         required: true,
-        index: true,
       },
-      siape: {
-        // Only for Teachers
-        type: Number,
+      city: {
+        type: String,
       },
-      registration: {
-        // Only for Students
+      uf: {
+        type: String,
+      },
+      address: {
         type: String,
       },
     },
@@ -47,13 +42,12 @@ exports = module.exports = function initModel() {
   );
 
   // Plugins
-  User.plugin(
+  Person.plugin(
     mongooseDelete,
     { deletedBy: true, deletedAt: true },
     { overrideMethods: 'all' },
   );
 
-  // Keep this always on the end
-  return mongoose.model('User', User);
+  return mongoose.model('Person', Person);
 };
 exports['@singleton'] = true;

@@ -5,9 +5,16 @@ exports = module.exports = function initRepository(UserModel, Utils) {
   return {
     create,
     update,
-    remove,
+    removeById,
+    find,
   };
 
+  async function find() {
+    return UserModel
+      .find()
+      .lean()
+      .exec();
+  }
   async function create(user) {
     const requiredFields = [
       'username',
@@ -30,7 +37,7 @@ exports = module.exports = function initRepository(UserModel, Utils) {
         const oldUser = await UserModel
           .findById(newUser._id)
           .exec();
-        if (!oldUser) {
+        if (_.isNil(oldUser)) {
           Utils.throwError('Error updating User. User not found', 404);
         }
         return oldUser;
@@ -51,18 +58,12 @@ exports = module.exports = function initRepository(UserModel, Utils) {
     return updatedUser;
   }
 
-  async function remove(userRemoved, userRemoving) {
+  async function removeById(userId) {
     return async.auto({
-      user: async () => {
-        const user = await UserModel
-          .findById(userRemoved)
-          .exec();
-        if (!user) {
-          Utils.throwError('Error deleting User. User not found', 404);
-        }
-        return user;
-      },
-      deletedUser: ['user', async ({ user }) => user.delete(userRemoving)],
+      user: async () => UserModel
+        .findById(userId)
+        .exec(),
+      deletedUser: ['user', async ({ user }) => user.delete()],
     });
   }
 };

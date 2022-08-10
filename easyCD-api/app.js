@@ -24,8 +24,8 @@ IoC.use('settings', IoC.dir(settingsPath));
 IoC.use('components', IoC.dir(componentsPath));
 
 // Phases
-app.phase(bootable.di.initializers());
-app.phase(bootable.di.routes());
+app.phase(bootable.di.initializers()); // uses etc/init as default
+app.phase(bootable.di.routes(path.join(componentsPath, 'router')));
 
 app.boot((err) => {
   if (err) {
