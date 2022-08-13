@@ -7,7 +7,15 @@ exports = module.exports = function initRepository(UserModel, Utils) {
     update,
     removeById,
     find,
+    findById,
   };
+
+  async function findById(_id) {
+    return UserModel
+      .findById(_id)
+      .lean()
+      .exec();
+  }
 
   async function find() {
     return UserModel
@@ -33,24 +41,12 @@ exports = module.exports = function initRepository(UserModel, Utils) {
 
   async function update(newUser) {
     const { updatedUser } = await async.auto({
-      oldUser: async () => {
-        const oldUser = await UserModel
-          .findById(newUser._id)
-          .exec();
-        if (_.isNil(oldUser)) {
-          Utils.throwError('Error updating User. User not found', 404);
-        }
-        return oldUser;
-      },
+      oldUser: async () => UserModel
+        .findById(newUser._id)
+        .exec(),
       updatedUser: ['oldUser', async ({ oldUser }) => {
-        const updatableFields = [
-          'username',
-          'password',
-        ];
-        _.forEach(updatableFields, (field) => {
-          if (!_.isNil(newUser[field]) && !_.isEqual(newUser[field], oldUser[field])) {
-            oldUser[field] = newUser[field];
-          }
+        _.forOwn(newUser, (value, field) => {
+          oldUser[field] = value;
         });
         return oldUser.save();
       }],
@@ -60,9 +56,15 @@ exports = module.exports = function initRepository(UserModel, Utils) {
 
   async function removeById(userId) {
     return async.auto({
-      user: async () => UserModel
-        .findById(userId)
-        .exec(),
+      user: async () => {
+        const user = await UserModel
+          .findById(userId)
+          .exec();
+        if (!user) {
+          Utils.throwError('Error removing user. User not found', 404);
+        }
+        return user;
+      },
       deletedUser: ['user', async ({ user }) => user.delete()],
     });
   }

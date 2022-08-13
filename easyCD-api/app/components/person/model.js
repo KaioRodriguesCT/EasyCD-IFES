@@ -1,8 +1,7 @@
-const mongoose = require('mongoose');
 const mongooseDelete = require('mongoose-delete');
 
-exports = module.exports = function initModel() {
-  const Person = new mongoose.Schema(
+exports = module.exports = function initModel(mongo) {
+  const Person = new mongo.Schema(
     {
       name: {
         type: String,
@@ -48,6 +47,7 @@ exports = module.exports = function initModel() {
     { overrideMethods: 'all' },
   );
 
-  return mongoose.model('Person', Person);
+  return mongo.model('Person', Person);
 };
 exports['@singleton'] = true;
+exports['@require'] = ['lib/mongo'];

@@ -29,9 +29,9 @@ app.phase(bootable.di.routes(path.join(componentsPath, 'router')));
 
 app.boot((err) => {
   if (err) {
-    const error = new Error(err.message);
-    error.status = 500;
-    throw error;
+    // const error = new Error(err.message);
+    // error.status = 500;
+    throw err;
   }
 });
 

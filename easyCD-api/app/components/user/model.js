@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 const mongooseDelete = require('mongoose-delete');
 
 const { ObjectId } = mongoose.Types;
-exports = module.exports = function initModel() {
-  const User = new mongoose.Schema(
+
+exports = module.exports = function initModel(mongo) {
+  const User = new mongo.Schema(
     {
       username: {
         type: String,
@@ -54,6 +55,7 @@ exports = module.exports = function initModel() {
   );
 
   // Keep this always on the end
-  return mongoose.model('User', User);
+  return mongo.model('User', User);
 };
 exports['@singleton'] = true;
+exports['@require'] = ['lib/mongo'];

@@ -14,6 +14,7 @@
   "dependencies": {
     "async": "^3.2.3",
     "bcryptjs": "^2.4.3",
+    "bluebird": "^3.7.2",
     "body-parser": "^1.20.0",
     "bootable": "^0.2.4",
     "chai": "^4.3.6",

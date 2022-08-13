@@ -1,14 +1,18 @@
+const bcryptjs = require('bcryptjs');
 const _ = require('lodash');
 const async = require('async');
-const { default: mongoose } = require('mongoose');
 
-exports = module.exports = function initService(UserRepository, PersonService, Utils) {
+exports = module.exports = function initService(
+  mongo,
+  UserRepository,
+  PersonService,
+  Utils,
+) {
   return {
     find,
     create,
     update,
     remove,
-    list,
   };
 
   async function find() {
@@ -16,40 +20,44 @@ exports = module.exports = function initService(UserRepository, PersonService, U
   }
 
   async function create(user) {
-    return async.auto({
-      session: async () => mongoose.startSession(),
-      transaction: ['session', async ({ session }) => {
-        session.startTransaction();
-        await async.auto({
-          person: async () => PersonService.create(user),
-          user: ['person', async ({ person }) => {
-            const initialFields = [
-              'username',
-              'password',
-              'role',
-              'person',
-              'siape',
-              'registration',
-            ];
-            const newUser = _.pick(user, initialFields);
+    // Start the session inside the connection
+    const session = await mongo.startSession();
+    // Start a transaction
+    session.startTransaction();
+    const { newUser } = await async.auto({
+      person: async () => PersonService.create(user),
+      newUser: ['person', async ({ person }) => {
+        const initialFields = [
+          'username',
+          'role',
+          'person',
+          'siape',
+          'registration',
+        ];
+        const newUser = _.pick(user, initialFields);
 
-            if (_.isEqual(newUser.role, 'teacher') && _.isNil(newUser.siape)) {
-              Utils.throwError('Error creating user. Required Field: siape is required for Teachers');
-            }
-            if (_.isEqual(newUser.role, 'student') && _.isNil(newUser.registration)) {
-              Utils.throwError('Error creating user. Required Field: Registration is required for Students');
-            }
+        // Encrypting the password
+        newUser.password = await bcryptjs.hash(_.get(user, 'password'), 10);
 
-            // Setting the person
-            newUser.person = _.get(person, '_id');
+        // Validating the roles and required fields for those roles
+        if (_.isEqual(newUser.role, 'teacher') && _.isNil(newUser.siape)) {
+          Utils.throwError('Error creating user. Required Field: siape is required for Teachers');
+        }
+        if (_.isEqual(newUser.role, 'student') && _.isNil(newUser.registration)) {
+          Utils.throwError('Error creating user. Required Field: Registration is required for Students');
+        }
 
-            return UserRepository.create(newUser);
-          }],
-        });
-        session.commitTransaction();
+        // Setting  the person
+        newUser.person = _.get(person, '_id');
+
+        return UserRepository.create(newUser);
       }],
-      endSession: ['session', 'transaction', async ({ session }) => session.endSession()],
     });
+    // Commit the transaction
+    session.commitTransaction();
+    // End the session inside the connection
+    session.endSession();
+    return newUser;
   }
 
   async function update(user) {
@@ -59,41 +67,56 @@ exports = module.exports = function initService(UserRepository, PersonService, U
     if (_.isNil(user._id)) {
       Utils.throwError('Error updating user. User ID not sent', 400);
     }
-    return UserRepository.update(user);
-  }
+    const { updatedUser } = await async.auto({
+      oldUser: async () => {
+        const user = await UserRepository.findById(user._id);
+        if (!user) {
+          Utils.throwError('Error updating user. User not found', 404);
+        }
+        return user;
+      },
+      updatedUser: ['oldUser', async ({ oldUser }) => {
+        const updatableFields = {
+          username: { allowEmpty: false },
+          password: { allowEmpty: false },
+        };
 
-  async function remove(userId) {
-    if (_.isNil(userId)) {
-      Utils.throwError('Error updating user. User ID not sent', 400);
-    }
-    return async.auto({
-      session: async () => mongoose.startSession(),
-      transaction: ['session', async ({ session }) => {
-        session.startTransaction();
-        await async.auto({
-          user: async () => {
-            const user = await UserRepository.findById(userId);
-            if (!user) {
-              Utils.throwError('Error deleting User. User not found', 404);
-            }
-            return user;
-          },
-          removePerson: ['user', async ({ user }) => PersonService.remove({ _id: user.person })],
-          removeUser: ['user', 'removePerson', async () => UserRepository.removeById(userId)],
+        _.forOwn(updatableFields, (value, field) => {
+          const allowEmpty = _.get(value, 'allowEmpty');
+          if (_.isNil(user[field]) && !allowEmpty) {
+            return;
+          }
+          if (_.isEqual(user[field], oldUser[field])) {
+            return;
+          }
+          oldUser[field] = user[field];
         });
-        session.commitTransaction();
+        return UserRepository.update(oldUser);
       }],
-      endSession: ['session', 'transaction', async ({ session }) => session.endSession()],
-
     });
+    return updatedUser;
   }
 
-  async function list() {
-    return UserRepository.find();
+  async function remove(user) {
+    if (!user) {
+      Utils.throwError('Error removing user. User not sent', 400);
+    }
+    if (_.isNil(user._id)) {
+      Utils.throwError('Error removing user. User ID not sent', 400);
+    }
+    const session = await mongo.startSession();
+    session.startTransaction();
+    await async.auto({
+      removePerson: ['user', async ({ user }) => PersonService.remove({ _id: user.person })],
+      removeUser: ['user', 'removePerson', async () => UserRepository.removeById(user._id)],
+    });
+    session.commitTransaction();
+    session.endSession();
   }
 };
 exports['@singleton'] = true;
 exports['@require'] = [
+  'lib/mongo',
   'components/user/repository',
   'components/person/service',
   'lib/utils',

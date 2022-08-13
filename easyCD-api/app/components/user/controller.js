@@ -32,8 +32,9 @@ exports = module.exports = function initController(UserService) {
   async function update(req, res, next) {
     try {
       const { userId } = req.params;
+      const user = req.body;
       return async.auto({
-        updatedUser: async () => UserService.update({ ...req.body, _id: userId }),
+        updatedUser: async () => UserService.update({ ...user, _id: userId }),
         sendResponse: ['updatedUser', async ({ updatedUser }) => res.json({
           message: 'User updated successfully',
           user: updatedUser,
@@ -47,8 +48,9 @@ exports = module.exports = function initController(UserService) {
   async function remove(req, res, next) {
     try {
       const { userId } = req.params;
+      const user = req.body;
       return async.auto({
-        removedUser: async () => UserService.remove({ _id: userId }),
+        removedUser: async () => UserService.remove({ ...user, _id: userId }),
         sendResponse: ['removedUser', async () => res.json({
           message: 'User removed successfully',
         })],

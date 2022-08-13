@@ -12,6 +12,9 @@ exports = module.exports = function initRouter(UserController) {
   // Update an user
   router.put('/:userId', UserController.update);
 
+  // Remove an user
+  router.delete('/:userId', UserController.remove);
+
   // Get list of users
   router.get('/list', UserController.find);
 
