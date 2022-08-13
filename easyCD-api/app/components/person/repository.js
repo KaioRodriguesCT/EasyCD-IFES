@@ -9,7 +9,11 @@ exports = module.exports = function initRepository(PersonModel, Utils) {
   };
 
   async function create(person) {
-    const requiredFields = ['name', 'email', 'surname', 'phone'];
+    const requiredFields = [
+      'name',
+      'email',
+      'surname',
+      'phone'];
 
     _.forEach(requiredFields, (field) => {
       if (_.isNil(person[field])) {
@@ -23,41 +27,20 @@ exports = module.exports = function initRepository(PersonModel, Utils) {
     return PersonModel.create(person);
   }
 
-  async function update(person) {
+  async function update(newPerson) {
     const { updatedPerson } = await async.auto({
-      oldPerson: async () => {
-        const oldPerson = await PersonModel.findById(person._id).exec();
-        if (_.isNil(oldPerson)) {
-          Utils.throwError('Error updating Person. Person not found', 404);
-        }
-        return oldPerson;
-      },
+      oldPerson: async () => PersonModel
+        .findById(newPerson._id)
+        .exec(),
       updatedPerson: ['oldPerson', async ({ oldPerson }) => {
-        const updatableFields = [
-          'name',
-          'email',
-          'surname',
-          'phone',
-          'city',
-          'uf',
-          'address',
-        ];
-        _.forEach(updatableFields, (field) => {
-          if (
-            _.isNil(
-              person[field] && !_.isEqual(person[field], oldPerson[field]),
-            )
-          ) {
-            oldPerson[field] = person[field];
-          }
+        _.forOwn(newPerson, (value, field) => {
+          oldPerson[field] = value;
         });
 
         // Updating the full name
-        person.fullName = `${person.name} ${person.surname}`;
-
+        oldPerson.fullName = `${oldPerson.name} ${oldPerson.surname}`;
         return oldPerson.save();
-      },
-      ],
+      }],
     });
     return updatedPerson;
   }
@@ -74,7 +57,6 @@ exports = module.exports = function initRepository(PersonModel, Utils) {
         return person;
       },
       removedPerson: ['person', async ({ person }) => person.delete()],
-
     });
   }
 };

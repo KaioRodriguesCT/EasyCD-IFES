@@ -18,7 +18,7 @@ exports = module.exports = function initController(UserService) {
 
   async function create(req, res, next) {
     try {
-      return async.auto({
+      return await async.auto({
         createUser: async () => UserService.create(req.body),
         sendResponse: ['createUser', async () => res.json({
           message: 'User created successfully',
@@ -33,7 +33,7 @@ exports = module.exports = function initController(UserService) {
     try {
       const { userId } = req.params;
       const user = req.body;
-      return async.auto({
+      return await async.auto({
         updatedUser: async () => UserService.update({ ...user, _id: userId }),
         sendResponse: ['updatedUser', async ({ updatedUser }) => res.json({
           message: 'User updated successfully',
@@ -49,7 +49,7 @@ exports = module.exports = function initController(UserService) {
     try {
       const { userId } = req.params;
       const user = req.body;
-      return async.auto({
+      return await async.auto({
         removedUser: async () => UserService.remove({ ...user, _id: userId }),
         sendResponse: ['removedUser', async () => res.json({
           message: 'User removed successfully',

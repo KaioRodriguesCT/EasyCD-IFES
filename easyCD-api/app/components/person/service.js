@@ -1,3 +1,4 @@
+const async = require('async');
 const _ = require('lodash');
 
 exports = module.exports = function initService(PersonRepository, Utils) {
@@ -28,14 +29,50 @@ exports = module.exports = function initService(PersonRepository, Utils) {
     if (_.isNil(person._id)) {
       Utils.throwError('Error updating person. Person ID not sent', 400);
     }
-    return PersonRepository.update(person);
+    const { updatedPerson } = await async.auto({
+      oldPerson: async () => {
+        const person = PersonRepository.findById(person._id);
+        if (!person) {
+          Utils.throwError('Error updating person. Person not Found', 404);
+        }
+        return person;
+      },
+      updatedPerson: ['oldPerson', async ({ oldPerson }) => {
+        const updatableFields = {
+          name: { allowEmpty: false },
+          email: { allowEmpty: false },
+          surname: { allowEmpty: false },
+          phone: { allowEmpty: false },
+          city: { allowEmpty: true },
+          uf: { allowEmpty: true },
+          address: { allowEmpty: true },
+        };
+
+        _.forOwn(updatableFields, (value, field) => {
+          const allowEmpty = _.get(value, 'allowEmpty');
+          if (_.isNil(person[field]) && !allowEmpty) {
+            return;
+          }
+          if (_.isEqual(person[field], oldPerson[field])) {
+            return;
+          }
+          oldPerson[field] = person[field];
+        });
+        return PersonRepository.update(oldPerson);
+      }],
+    });
+    return updatedPerson;
   }
 
-  async function remove(personId) {
-    if (_.isNil(personId)) {
+  async function remove(person) {
+    if (_.isNil(person)) {
+      Utils.throwError('Error updating person. Person not sent', 400);
+    }
+    if (_.isNil(person._id)) {
       Utils.throwError('Error updating person. Person ID not sent', 400);
     }
-    return PersonRepository.removeById(personId);
+
+    return PersonRepository.removeById(person._id);
   }
 };
 exports['@singleton'] = true;
