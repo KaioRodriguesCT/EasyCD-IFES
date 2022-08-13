@@ -69,7 +69,8 @@ exports = module.exports = function initService(
     }
     const { updatedUser } = await async.auto({
       oldUser: async () => {
-        const user = await UserRepository.findById(user._id);
+        const user = await UserRepository
+          .findById(user._id);
         if (!user) {
           Utils.throwError('Error updating user. User not found', 404);
         }
@@ -79,6 +80,7 @@ exports = module.exports = function initService(
         const updatableFields = {
           username: { allowEmpty: false },
           password: { allowEmpty: false },
+          role: { allowEmpty: false },
         };
 
         _.forOwn(updatableFields, (value, field) => {

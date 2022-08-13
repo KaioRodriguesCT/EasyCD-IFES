@@ -19,7 +19,7 @@ exports = module.exports = function initModel(mongo) {
       },
       role: {
         type: String,
-        enum: ['student', 'teacher'],
+        enum: ['student', 'teacher', 'admin'],
         required: true,
         index: true,
         default: 'student',
