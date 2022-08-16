@@ -1,18 +1,22 @@
 const bcryptjs = require('bcryptjs');
 const _ = require('lodash');
 const async = require('async');
+const jwt = require('jsonwebtoken');
 
+const authenticationFailedMessage = 'User authentication failed';
 exports = module.exports = function initService(
   mongo,
+  Utils,
   UserRepository,
   PersonService,
-  Utils,
+  settings,
 ) {
   return {
     find,
     create,
     update,
     remove,
+    auth,
   };
 
   async function find() {
@@ -115,11 +119,54 @@ exports = module.exports = function initService(
     session.commitTransaction();
     session.endSession();
   }
+
+  async function auth(user) {
+    if (!user) {
+      Utils.throwError(`${authenticationFailedMessage}. Error: User not sent`, 400);
+    }
+    const { userAuth } = await async.auto({
+      validateParams: async () => {
+        const { username, password } = user;
+        if (!username || !password) {
+          Utils.throwError(`${authenticationFailedMessage}. Error: Username or Password not sent`, 400);
+        }
+        return { username, password };
+      },
+      user: ['validateParams', async ({ validateParams }) => {
+        const user = await UserRepository.findByUsername(validateParams.username);
+        if (!user) {
+          Utils.throwError(`${authenticationFailedMessage}. Error: Username not found`, 404);
+        }
+        return user;
+      }],
+      userAuth: ['user', 'validateParams', async ({ user, validateParams }) => {
+        const { username, role, password } = user;
+        const authenticated = await bcryptjs.compare(validateParams.password, password);
+        if (!authenticated) {
+          Utils.throwError(`${authenticationFailedMessage}. Error: User not authenticated`, 401);
+        }
+        const token = jwt.sign({
+          _id: user._id,
+          username: user.username,
+          role: user.role,
+        }, settings.token.mainToken, {
+          expiresIn: settings.token.lifeTime,
+        });
+        return {
+          username,
+          role,
+          token,
+        };
+      }],
+    });
+    return userAuth;
+  }
 };
 exports['@singleton'] = true;
 exports['@require'] = [
   'lib/mongo',
+  'lib/utils',
   'components/user/repository',
   'components/person/service',
-  'lib/utils',
+  'settings',
 ];

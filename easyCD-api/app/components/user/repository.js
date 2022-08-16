@@ -8,7 +8,15 @@ exports = module.exports = function initRepository(UserModel, Utils) {
     removeById,
     find,
     findById,
+    findByUsername,
   };
+
+  async function findByUsername(username) {
+    return UserModel
+      .findOne({ username })
+      .lean()
+      .exec();
+  }
 
   async function findById(_id) {
     return UserModel
@@ -35,6 +43,12 @@ exports = module.exports = function initRepository(UserModel, Utils) {
         Utils.throwError(`Error creating User. Required Field: ${field}, not sent`, 400);
       }
     });
+
+    const validateUsername = await findByUsername(user.username);
+
+    if (validateUsername) {
+      Utils.throwError('Error creating user. Username already being used.', 400);
+    }
 
     return UserModel.create(user);
   }
@@ -70,4 +84,7 @@ exports = module.exports = function initRepository(UserModel, Utils) {
   }
 };
 exports['@singleton'] = true;
-exports['@require'] = ['components/user/model', 'lib/utils'];
+exports['@require'] = [
+  'components/user/model',
+  'lib/utils',
+];
