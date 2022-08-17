@@ -1,35 +1,24 @@
 const mongooseDelete = require('mongoose-delete');
+const mongoose = require('mongoose');
+
+const { ObjectId } = mongoose.Types;
 
 exports = module.exports = function initModel(mongo) {
-  const Person = new mongo.Schema(
+  const Course = new mongo.Schema(
     {
       name: {
         type: String,
         required: true,
+        index: true,
       },
-      email: {
+      description: {
         type: String,
+      },
+      coordinator: {
+        type: ObjectId,
+        ref: 'Person',
         required: true,
-      },
-      surname: {
-        type: String,
-        required: true,
-      },
-      fullName: {
-        type: String,
-      },
-      phone: {
-        type: String,
-        required: true,
-      },
-      city: {
-        type: String,
-      },
-      uf: {
-        type: String,
-      },
-      address: {
-        type: String,
+        index: true,
       },
     },
     {
@@ -41,7 +30,7 @@ exports = module.exports = function initModel(mongo) {
   );
 
   // Plugins
-  Person.plugin(
+  Course.plugin(
     mongooseDelete,
     {
       deletedBy: true,
@@ -50,7 +39,7 @@ exports = module.exports = function initModel(mongo) {
     },
   );
 
-  return mongo.model('Person', Person);
+  return mongo.model('Course', Course);
 };
 exports['@singleton'] = true;
 exports['@require'] = ['lib/mongo'];

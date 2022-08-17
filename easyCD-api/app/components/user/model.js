@@ -41,8 +41,8 @@ exports = module.exports = function initModel(mongo) {
     },
     {
       timestamps: {
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+        createdAt: 'createdAt',
+        updatedAt: 'updatedAt',
       },
     },
   );
@@ -50,8 +50,11 @@ exports = module.exports = function initModel(mongo) {
   // Plugins
   User.plugin(
     mongooseDelete,
-    { deletedBy: true, deletedAt: true },
-    { overrideMethods: 'all' },
+    {
+      deletedBy: true,
+      deletedAt: true,
+      overrideMethods: true,
+    },
   );
 
   // Keep this always on the end

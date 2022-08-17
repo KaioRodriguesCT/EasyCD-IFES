@@ -1,12 +1,20 @@
 const async = require('async');
 const _ = require('lodash');
 
-exports = module.exports = function initService(PersonRepository, Utils) {
+exports = module.exports = function initService(
+  PersonRepository,
+  Utils,
+) {
   return {
+    findById,
     create,
     update,
     remove,
   };
+
+  async function findById(_id) {
+    return PersonRepository.findById(_id);
+  }
 
   async function create(person) {
     const initialFields = [
@@ -66,14 +74,17 @@ exports = module.exports = function initService(PersonRepository, Utils) {
 
   async function remove(person) {
     if (_.isNil(person)) {
-      Utils.throwError('Error updating person. Person not sent', 400);
+      Utils.throwError('Error removing person. Person not sent', 400);
     }
     if (_.isNil(person._id)) {
-      Utils.throwError('Error updating person. Person ID not sent', 400);
+      Utils.throwError('Error removing person. Person ID not sent', 400);
     }
 
     return PersonRepository.removeById(person._id);
   }
 };
 exports['@singleton'] = true;
-exports['@require'] = ['components/person/repository', 'lib/utils'];
+exports['@require'] = [
+  'components/person/repository',
+  'lib/utils',
+];

@@ -9,13 +9,13 @@ exports = module.exports = function initController(
     create,
     update,
     remove,
-    find,
+    list,
     auth,
   };
 
-  async function find(req, res, next) {
+  async function list(req, res, next) {
     try {
-      return res.json({ users: await UserService.find() });
+      return res.json({ users: await UserService.findAll() });
     } catch (e) {
       return next(e);
     }
@@ -24,9 +24,10 @@ exports = module.exports = function initController(
   async function create(req, res, next) {
     try {
       return await async.auto({
-        createUser: async () => UserService.create(req.body),
-        sendResponse: ['createUser', async () => res.json({
+        createdUser: async () => UserService.create(req.body),
+        sendResponse: ['createdUser', async ({ createdUser }) => res.json({
           message: 'User created successfully',
+          user: createdUser,
         })],
       });
     } catch (e) {

@@ -30,7 +30,7 @@ exports = module.exports = function initRouter(UserController, Policies) {
   router.get(
     '/list',
     Policies.JWTAdmin,
-    UserController.find,
+    UserController.list,
   );
 
   // Definition

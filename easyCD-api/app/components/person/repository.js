@@ -1,19 +1,31 @@
 const _ = require('lodash');
 const async = require('async');
 
-exports = module.exports = function initRepository(PersonModel, Utils) {
+exports = module.exports = function initRepository(
+  PersonModel,
+  Utils,
+) {
   return {
     create,
     update,
     removeById,
+    findById,
   };
+
+  async function findById(_id) {
+    return PersonModel
+      .findById(_id)
+      .lean()
+      .exec();
+  }
 
   async function create(person) {
     const requiredFields = [
       'name',
       'email',
       'surname',
-      'phone'];
+      'phone',
+    ];
 
     _.forEach(requiredFields, (field) => {
       if (_.isNil(person[field])) {
@@ -24,7 +36,8 @@ exports = module.exports = function initRepository(PersonModel, Utils) {
     // Updating the full name
     person.fullName = `${person.name} ${person.surname}`;
 
-    return PersonModel.create(person);
+    const newPerson = await PersonModel.create(person);
+    return newPerson.toJSON();
   }
 
   async function update(newPerson) {
@@ -39,7 +52,8 @@ exports = module.exports = function initRepository(PersonModel, Utils) {
 
         // Updating the full name
         oldPerson.fullName = `${oldPerson.name} ${oldPerson.surname}`;
-        return oldPerson.save();
+        await oldPerson.save();
+        return oldPerson.toJSON();
       }],
     });
     return updatedPerson;
@@ -61,4 +75,7 @@ exports = module.exports = function initRepository(PersonModel, Utils) {
   }
 };
 exports['@singleton'] = true;
-exports['@require'] = ['components/person/model', 'lib/utils'];
+exports['@require'] = [
+  'components/person/model',
+  'lib/utils',
+];

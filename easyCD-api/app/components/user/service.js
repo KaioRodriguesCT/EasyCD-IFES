@@ -12,15 +12,21 @@ exports = module.exports = function initService(
   settings,
 ) {
   return {
-    find,
+    findAll,
+    findByPerson,
     create,
     update,
     remove,
     auth,
   };
 
-  async function find() {
-    return UserRepository.find();
+  // Debug purposes
+  async function findAll() {
+    return UserRepository.findAll();
+  }
+
+  async function findByPerson(person) {
+    return UserRepository.findByPerson(person);
   }
 
   async function create(user) {
@@ -61,7 +67,7 @@ exports = module.exports = function initService(
     session.commitTransaction();
     // End the session inside the connection
     session.endSession();
-    return newUser;
+    return _.omit(newUser, 'password');
   }
 
   async function update(user) {

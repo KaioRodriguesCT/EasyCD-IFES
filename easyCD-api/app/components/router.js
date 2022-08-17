@@ -9,6 +9,7 @@ exports = module.exports = function initRoutes() {
   // Here shoulde have the path for all index routes files
   const components = [
     'user',
+    'course',
   ];
 
   _.each(components, (component) => {

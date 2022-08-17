@@ -6,10 +6,18 @@ exports = module.exports = function initRepository(UserModel, Utils) {
     create,
     update,
     removeById,
-    find,
+    findAll,
     findById,
     findByUsername,
+    findByPerson,
   };
+
+  async function findByPerson(person) {
+    return UserModel
+      .findOne({ person })
+      .lean()
+      .exec();
+  }
 
   async function findByUsername(username) {
     return UserModel
@@ -25,7 +33,7 @@ exports = module.exports = function initRepository(UserModel, Utils) {
       .exec();
   }
 
-  async function find() {
+  async function findAll() {
     return UserModel
       .find()
       .lean()
@@ -49,8 +57,8 @@ exports = module.exports = function initRepository(UserModel, Utils) {
     if (validateUsername) {
       Utils.throwError('Error creating user. Username already being used.', 400);
     }
-
-    return UserModel.create(user);
+    const newUser = await UserModel.create(user);
+    return newUser.toJSON();
   }
 
   async function update(newUser) {
@@ -62,7 +70,8 @@ exports = module.exports = function initRepository(UserModel, Utils) {
         _.forOwn(newUser, (value, field) => {
           oldUser[field] = value;
         });
-        return oldUser.save();
+        const updatedUser = await oldUser.save();
+        return updatedUser.toJSON();
       }],
     });
     return updatedUser;
