@@ -52,9 +52,9 @@ exports = module.exports = function initRepository(UserModel, Utils) {
       }
     });
 
-    const validateUsername = await findByUsername(user.username);
+    const usernameAlreadyUsed = await findByUsername(user.username);
 
-    if (validateUsername) {
+    if (usernameAlreadyUsed) {
       Utils.throwError('Error creating user. Username already being used.', 400);
     }
     const newUser = await UserModel.create(user);
@@ -70,26 +70,20 @@ exports = module.exports = function initRepository(UserModel, Utils) {
         _.forOwn(newUser, (value, field) => {
           oldUser[field] = value;
         });
-        const updatedUser = await oldUser.save();
-        return updatedUser.toJSON();
+        return oldUser.save();
       }],
     });
-    return updatedUser;
+    return updatedUser.toJSON();
   }
 
   async function removeById(userId) {
-    return async.auto({
-      user: async () => {
-        const user = await UserModel
-          .findById(userId)
-          .exec();
-        if (!user) {
-          Utils.throwError('Error removing user. User not found', 404);
-        }
-        return user;
-      },
-      deletedUser: ['user', async ({ user }) => user.delete()],
-    });
+    const user = await UserModel
+      .findById(userId)
+      .exec();
+    if (!user) {
+      Utils.throwError('Error removing user. User not found', 404);
+    }
+    return user.delete();
   }
 };
 exports['@singleton'] = true;

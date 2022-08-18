@@ -20,9 +20,10 @@ exports = module.exports = function initRepository(
       .exec();
   }
 
-  async function findById(_id) {
+  async function findById({ _id, select = {} }) {
     return CourseModel
       .findById(_id)
+      .select(select)
       .lean()
       .exec();
   }
@@ -50,28 +51,20 @@ exports = module.exports = function initRepository(
         _.forOwn(newCourse, (value, field) => {
           oldCourse[field] = value;
         });
-
-        await oldCourse.save();
-
-        return oldCourse.toJSON();
+        return oldCourse.save();
       }],
     });
-    return updatedCourse;
+    return updatedCourse.toJSON();
   }
 
   async function removeById(courseId) {
-    return async.auto({
-      course: async () => {
-        const course = await CourseModel
-          .findById(courseId)
-          .exec();
-        if (!course) {
-          Utils.throwError('Error removing course. Course not found', 404);
-        }
-        return course;
-      },
-      removedCourse: ['course', async ({ course }) => course.delete()],
-    });
+    const course = await CourseModel
+      .findById(courseId)
+      .exec();
+    if (!course) {
+      Utils.throwError('Error removing course. Course not found', 404);
+    }
+    return course.delete();
   }
 };
 exports['@singleton'] = true;

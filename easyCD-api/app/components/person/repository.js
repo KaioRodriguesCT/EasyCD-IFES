@@ -52,26 +52,20 @@ exports = module.exports = function initRepository(
 
         // Updating the full name
         oldPerson.fullName = `${oldPerson.name} ${oldPerson.surname}`;
-        await oldPerson.save();
-        return oldPerson.toJSON();
+        return oldPerson.save();
       }],
     });
-    return updatedPerson;
+    return updatedPerson.toJSON();
   }
 
   async function removeById(personId) {
-    return async.auto({
-      person: async () => {
-        const person = await PersonModel
-          .findById(personId)
-          .exec();
-        if (!person) {
-          Utils.throwError('Error removing person. Person not found', 404);
-        }
-        return person;
-      },
-      removedPerson: ['person', async ({ person }) => person.delete()],
-    });
+    const person = await PersonModel
+      .findById(personId)
+      .exec();
+    if (!person) {
+      Utils.throwError('Error removing person. Person not found', 404);
+    }
+    return person.delete();
   }
 };
 exports['@singleton'] = true;

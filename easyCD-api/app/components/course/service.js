@@ -17,6 +17,9 @@ exports = module.exports = function initService(
     create,
     update,
     remove,
+    findById,
+    addCurriculumGride,
+    removeCurriculumGride,
   };
 
   // Debug purposes
@@ -24,15 +27,19 @@ exports = module.exports = function initService(
     return CourseRepository.findAll();
   }
 
+  async function findById(_id) {
+    return CourseRepository.findById({ _id });
+  }
+
   async function create(course) {
     if (!course) {
       Utils.throwError(`${defaultErrorCreating} Course not sent`, 400);
     }
     const { newCourse } = await async.auto({
-      validatedCoordinator: async () => validateCoordinator(
-        course.coordinator,
-        defaultErrorCreating,
-      ),
+      validatedCoordinator: async () => validateCoordinator({
+        person: course.coordinator,
+        defaultErrorMessage: defaultErrorCreating,
+      }),
       newCourse: ['validatedCoordinator', async () => {
         const initialFields = [
           'name',
@@ -56,19 +63,24 @@ exports = module.exports = function initService(
     }
     const { updatedCourse } = await async.auto({
       oldCourse: async () => {
-        const oldCourse = await CourseRepository.findById(course._id);
+        const oldCourse = await CourseRepository
+          .findById({ _id: course._id });
         if (!oldCourse) {
           Utils.throwError(`${defaultErrorUpdating} Course not found`, 404);
         }
         return oldCourse;
       },
       validatedCoordinator: async () => (course.coordinator
-        ? validateCoordinator(course.coordinator, defaultErrorUpdating) : null),
+        ? validateCoordinator({
+          person: course.coordinator,
+          defaultErrorMessage: defaultErrorUpdating,
+        }) : null),
       updatedCourse: ['validatedCoordinator', 'oldCourse', async ({ oldCourse }) => {
         const updatableFields = {
           name: { allowEmpty: false },
           description: { allowEmpty: true },
           coordinator: { allowEmpty: false },
+          curriculumGrides: { allowEmpty: true },
         };
         _.forOwn(updatableFields, (value, field) => {
           const allowEmpty = _.get(value, 'allowEmpty');
@@ -97,7 +109,7 @@ exports = module.exports = function initService(
     return CourseRepository.removeById(course._id);
   }
 
-  async function validateCoordinator(person, defaultErrorMessage) {
+  async function validateCoordinator({ person, defaultErrorMessage }) {
     return async.auto({
       coordinator: async () => {
         if (!person || !mongoose.isValidObjectId(person)) {
@@ -120,6 +132,37 @@ exports = module.exports = function initService(
           Utils.throwError(`${defaultErrorMessage} Person sent can't be coordinator`, 400);
         }
         return user;
+      }],
+    });
+  }
+
+  async function addCurriculumGride({ course, curriculumGrideId }) {
+    return async.auto({
+      course: async () => CourseRepository.findById({
+        _id: course,
+        select: { _id: 1, curriculumGrides: 1 },
+      }),
+      updatedCourse: ['course', async ({ course }) => {
+        const newCurriculumGrides = course.curriculumGrides || [];
+        course.curriculumGrides = _.uniq([...newCurriculumGrides], curriculumGrideId);
+        return update(course);
+      }],
+    });
+  }
+
+  async function removeCurriculumGride({ course, curriculumGrideId }) {
+    return async.auto({
+      course: async () => CourseRepository.findById({
+        _id: course,
+        select: { _id: 1, curriculumGrides: 1 },
+      }),
+      updatedCourse: ['course', async ({ course }) => {
+        const newCurriculumGrides = course.curriculumGrides || [];
+        course.curriculumGrides = _.filters(
+          newCurriculumGrides,
+          (_id) => !_.isEqual(_id, curriculumGrideId),
+        );
+        return update(course);
       }],
     });
   }

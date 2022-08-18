@@ -119,8 +119,16 @@ exports = module.exports = function initService(
     const session = await mongo.startSession();
     session.startTransaction();
     await async.auto({
+      user: async () => {
+        const user = await UserRepository
+          .findById({ _id: user._id });
+        if (!user) {
+          Utils.throwError('Error removing user. User not found', 404);
+        }
+        return user;
+      },
       removePerson: ['user', async ({ user }) => PersonService.remove({ _id: user.person })],
-      removeUser: ['user', 'removePerson', async () => UserRepository.removeById(user._id)],
+      removeUser: ['user', 'removePerson', async ({ user }) => UserRepository.removeById(user._id)],
     });
     session.commitTransaction();
     session.endSession();
