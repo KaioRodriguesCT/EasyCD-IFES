@@ -1363,8 +1363,8 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": -120,
-									"top": -160,
+									"left": -104,
+									"top": -184,
 									"width": 10,
 									"height": 10
 								},
@@ -1379,8 +1379,8 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": -120,
-									"top": -160,
+									"left": -104,
+									"top": -184,
 									"width": 10,
 									"height": 10
 								}
@@ -9371,7 +9371,7 @@
 											"top": 699,
 											"width": 114.54345703125,
 											"height": 13,
-											"text": "+periodoVigencia",
+											"text": "+vigente",
 											"horizontalAlignment": 0
 										}
 									],
@@ -9576,9 +9576,9 @@
 										"$ref": "AAAAAAGCfzv+7FrUReo="
 									},
 									"font": "Arial;13;0",
-									"left": 286,
+									"left": 280,
 									"top": 664,
-									"width": 7.22998046875,
+									"width": 19.5126953125,
 									"height": 13,
 									"alpha": -0.5235987755982988,
 									"distance": 25,
@@ -9847,12 +9847,12 @@
 										"$ref": "AAAAAAGCfzwGkGJq4+g="
 									},
 									"font": "Arial;13;0",
-									"left": 178,
-									"top": 741,
+									"left": 175,
+									"top": 740,
 									"width": 19.5126953125,
 									"height": 13,
-									"alpha": -0.5235987755982988,
-									"distance": 25,
+									"alpha": -0.6202497262229907,
+									"distance": 25.80697580112788,
 									"hostEdge": {
 										"$ref": "AAAAAAGCfzwGkGJtmAE="
 									},
@@ -10275,7 +10275,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGCUHCN2NDefzY="
 							},
-							"name": "siape"
+							"name": "siape",
+							"type": ""
 						}
 					]
 				},
@@ -10483,7 +10484,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGCUHHswdnr3Z0="
 							},
-							"name": "codDisciplinaIfes"
+							"name": "codDisciplinaIfes",
+							"type": ""
 						}
 					]
 				},
@@ -10718,7 +10720,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGCUHYHcVMunlw="
 							},
-							"name": "quantidade"
+							"name": "quantidade",
+							"type": ""
 						}
 					]
 				},
@@ -10842,7 +10845,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGCUHjq1Kc2ty4="
 							},
-							"name": "unidade"
+							"name": "unidade",
+							"type": ""
 						}
 					]
 				},
@@ -11081,7 +11085,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGCUI1snGSPgDQ="
 							},
-							"name": "dataSolicitacão"
+							"name": "dataSolicitacão",
+							"type": ""
 						}
 					]
 				},
@@ -11179,7 +11184,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGCUJPLh7iarJA="
 							},
-							"name": "quantidade"
+							"name": "quantidade",
+							"type": ""
 						}
 					]
 				},
@@ -11412,7 +11418,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGCfzvLr0254j8="
 							},
-							"name": "nome"
+							"name": "nome",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -11420,7 +11427,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGCfzvLr0254j8="
 							},
-							"name": "dataInicio"
+							"name": "dataInicio",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -11428,7 +11436,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGCfzvLr0254j8="
 							},
-							"name": "dataEncerramento"
+							"name": "dataEncerramento",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -11436,7 +11445,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGCfzvLr0254j8="
 							},
-							"name": "periodoVigencia"
+							"name": "vigente"
 						}
 					]
 				}
