@@ -16,6 +16,9 @@ exports = module.exports = function initService(
     create,
     update,
     remove,
+    findById,
+    addSubject,
+    removeSubject,
   };
 
   async function create(curriculumGride) {
@@ -63,12 +66,30 @@ exports = module.exports = function initService(
         }
         return oldCurriculumGride;
       },
-      validatedCourse: async () => (curriculumGride.course
-        ? validateCourse({
-          courseId: curriculumGride.course,
-          defaultErrorMessage: defaultErrorUpdating,
-        }) : null),
-      updatedCurriculumGride: ['validatedCourse', 'oldCurriculumGride', async ({ oldCurriculumGride }) => {
+      processingCourse: ['oldCurriculumGride', async ({ oldCurriculumGride }) => {
+        if (!curriculumGride.course
+          || _.isEqual(oldCurriculumGride.course, curriculumGride.course)) {
+          return;
+        }
+        await async.auto({
+          // Validating new course
+          validatedCourse: async () => validateCourse({
+            courseId: curriculumGride.course,
+            defaultErrorMessage: defaultErrorUpdating,
+          }),
+          // Removing curriculum gride from old course
+          removing: ['validatedCourse', async () => CourseService.removeCurriculumGride({
+            course: oldCurriculumGride.course,
+            curriculumGrideId: oldCurriculumGride._id,
+          })],
+          // Adding curriculum gride to new course
+          adding: ['validatedCourse', async () => CourseService.addCurriculumGride({
+            course: curriculumGride.course,
+            curriculumGrideId: curriculumGride._id,
+          })],
+        });
+      }],
+      updatedCurriculumGride: ['processingCourse', 'oldCurriculumGride', async ({ oldCurriculumGride }) => {
         const updatableFields = {
           name: { allowEmpty: false },
           dtStart: { allowEmpty: false },
@@ -100,23 +121,29 @@ exports = module.exports = function initService(
     }
     const session = await Mongo.startSession();
     session.startTransaction();
-    await async.auto({
-      curriculumGride: async () => {
-        const curriculumGride = await CurriculumGrideRepository
-          .findById({ _id: curriculumGride._id });
-        if (!curriculumGride) {
-          Utils.throwError(`${defaultErrorRemoving}. Curriculum Gride not found`, 404);
-        }
-        return curriculumGride;
-      },
-      removeCurriculumGride: ['curriculumGride', async () => CurriculumGrideRepository.remove(curriculumGride._id)],
-      updateCourse: ['curriculumGride', 'removeCurriculumGride', async ({ curriculumGride: { course, _id } }) => CourseService.removeCurriculumGride({
-        course,
-        curriculumGrideId: _id,
-      })],
-    });
-    session.commitTransaction();
-    session.endSession();
+    try {
+      await async.auto({
+        curriculumGride: async () => {
+          const curriculumGride = await CurriculumGrideRepository
+            .findById({ _id: curriculumGride._id });
+          if (!curriculumGride) {
+            Utils.throwError(`${defaultErrorRemoving}. Curriculum Gride not found`, 404);
+          }
+          return curriculumGride;
+        },
+        removeCurriculumGride: ['curriculumGride', async () => CurriculumGrideRepository.removeById(curriculumGride._id)],
+        updateCourse: ['curriculumGride', 'removeCurriculumGride', async ({ curriculumGride }) => CourseService.removeCurriculumGride({
+          course: curriculumGride.course,
+          curriculumGrideId: curriculumGride._id,
+        })],
+      });
+      await session.commitTransaction();
+    } catch (e) {
+      console.error(e);
+      await session.abortTransaction();
+    } finally {
+      session.endSession();
+    }
   }
 
   async function validateCourse({ courseId, defaultErrorMessage }) {
@@ -132,6 +159,49 @@ exports = module.exports = function initService(
 
   async function isActive({ dtStart, dtEnd }) {
     return moment().isBetween(moment(dtStart), moment(dtEnd));
+  }
+
+  async function findById({ _id }) {
+    return CurriculumGrideRepository.findById({ _id });
+  }
+
+  async function addSubject({
+    curriculumGride,
+    subjectId,
+  }) {
+    return async.auto({
+      curriculumGride: async () => CurriculumGrideRepository
+        .findById({
+          _id: curriculumGride,
+          select: { _id: 1, subjects: 1 },
+        }),
+      updatedCurriculumGride: ['curriculumGride', async ({ curriculumGride }) => {
+        const newSubjects = curriculumGride.subjects || [];
+        curriculumGride.subjects = _.uniq([...newSubjects], subjectId);
+        return update(curriculumGride);
+      }],
+    });
+  }
+
+  async function removeSubject({
+    curriculumGride,
+    subjectId,
+  }) {
+    return async.auto({
+      curriculumGride: async () => CurriculumGrideRepository
+        .findById({
+          _id: curriculumGride,
+          select: { _id: 1, subjects: 1 },
+        }),
+      updatedCurriculumGride: ['curriculumGride', async ({ curriculumGride }) => {
+        const newSubjects = curriculumGride.subjects || [];
+        curriculumGride.subjects = _.filter(
+          newSubjects,
+          (_id) => !_.isEqual(_id, subjectId),
+        );
+        return update(curriculumGride);
+      }],
+    });
   }
 };
 

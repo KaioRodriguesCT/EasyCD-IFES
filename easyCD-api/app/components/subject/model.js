@@ -2,39 +2,30 @@ const mongooseDelete = require('mongoose-delete');
 const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Types;
-
 exports = module.exports = function initModel(mongo) {
-  const CurriculumGride = new mongo.Schema(
+  const Subject = new mongo.Schema(
     {
       name: {
         type: String,
         required: true,
         index: true,
       },
-      dtStart: {
-        type: String, // YYYY-MM-DD
+      description: {
+        type: String,
+      },
+      qtyHours: {
+        type: Number,
         required: true,
         index: true,
       },
-      dtEnd: {
-        type: String, // YYYY-MM-DD,
-        required: true,
+      externalCod: {
+        type: String,
         index: true,
       },
-      isActive: {
-        type: Boolean,
-        index: true,
-        default: true,
-      },
-      course: {
+      curriculumGride: {
         type: ObjectId,
-        ref: 'Course',
         required: true,
         index: true,
-      },
-      subjects: {
-        type: [ObjectId],
-        ref: 'Subject',
       },
     },
     {
@@ -46,7 +37,7 @@ exports = module.exports = function initModel(mongo) {
   );
 
   // Plugins
-  CurriculumGride.plugin(
+  Subject.plugin(
     mongooseDelete,
     {
       deletedBy: true,
@@ -55,7 +46,7 @@ exports = module.exports = function initModel(mongo) {
     },
   );
 
-  return mongo.model(CurriculumGride, 'CurriculumGride');
+  return mongo.model(Subject, 'Subject');
 };
 exports['@singleton'] = true;
 exports['@require'] = ['lib/mongo'];

@@ -10,6 +10,8 @@ exports = module.exports = function initRoutes() {
   const components = [
     'user',
     'course',
+    'curriculum-gride',
+    'subject',
   ];
 
   _.each(components, (component) => {

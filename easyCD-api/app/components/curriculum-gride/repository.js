@@ -9,9 +9,10 @@ exports = module.exports = function initRepository(CurriculumGrideModel, Utils) 
     findById,
   };
 
-  async function findById({ _id }) {
+  async function findById({ _id, select = {} }) {
     return CurriculumGrideModel
       .findById(_id)
+      .select(select)
       .lean()
       .exec();
   }
