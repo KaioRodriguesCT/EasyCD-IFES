@@ -34,40 +34,47 @@ exports = module.exports = function initService(
     const session = await mongo.startSession();
     // Start a transaction
     session.startTransaction();
-    const { newUser } = await async.auto({
-      person: async () => PersonService.create(user),
-      newUser: ['person', async ({ person }) => {
-        const initialFields = [
-          'username',
-          'role',
-          'person',
-          'siape',
-          'registration',
-        ];
-        const newUser = _.pick(user, initialFields);
+    try {
+      const { newUser } = await async.auto({
+        person: async () => PersonService.create(user),
+        newUser: ['person', async ({ person }) => {
+          const initialFields = [
+            'username',
+            'role',
+            'person',
+            'siape',
+            'registration',
+          ];
+          const newUser = _.pick(user, initialFields);
 
-        // Encrypting the password
-        newUser.password = await bcryptjs.hash(_.get(user, 'password'), 10);
+          // Encrypting the password
+          newUser.password = await bcryptjs.hash(_.get(user, 'password'), 10);
 
-        // Validating the roles and required fields for those roles
-        if (_.isEqual(newUser.role, 'teacher') && _.isNil(newUser.siape)) {
-          Utils.throwError('Error creating user. Required Field: siape is required for Teachers');
-        }
-        if (_.isEqual(newUser.role, 'student') && _.isNil(newUser.registration)) {
-          Utils.throwError('Error creating user. Required Field: Registration is required for Students');
-        }
+          // Validating the roles and required fields for those roles
+          if (_.isEqual(newUser.role, 'teacher') && _.isNil(newUser.siape)) {
+            Utils.throwError('Error creating user. Required Field: siape is required for Teachers');
+          }
+          if (_.isEqual(newUser.role, 'student') && _.isNil(newUser.registration)) {
+            Utils.throwError('Error creating user. Required Field: Registration is required for Students');
+          }
 
-        // Setting  the person
-        newUser.person = _.get(person, '_id');
+          // Setting  the person
+          newUser.person = _.get(person, '_id');
 
-        return UserRepository.create(newUser);
-      }],
-    });
-    // Commit the transaction
-    session.commitTransaction();
-    // End the session inside the connection
-    session.endSession();
-    return _.omit(newUser, 'password');
+          return UserRepository.create(newUser);
+        }],
+      });
+      // Commit the transaction
+      await session.commitTransaction();
+      return _.omit(newUser, 'password');
+    } catch (e) {
+      console.error(e);
+      await session.abortTransaction();
+      throw e;
+    } finally {
+      // End the session inside the connection
+      session.endSession();
+    }
   }
 
   async function update(user) {
@@ -118,20 +125,26 @@ exports = module.exports = function initService(
     }
     const session = await mongo.startSession();
     session.startTransaction();
-    await async.auto({
-      user: async () => {
-        const user = await UserRepository
-          .findById({ _id: user._id });
-        if (!user) {
-          Utils.throwError('Error removing user. User not found', 404);
-        }
-        return user;
-      },
-      removePerson: ['user', async ({ user }) => PersonService.remove({ _id: user.person })],
-      removeUser: ['user', 'removePerson', async ({ user }) => UserRepository.removeById(user._id)],
-    });
-    session.commitTransaction();
-    session.endSession();
+    try {
+      await async.auto({
+        user: async () => {
+          const user = await UserRepository
+            .findById({ _id: user._id });
+          if (!user) {
+            Utils.throwError('Error removing user. User not found', 404);
+          }
+          return user;
+        },
+        removePerson: ['user', async ({ user }) => PersonService.remove({ _id: user.person })],
+        removeUser: ['user', 'removePerson', async ({ user }) => UserRepository.removeById(user._id)],
+      });
+      await session.commitTransaction();
+    } catch (e) {
+      console.error(e);
+      await session.abortTransaction();
+    } finally {
+      session.endSession();
+    }
   }
 
   async function auth(user) {
