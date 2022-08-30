@@ -46,10 +46,10 @@ exports = module.exports = function initController(
     try {
       const { classroomId } = req.params;
       return await async.auto({
-        removedClassroom: async () => ClassroomService.remove({
+        deletedClassroom: async () => ClassroomService.remove({
           _id: classroomId,
         }),
-        sendResponse: ['removedClassroom', async () => res.json({
+        sendResponse: ['deletedClassroom', async () => res.json({
           message: 'Classroom deleted successfully',
         })],
       });

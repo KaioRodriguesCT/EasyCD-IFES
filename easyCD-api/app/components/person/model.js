@@ -34,10 +34,16 @@ exports = module.exports = function initModel(mongo) {
         type: String,
       },
 
-      // Teacher/Coordinator Fields
+      // Teacher Fields
       classrooms: {
         type: [ObjectId],
         ref: 'Classroom',
+      },
+
+      // Coordinator Fields
+      courses: {
+        type: [ObjectId],
+        ref: 'Course',
       },
     },
     {

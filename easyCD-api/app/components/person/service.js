@@ -10,6 +10,8 @@ exports = module.exports = function initService(
     create,
     update,
     remove,
+    addCourse,
+    removeCourse,
     addClassroom,
     removeClassroom,
   };
@@ -83,6 +85,42 @@ exports = module.exports = function initService(
     }
 
     return PersonRepository.removeById(person._id);
+  }
+
+  async function addCourse({
+    coordinator,
+    courseId,
+  }) {
+    return async.auto({
+      coordinator: async () => PersonRepository
+        .findById({
+          _id: coordinator,
+          select: { _id: 1, courses: 1 },
+        }),
+      updatedCoordinator: ['coordinator', async ({ coordinator }) => {
+        const newCourses = coordinator.courses || [];
+        coordinator.courses = _.uniq([...newCourses], courseId);
+        return update(coordinator);
+      }],
+    });
+  }
+
+  async function removeCourse({
+    coordinator,
+    courseId,
+  }) {
+    return async.auto({
+      coordinator: async () => PersonRepository
+        .findById({
+          _id: coordinator,
+          select: { _id: 1, courses: 1 },
+        }),
+      updatedCoordinator: ['coordinator', async ({ coordinator }) => {
+        const newCourses = coordinator.courses || [];
+        coordinator.courses = _.filter(newCourses, (_id) => !_.isEqual(_id, courseId));
+        return update(coordinator);
+      }],
+    });
   }
 
   async function addClassroom({

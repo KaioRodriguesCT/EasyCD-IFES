@@ -20,7 +20,7 @@ exports = module.exports = function initRepository(
       .exec();
   }
 
-  async function findById({ _id, select = {} }) {
+  async function findById({ _id, select }) {
     return CourseModel
       .findById(_id)
       .select(select)

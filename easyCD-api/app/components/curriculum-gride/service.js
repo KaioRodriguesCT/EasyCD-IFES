@@ -150,7 +150,7 @@ exports = module.exports = function initService(
     if (courseId || !mongoose.isValidObjectId(courseId)) {
       Utils.throwError(`${defaultErrorMessage}. Course not send or not a valid ID`);
     }
-    const course = await CourseService.findById(courseId);
+    const course = await CourseService.findById({ _id: courseId });
     if (!course) {
       Utils.throwError(`${defaultErrorMessage}. Course not found`);
     }

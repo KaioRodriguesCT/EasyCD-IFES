@@ -2,8 +2,8 @@ const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
 
-const defaultErrorCreating = 'Error creating course.';
-const defaultErrorUpdating = 'Error updating course.';
+const defaultErrorCreating = 'Error creating course';
+const defaultErrorUpdating = 'Error updating course';
 const defaultErrorRemoving = 'Error removing course';
 
 exports = module.exports = function initService(
@@ -27,13 +27,13 @@ exports = module.exports = function initService(
     return CourseRepository.findAll();
   }
 
-  async function findById(_id) {
+  async function findById({ _id }) {
     return CourseRepository.findById({ _id });
   }
 
   async function create(course) {
     if (!course) {
-      Utils.throwError(`${defaultErrorCreating} Course not sent`, 400);
+      Utils.throwError(`${defaultErrorCreating}. Course not sent`, 400);
     }
     const { newCourse } = await async.auto({
       validatedCoordinator: async () => validateCoordinator({
@@ -49,6 +49,10 @@ exports = module.exports = function initService(
         const newCourse = _.pick(course, initialFields);
         return CourseRepository.create(newCourse);
       }],
+      updateCoordinator: ['newCourse', async ({ newCourse: coordinator, _id }) => PersonService.addCourse({
+        coordinator,
+        courseId: _id,
+      })],
     });
     return newCourse;
   }
@@ -75,6 +79,29 @@ exports = module.exports = function initService(
           person: course.coordinator,
           defaultErrorMessage: defaultErrorUpdating,
         }) : null),
+      processingCoordinator: ['oldCourse', async ({ oldCourse }) => {
+        if (!course.coordinator
+          || _.isEqual(oldCourse.coordinator, course.coordinator)) {
+          return;
+        }
+        await async.auto({
+          // Validating new coordinator
+          validatedCoordinator: async () => validateCoordinator({
+            person: course.coordinator,
+            defaultErrorMessage: defaultErrorUpdating,
+          }),
+          // Removing course from old coordinator
+          removing: ['validatedCoordinator', async () => PersonService.removeCourse({
+            coordinator: oldCourse.coordinator,
+            coursseId: oldCourse._id,
+          })],
+          // Adding course to new coordinator
+          adding: ['validatedCoordinator', async () => PersonService.addCourse({
+            coordinator: course.coordinator,
+            coursseId: course._id,
+          })],
+        });
+      }],
       updatedCourse: ['validatedCoordinator', 'oldCourse', async ({ oldCourse }) => {
         const updatableFields = {
           name: { allowEmpty: false },
