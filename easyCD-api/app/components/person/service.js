@@ -10,10 +10,12 @@ exports = module.exports = function initService(
     create,
     update,
     remove,
+    addClassroom,
+    removeClassroom,
   };
 
-  async function findById(_id) {
-    return PersonRepository.findById(_id);
+  async function findById({ _id }) {
+    return PersonRepository.findById({ _id });
   }
 
   async function create(person) {
@@ -81,6 +83,42 @@ exports = module.exports = function initService(
     }
 
     return PersonRepository.removeById(person._id);
+  }
+
+  async function addClassroom({
+    teacher,
+    classroomId,
+  }) {
+    return async.auto({
+      teacher: async () => PersonRepository
+        .findById({
+          _id: teacher,
+          select: { _id: 1, classrooms: 1 },
+        }),
+      updatedTeacher: ['teacher', async ({ teacher }) => {
+        const newClassrooms = teacher.classrooms || [];
+        teacher.classrooms = _.uniq([...newClassrooms], classroomId);
+        return update(teacher);
+      }],
+    });
+  }
+
+  async function removeClassroom({
+    teacher,
+    classroomId,
+  }) {
+    return async.auto({
+      teacher: async () => PersonRepository
+        .findById({
+          _id: teacher,
+          select: { _id: 1, classrooms: 1 },
+        }),
+      updatedTeacher: ['teacher', async ({ teacher }) => {
+        const newClassrooms = teacher.classrooms || [];
+        teacher.classrooms = _.filter(newClassrooms, (_id) => !_.isEqual(_id, classroomId));
+        return update(teacher);
+      }],
+    });
   }
 };
 exports['@singleton'] = true;

@@ -12,9 +12,10 @@ exports = module.exports = function initRepository(
     findById,
   };
 
-  async function findById({ _id }) {
+  async function findById({ _id, select }) {
     return SubjectModel
       .findById(_id)
+      .select(select)
       .lean()
       .exec();
   }

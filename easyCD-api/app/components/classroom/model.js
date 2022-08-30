@@ -3,33 +3,43 @@ const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Types;
 exports = module.exports = function initModel(mongo) {
-  const Subject = new mongo.Schema(
+  const Classroom = new mongo.Schema(
     {
-      name: {
-        type: String,
-        required: true,
-        index: true,
-      },
-      description: {
-        type: String,
-      },
-      qtyHours: {
-        type: Number,
-        required: true,
-        index: true,
-      },
-      externalCod: {
-        type: String,
-        index: true,
-      },
-      curriculumGride: {
+      subject: {
         type: ObjectId,
+        ref: 'Subject',
         required: true,
         index: true,
       },
-      classrooms: {
+      semester: {
+        type: String, // Format: Year/ 1 or 2. Ex: 2022/1,
+        required: true,
+        index: true,
+      },
+      enrollmentsLimit: {
+        type: Number,
+        index: true,
+      },
+      allowExceedLimit: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
+      enrollments: {
         type: [ObjectId],
-        ref: 'Classroom',
+        ref: 'Enrollment',
+      },
+      classTimes: {
+        type: [Number], // Store day hours in seconds,
+      },
+      classDays: {
+        type: [Number], // Store weekdays number
+      },
+      teacher: {
+        type: ObjectId,
+        ref: 'Person',
+        required: true,
+        index: true,
       },
     },
     {
@@ -41,7 +51,7 @@ exports = module.exports = function initModel(mongo) {
   );
 
   // Plugins
-  Subject.plugin(
+  Classroom.plugin(
     mongooseDelete,
     {
       deletedBy: true,
@@ -50,7 +60,7 @@ exports = module.exports = function initModel(mongo) {
     },
   );
 
-  return mongo.model(Subject, 'Subject');
+  return mongo.model(Classroom, 'Classroom');
 };
 exports['@singleton'] = true;
 exports['@require'] = ['lib/mongo'];

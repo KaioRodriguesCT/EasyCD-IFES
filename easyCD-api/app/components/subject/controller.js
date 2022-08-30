@@ -13,7 +13,7 @@ exports = module.exports = function initController(
     try {
       return await async.auto({
         createdSubject: async () => SubjectService.create(req.body),
-        sendResponde: ['createdSubject', async ({ createdSubject }) => res.json({
+        sendResponse: ['createdSubject', async ({ createdSubject }) => res.json({
           message: 'Subject created successfully',
           subject: createdSubject,
         })],
@@ -32,7 +32,7 @@ exports = module.exports = function initController(
           ...subject,
           _id: subjectId,
         }),
-        sendResponde: ['updatedSubject', async ({ updatedSubject }) => res.json({
+        sendResponse: ['updatedSubject', async ({ updatedSubject }) => res.json({
           message: 'Subject updated successfully',
           subject: updatedSubject,
         })],
@@ -49,7 +49,7 @@ exports = module.exports = function initController(
         removedSubject: async () => SubjectService.remove({
           _id: subjectId,
         }),
-        sendResponde: ['removedSubject', async () => res.json({
+        sendResponse: ['removedSubject', async () => res.json({
           message: 'Subject deleted successfully',
         })],
       });

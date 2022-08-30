@@ -195,10 +195,7 @@ exports = module.exports = function initService(
         }),
       updatedCurriculumGride: ['curriculumGride', async ({ curriculumGride }) => {
         const newSubjects = curriculumGride.subjects || [];
-        curriculumGride.subjects = _.filter(
-          newSubjects,
-          (_id) => !_.isEqual(_id, subjectId),
-        );
+        curriculumGride.subjects = _.filter(newSubjects, (_id) => !_.isEqual(_id, subjectId));
         return update(curriculumGride);
       }],
     });

@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const mongooseDelete = require('mongoose-delete');
 
+const { ObjectId } = mongoose.Types;
 exports = module.exports = function initModel(mongo) {
   const Person = new mongo.Schema(
     {
@@ -30,6 +32,12 @@ exports = module.exports = function initModel(mongo) {
       },
       address: {
         type: String,
+      },
+
+      // Teacher/Coordinator Fields
+      classrooms: {
+        type: [ObjectId],
+        ref: 'Classroom',
       },
     },
     {

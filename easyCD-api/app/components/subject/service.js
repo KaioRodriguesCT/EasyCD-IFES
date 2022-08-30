@@ -15,11 +15,17 @@ exports = module.exports = function initService(
     create,
     update,
     remove,
+    addClassroom,
+    removeClassroom,
+    findById,
   };
 
+  async function findById({ _id, select }) {
+    return SubjectRepository.findById({ _id, select });
+  }
   async function create(subject) {
     if (!subject) {
-      Utils.throwError(`${defaultErrorCreating}. Subject not sent`, 404);
+      Utils.throwError(`${defaultErrorCreating}. Subject not sent`, 400);
     }
     const { newSubject } = await async.auto({
       validatedCurriculumGride: async () => validateCurriculumGride({
@@ -56,8 +62,8 @@ exports = module.exports = function initService(
       oldSubject: async () => {
         const oldSubject = await SubjectRepository
           .findById({ _id: subject._id });
-        if (oldSubject) {
-          Utils.throwError(`${defaultErrorUpdating}. Subject not found`, 400);
+        if (!oldSubject) {
+          Utils.throwError(`${defaultErrorUpdating}. Subject not found`, 404);
         }
         return oldSubject;
       },
@@ -119,18 +125,18 @@ exports = module.exports = function initService(
     session.startTransaction();
     try {
       await async.auto({
-        subject: async () => {
-          const subject = await SubjectRepository
+        oldSubject: async () => {
+          const oldSubject = await SubjectRepository
             .findById({ _id: subject._id });
           if (!subject) {
             Utils.throwError(`${defaultErrorRemoving}. Subject not found`, 404);
           }
-          return subject;
+          return oldSubject;
         },
-        removeSubject: ['subject', async () => SubjectRepository.removeById(subject._id)],
-        updateCurriculumGride: ['subject', 'removeSubject', async ({ subject }) => CurriculumGrideService.removeSubject({
+        removeSubject: ['oldSubject', async ({ oldSubject }) => SubjectRepository.removeById(oldSubject._id)],
+        updateCurriculumGride: ['oldSubject', 'removeSubject', async ({ oldSubject }) => CurriculumGrideService.removeSubject({
           curriculumGride: subject.curriculumGride,
-          subjectId: subject._id,
+          subjectId: oldSubject._id,
         })],
       });
       await session.commitTransaction();
@@ -154,6 +160,42 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Curriculum Gride not found`, 404);
     }
     return curriculumGride;
+  }
+
+  async function addClassroom({
+    subject,
+    classroomId,
+  }) {
+    return async.auto({
+      subject: async () => SubjectRepository
+        .findById({
+          _id: subject,
+          select: { _id: 1, classrooms: 1 },
+        }),
+      updatedSubject: ['subject', async ({ subject }) => {
+        const newClassrooms = subject.classrooms || [];
+        subject.classrooms = _.uniq([...newClassrooms], classroomId);
+        return update(subject);
+      }],
+    });
+  }
+
+  async function removeClassroom({
+    subject,
+    classroomId,
+  }) {
+    return async.auto({
+      subject: async () => SubjectRepository
+        .findById({
+          _id: subject,
+          select: { _id: 1, classrooms: 1 },
+        }),
+      updatedSubject: ['subject', async ({ subject }) => {
+        const newClassrooms = subject.classrooms || [];
+        subject.classrooms = _.filter(newClassrooms, (_id) => !_.isEqual(_id, classroomId));
+        return update(subject);
+      }],
+    });
   }
 };
 
