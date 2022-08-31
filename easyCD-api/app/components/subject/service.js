@@ -27,12 +27,12 @@ exports = module.exports = function initService(
     if (!subject) {
       Utils.throwError(`${defaultErrorCreating}. Subject not sent`, 400);
     }
-    const { newSubject } = await async.auto({
+    const { createdSubject } = await async.auto({
       validatedCurriculumGride: async () => validateCurriculumGride({
         curriculumGrideId: subject.curriculumGride,
         defaultErrorMessage: defaultErrorCreating,
       }),
-      newSubject: ['validatedCurriculumGride', async () => {
+      createdSubject: ['validatedCurriculumGride', async () => {
         const initialFields = [
           'name',
           'description',
@@ -43,12 +43,12 @@ exports = module.exports = function initService(
         const newSubject = _.pick(subject, initialFields);
         return SubjectRepository.create(newSubject);
       }],
-      updateCurriculumGride: ['newSubject', async ({ newSubject: curriculumGride, _id }) => CurriculumGrideService.addSubject({
+      updateCurriculumGride: ['createdSubject', async ({ createdSubject: curriculumGride, _id }) => CurriculumGrideService.addSubject({
         curriculumGride,
         subjectId: _id,
       })],
     });
-    return newSubject;
+    return createdSubject;
   }
 
   async function update(subject) {
@@ -167,15 +167,15 @@ exports = module.exports = function initService(
     classroomId,
   }) {
     return async.auto({
-      subject: async () => SubjectRepository
+      oldSubject: async () => SubjectRepository
         .findById({
           _id: subject,
           select: { _id: 1, classrooms: 1 },
         }),
-      updatedSubject: ['subject', async ({ subject }) => {
-        const newClassrooms = subject.classrooms || [];
-        subject.classrooms = _.uniq([...newClassrooms], classroomId);
-        return update(subject);
+      updatedSubject: ['oldSubject', async ({ oldSubject }) => {
+        const newClassrooms = oldSubject.classrooms || [];
+        oldSubject.classrooms = _.uniq([...newClassrooms], classroomId);
+        return update(oldSubject);
       }],
     });
   }
@@ -185,15 +185,15 @@ exports = module.exports = function initService(
     classroomId,
   }) {
     return async.auto({
-      subject: async () => SubjectRepository
+      oldSubject: async () => SubjectRepository
         .findById({
           _id: subject,
           select: { _id: 1, classrooms: 1 },
         }),
-      updatedSubject: ['subject', async ({ subject }) => {
-        const newClassrooms = subject.classrooms || [];
-        subject.classrooms = _.filter(newClassrooms, (_id) => !_.isEqual(_id, classroomId));
-        return update(subject);
+      updatedSubject: ['oldSubject', async ({ oldSubject }) => {
+        const newClassrooms = oldSubject.classrooms || [];
+        oldSubject.classrooms = _.filter(newClassrooms, (_id) => !_.isEqual(_id, classroomId));
+        return update(oldSubject);
       }],
     });
   }

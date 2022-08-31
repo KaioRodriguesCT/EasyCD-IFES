@@ -25,12 +25,12 @@ exports = module.exports = function initService(
     if (!curriculumGride) {
       Utils.throwError(`${defaultErrorCreating}. Curriculum Gride not sent`, 400);
     }
-    const { newCurriculumGride } = await async.auto({
+    const { createdCurriculumGride } = await async.auto({
       validatedCourse: async () => validateCourse({
         courseId: curriculumGride.course,
         defaultErrorMessage: defaultErrorCreating,
       }),
-      newCurriculumGride: ['validatedCourse', async () => {
+      createdCurriculumGride: ['validatedCourse', async () => {
         const initialFields = [
           'name',
           'dtStart',
@@ -42,12 +42,12 @@ exports = module.exports = function initService(
         newCurriculumGride.isActive = isActive(newCurriculumGride);
         return CurriculumGrideRepository.create(newCurriculumGride);
       }],
-      updateCourse: ['newCurriculumGride', async ({ newCurriculumGride: { course, _id } }) => CourseService.addCurriculumGride({
+      updateCourse: ['createdCurriculumGride', async ({ createdCurriculumGride: course, _id }) => CourseService.addCurriculumGride({
         course,
         curriculumGrideId: _id,
       })],
     });
-    return newCurriculumGride;
+    return createdCurriculumGride;
   }
 
   async function update(curriculumGride) {
@@ -123,18 +123,18 @@ exports = module.exports = function initService(
     session.startTransaction();
     try {
       await async.auto({
-        curriculumGride: async () => {
-          const curriculumGride = await CurriculumGrideRepository
+        oldCurriculumGride: async () => {
+          const oldCurriculumGride = await CurriculumGrideRepository
             .findById({ _id: curriculumGride._id });
-          if (!curriculumGride) {
+          if (!oldCurriculumGride) {
             Utils.throwError(`${defaultErrorRemoving}. Curriculum Gride not found`, 404);
           }
-          return curriculumGride;
+          return oldCurriculumGride;
         },
-        removeCurriculumGride: ['curriculumGride', async () => CurriculumGrideRepository.removeById(curriculumGride._id)],
-        updateCourse: ['curriculumGride', 'removeCurriculumGride', async ({ curriculumGride }) => CourseService.removeCurriculumGride({
-          course: curriculumGride.course,
-          curriculumGrideId: curriculumGride._id,
+        removeCurriculumGride: ['oldCurriculumGride', async ({ oldCurriculumGride: _id }) => CurriculumGrideRepository.removeById(_id)],
+        updateCourse: ['oldCurriculumGride', 'removeCurriculumGride', async ({ oldCurriculumGride: course, _id }) => CourseService.removeCurriculumGride({
+          course,
+          curriculumGrideId: _id,
         })],
       });
       await session.commitTransaction();

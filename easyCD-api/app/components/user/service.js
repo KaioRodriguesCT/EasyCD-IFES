@@ -35,9 +35,9 @@ exports = module.exports = function initService(
     // Start a transaction
     session.startTransaction();
     try {
-      const { newUser } = await async.auto({
+      const { createdUser } = await async.auto({
         person: async () => PersonService.create(user),
-        newUser: ['person', async ({ person }) => {
+        createdUser: ['person', async ({ person }) => {
           const initialFields = [
             'username',
             'role',
@@ -66,7 +66,7 @@ exports = module.exports = function initService(
       });
       // Commit the transaction
       await session.commitTransaction();
-      return _.omit(newUser, 'password');
+      return _.omit(createdUser, 'password');
     } catch (e) {
       console.error(e);
       await session.abortTransaction();
@@ -86,12 +86,12 @@ exports = module.exports = function initService(
     }
     const { updatedUser } = await async.auto({
       oldUser: async () => {
-        const user = await UserRepository
+        const oldUser = await UserRepository
           .findById(user._id);
-        if (!user) {
+        if (!oldUser) {
           Utils.throwError('Error updating user. User not found', 404);
         }
-        return user;
+        return oldUser;
       },
       updatedUser: ['oldUser', async ({ oldUser }) => {
         const updatableFields = {
@@ -127,16 +127,16 @@ exports = module.exports = function initService(
     session.startTransaction();
     try {
       await async.auto({
-        user: async () => {
-          const user = await UserRepository
+        oldUser: async () => {
+          const oldUser = await UserRepository
             .findById({ _id: user._id });
-          if (!user) {
+          if (!oldUser) {
             Utils.throwError('Error removing user. User not found', 404);
           }
-          return user;
+          return oldUser;
         },
-        removePerson: ['user', async ({ user }) => PersonService.remove({ _id: user.person })],
-        removeUser: ['user', 'removePerson', async ({ user }) => UserRepository.removeById(user._id)],
+        removePerson: ['oldUser', async ({ oldUser }) => PersonService.remove({ _id: oldUser.person })],
+        removeUser: ['oldUser', 'removePerson', async ({ oldUser }) => UserRepository.removeById(oldUser._id)],
       });
       await session.commitTransaction();
     } catch (e) {
@@ -159,23 +159,23 @@ exports = module.exports = function initService(
         }
         return { username, password };
       },
-      user: ['validateParams', async ({ validateParams }) => {
-        const user = await UserRepository.findByUsername(validateParams.username);
-        if (!user) {
+      userFound: ['validateParams', async ({ validateParams }) => {
+        const userFound = await UserRepository.findByUsername(validateParams.username);
+        if (!userFound) {
           Utils.throwError(`${authenticationFailedMessage}. Error: Username not found`, 404);
         }
-        return user;
+        return userFound;
       }],
-      userAuth: ['user', 'validateParams', async ({ user, validateParams }) => {
-        const { username, role, password } = user;
+      userAuth: ['userFound', 'validateParams', async ({ userFound, validateParams }) => {
+        const { username, role, password } = userFound;
         const authenticated = await bcryptjs.compare(validateParams.password, password);
         if (!authenticated) {
           Utils.throwError(`${authenticationFailedMessage}. Error: User not authenticated`, 401);
         }
         const token = jwt.sign({
-          _id: user._id,
-          username: user.username,
-          role: user.role,
+          _id: userFound._id,
+          username,
+          role,
         }, settings.token.mainToken, {
           expiresIn: settings.token.lifeTime,
         });

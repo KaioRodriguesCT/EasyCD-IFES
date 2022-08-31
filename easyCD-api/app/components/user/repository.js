@@ -45,15 +45,12 @@ exports = module.exports = function initRepository(UserModel, Utils) {
       'password',
       'person',
     ];
-
     _.forEach(requiredFields, (field) => {
       if (_.isNil(user[field])) {
         Utils.throwError(`Error creating User. Required Field: ${field}, not sent`, 400);
       }
     });
-
     const usernameAlreadyUsed = await findByUsername(user.username);
-
     if (usernameAlreadyUsed) {
       Utils.throwError('Error creating user. Username already being used.', 400);
     }

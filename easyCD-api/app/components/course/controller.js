@@ -50,8 +50,8 @@ exports = module.exports = function initController(CourseService) {
     try {
       const { courseId } = req.params;
       return await async.auto({
-        removedUser: async () => CourseService.remove({ _id: courseId }),
-        sendResponse: ['removedUser', async () => res.json({
+        removedCourse: async () => CourseService.remove({ _id: courseId }),
+        sendResponse: ['removedCourse', async () => res.json({
           message: 'Course deleted successfully',
         })],
       });

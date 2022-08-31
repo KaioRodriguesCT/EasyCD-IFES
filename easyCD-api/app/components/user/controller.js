@@ -40,7 +40,10 @@ exports = module.exports = function initController(
       const { userId } = req.params;
       const user = req.body;
       return await async.auto({
-        updatedUser: async () => UserService.update({ ...user, _id: userId }),
+        updatedUser: async () => UserService.update({
+          ...user,
+          _id: userId,
+        }),
         sendResponse: ['updatedUser', async ({ updatedUser }) => res.json({
           message: 'User updated successfully',
           user: updatedUser,
@@ -58,7 +61,7 @@ exports = module.exports = function initController(
       return await async.auto({
         removedUser: async () => UserService.remove({ ...user, _id: userId }),
         sendResponse: ['removedUser', async () => res.json({
-          message: 'User removed successfully',
+          message: 'User deleted successfully',
         })],
       });
     } catch (e) {

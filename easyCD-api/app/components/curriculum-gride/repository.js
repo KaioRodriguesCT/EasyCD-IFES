@@ -9,7 +9,7 @@ exports = module.exports = function initRepository(CurriculumGrideModel, Utils) 
     findById,
   };
 
-  async function findById({ _id, select = {} }) {
+  async function findById({ _id, select }) {
     return CurriculumGrideModel
       .findById(_id)
       .select(select)

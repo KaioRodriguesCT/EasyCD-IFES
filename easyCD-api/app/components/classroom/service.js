@@ -21,7 +21,7 @@ exports = module.exports = function initService(
     if (!classroom) {
       Utils.throwError(`${defaultErrorCreating}. Classroom not sent`, 400);
     }
-    const { newClassroom } = await async.auto({
+    const { createdClassroom } = await async.auto({
       validateSubject: async () => validateSubject({
         subjectId: classroom.subject,
         defaultErrorMessage: defaultErrorCreating,
@@ -32,7 +32,7 @@ exports = module.exports = function initService(
       }),
       // TODO
       validateEnrollments: async () => {},
-      newClassroom: ['validateSubject', 'validateTeacher', 'validateEnrollments', async () => {
+      createdClassroom: ['validateSubject', 'validateTeacher', 'validateEnrollments', async () => {
         const initialFields = [
           'subject',
           'semester',
@@ -46,16 +46,16 @@ exports = module.exports = function initService(
         const newClassroom = _.pick(classroom, initialFields);
         return ClassroomRepository.create(newClassroom);
       }],
-      updateSubject: ['newClassroom', async ({ newClassroom: subject, _id }) => SubjectService.addClassroom({
+      updateSubject: ['createdClassroom', async ({ newClassroom: subject, _id }) => SubjectService.addClassroom({
         subject,
         classroomId: _id,
       })],
-      updateTeacher: ['newClassroom', async ({ newClassroom: teacher, _id }) => PersonService.addClassroom({
+      updateTeacher: ['createdClassroom', async ({ newClassroom: teacher, _id }) => PersonService.addClassroom({
         teacher,
         classroomId: _id,
       })],
     });
-    return newClassroom;
+    return createdClassroom;
   }
 
   async function update(classroom) {
@@ -163,7 +163,7 @@ exports = module.exports = function initService(
         }
         return oldClassroom;
       },
-      removeClassroom: ['oldClassroom', async ({ oldClassroom }) => ClassroomRepository.removeById(oldClassroom._id)],
+      removeClassroom: ['oldClassroom', async ({ oldClassroom: _id }) => ClassroomRepository.removeById(_id)],
       updateSubject: ['oldClassroom', 'removeClassroom', async ({ oldClassroom: subject, _id }) => SubjectService.removeClassroom({
         subject,
         classroomId: _id,

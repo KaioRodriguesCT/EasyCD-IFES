@@ -27,16 +27,13 @@ exports = module.exports = function initRepository(
       'surname',
       'phone',
     ];
-
     _.forEach(requiredFields, (field) => {
       if (_.isNil(person[field])) {
         Utils.throwError(`Error creating person. Required Field: ${field} not sent`, 400);
       }
     });
-
     // Updating the full name
     person.fullName = `${person.name} ${person.surname}`;
-
     const newPerson = await PersonModel.create(person);
     return newPerson.toJSON();
   }

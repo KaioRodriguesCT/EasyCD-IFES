@@ -35,12 +35,12 @@ exports = module.exports = function initService(
     if (!course) {
       Utils.throwError(`${defaultErrorCreating}. Course not sent`, 400);
     }
-    const { newCourse } = await async.auto({
+    const { createdCourse } = await async.auto({
       validatedCoordinator: async () => validateCoordinator({
         person: course.coordinator,
         defaultErrorMessage: defaultErrorCreating,
       }),
-      newCourse: ['validatedCoordinator', async () => {
+      createdCourse: ['validatedCoordinator', async () => {
         const initialFields = [
           'name',
           'description',
@@ -49,12 +49,12 @@ exports = module.exports = function initService(
         const newCourse = _.pick(course, initialFields);
         return CourseRepository.create(newCourse);
       }],
-      updateCoordinator: ['newCourse', async ({ newCourse: coordinator, _id }) => PersonService.addCourse({
+      updateCoordinator: ['createdCourse', async ({ createdCourse: coordinator, _id }) => PersonService.addCourse({
         coordinator,
         courseId: _id,
       })],
     });
-    return newCourse;
+    return createdCourse;
   }
 
   async function update(course) {
@@ -74,11 +74,6 @@ exports = module.exports = function initService(
         }
         return oldCourse;
       },
-      validatedCoordinator: async () => (course.coordinator
-        ? validateCoordinator({
-          person: course.coordinator,
-          defaultErrorMessage: defaultErrorUpdating,
-        }) : null),
       processingCoordinator: ['oldCourse', async ({ oldCourse }) => {
         if (!course.coordinator
           || _.isEqual(oldCourse.coordinator, course.coordinator)) {
@@ -133,7 +128,21 @@ exports = module.exports = function initService(
     if (_.isNil(course._id)) {
       Utils.throwError(`${defaultErrorRemoving} Course ID not sent`, 400);
     }
-    return CourseRepository.removeById(course._id);
+    return async.auto({
+      oldCourse: async () => {
+        const oldCourse = await CourseRepository
+          .findById({ _id: course._id });
+        if (!oldCourse) {
+          Utils.throwError(`${defaultErrorRemoving}. Course not found`, 404);
+        }
+        return oldCourse;
+      },
+      removeCourse: ['oldCourse', async ({ oldCourse: _id }) => CourseRepository.removeById({ _id })],
+      updateCoordinator: ['oldCourse', 'removeCourse', async ({ oldCourse: coordinator, _id }) => PersonService.removeCourse({
+        coordinator,
+        courseId: _id,
+      })],
+    });
   }
 
   async function validateCoordinator({ person, defaultErrorMessage }) {
@@ -163,33 +172,39 @@ exports = module.exports = function initService(
     });
   }
 
-  async function addCurriculumGride({ course, curriculumGrideId }) {
+  async function addCurriculumGride({
+    course,
+    curriculumGrideId,
+  }) {
     return async.auto({
-      course: async () => CourseRepository.findById({
+      oldCourse: async () => CourseRepository.findById({
         _id: course,
         select: { _id: 1, curriculumGrides: 1 },
       }),
-      updatedCourse: ['course', async ({ course }) => {
-        const newCurriculumGrides = course.curriculumGrides || [];
-        course.curriculumGrides = _.uniq([...newCurriculumGrides], curriculumGrideId);
-        return update(course);
+      updatedCourse: ['oldCourse', async ({ oldCourse }) => {
+        const newCurriculumGrides = oldCourse.curriculumGrides || [];
+        oldCourse.curriculumGrides = _.uniq([...newCurriculumGrides], curriculumGrideId);
+        return update(oldCourse);
       }],
     });
   }
 
-  async function removeCurriculumGride({ course, curriculumGrideId }) {
+  async function removeCurriculumGride({
+    course,
+    curriculumGrideId,
+  }) {
     return async.auto({
-      course: async () => CourseRepository.findById({
+      oldCourse: async () => CourseRepository.findById({
         _id: course,
         select: { _id: 1, curriculumGrides: 1 },
       }),
-      updatedCourse: ['course', async ({ course }) => {
-        const newCurriculumGrides = course.curriculumGrides || [];
-        course.curriculumGrides = _.filters(
+      updatedCourse: ['oldCourse', async ({ oldCourse }) => {
+        const newCurriculumGrides = oldCourse.curriculumGrides || [];
+        oldCourse.curriculumGrides = _.filters(
           newCurriculumGrides,
           (_id) => !_.isEqual(_id, curriculumGrideId),
         );
-        return update(course);
+        return update(oldCourse);
       }],
     });
   }

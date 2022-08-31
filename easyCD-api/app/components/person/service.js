@@ -43,11 +43,11 @@ exports = module.exports = function initService(
     }
     const { updatedPerson } = await async.auto({
       oldPerson: async () => {
-        const person = PersonRepository.findById(person._id);
-        if (!person) {
+        const oldPerson = PersonRepository.findById({ _id: person._id });
+        if (!oldPerson) {
           Utils.throwError('Error updating person. Person not Found', 404);
         }
-        return person;
+        return oldPerson;
       },
       updatedPerson: ['oldPerson', async ({ oldPerson }) => {
         const updatableFields = {
@@ -92,15 +92,15 @@ exports = module.exports = function initService(
     courseId,
   }) {
     return async.auto({
-      coordinator: async () => PersonRepository
+      oldCoordinator: async () => PersonRepository
         .findById({
           _id: coordinator,
           select: { _id: 1, courses: 1 },
         }),
-      updatedCoordinator: ['coordinator', async ({ coordinator }) => {
-        const newCourses = coordinator.courses || [];
-        coordinator.courses = _.uniq([...newCourses], courseId);
-        return update(coordinator);
+      updatedCoordinator: ['oldCoordinator', async ({ oldCoordinator }) => {
+        const newCourses = oldCoordinator.courses || [];
+        oldCoordinator.courses = _.uniq([...newCourses], courseId);
+        return update(oldCoordinator);
       }],
     });
   }
@@ -110,15 +110,15 @@ exports = module.exports = function initService(
     courseId,
   }) {
     return async.auto({
-      coordinator: async () => PersonRepository
+      oldCoordinator: async () => PersonRepository
         .findById({
           _id: coordinator,
           select: { _id: 1, courses: 1 },
         }),
-      updatedCoordinator: ['coordinator', async ({ coordinator }) => {
-        const newCourses = coordinator.courses || [];
-        coordinator.courses = _.filter(newCourses, (_id) => !_.isEqual(_id, courseId));
-        return update(coordinator);
+      updatedCoordinator: ['oldCoordinator', async ({ oldCoordinator }) => {
+        const newCourses = oldCoordinator.courses || [];
+        oldCoordinator.courses = _.filter(newCourses, (_id) => !_.isEqual(_id, courseId));
+        return update(oldCoordinator);
       }],
     });
   }
@@ -128,15 +128,15 @@ exports = module.exports = function initService(
     classroomId,
   }) {
     return async.auto({
-      teacher: async () => PersonRepository
+      oldTeacher: async () => PersonRepository
         .findById({
           _id: teacher,
           select: { _id: 1, classrooms: 1 },
         }),
-      updatedTeacher: ['teacher', async ({ teacher }) => {
-        const newClassrooms = teacher.classrooms || [];
-        teacher.classrooms = _.uniq([...newClassrooms], classroomId);
-        return update(teacher);
+      updatedTeacher: ['oldTeacher', async ({ oldTeacher }) => {
+        const newClassrooms = oldTeacher.classrooms || [];
+        oldTeacher.classrooms = _.uniq([...newClassrooms], classroomId);
+        return update(oldTeacher);
       }],
     });
   }
@@ -146,15 +146,15 @@ exports = module.exports = function initService(
     classroomId,
   }) {
     return async.auto({
-      teacher: async () => PersonRepository
+      oldTeacher: async () => PersonRepository
         .findById({
           _id: teacher,
           select: { _id: 1, classrooms: 1 },
         }),
-      updatedTeacher: ['teacher', async ({ teacher }) => {
-        const newClassrooms = teacher.classrooms || [];
-        teacher.classrooms = _.filter(newClassrooms, (_id) => !_.isEqual(_id, classroomId));
-        return update(teacher);
+      updatedTeacher: ['oldTeacher', async ({ oldTeacher }) => {
+        const newClassrooms = oldTeacher.classrooms || [];
+        oldTeacher.classrooms = _.filter(newClassrooms, (_id) => !_.isEqual(_id, classroomId));
+        return update(oldTeacher);
       }],
     });
   }

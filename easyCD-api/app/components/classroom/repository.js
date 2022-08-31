@@ -25,13 +25,11 @@ exports = module.exports = function initRepository(
       'allowExceedLimit',
       'teacher',
     ];
-
     _.forEach(requiredFields, (field) => {
       if (_.isNil(classroom[field])) {
         Utils.throwError(`Error creating Classroom. Required Field: ${field} not sent`, 400);
       }
     });
-
     const newClassroom = await ClassroomModel.create(classroom);
     return newClassroom.toJSON();
   }

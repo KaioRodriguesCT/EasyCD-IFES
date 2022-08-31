@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 
 exports = module.exports = function initMongo(settings) {
-  const connection = createConnection();
-  return _.extend(connection, { createConnection });
+  const _connection = createConnection();
+  return _.extend(_connection, { createConnection });
 
   function createConnection() {
     const { database } = settings;
