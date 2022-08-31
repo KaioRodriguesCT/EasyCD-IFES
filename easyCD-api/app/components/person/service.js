@@ -14,6 +14,8 @@ exports = module.exports = function initService(
     removeCourse,
     addClassroom,
     removeClassroom,
+    addEnrollment,
+    removeEnrollment,
   };
 
   async function findById({ _id }) {
@@ -155,6 +157,42 @@ exports = module.exports = function initService(
         const newClassrooms = oldTeacher.classrooms || [];
         oldTeacher.classrooms = _.filter(newClassrooms, (_id) => !_.isEqual(_id, classroomId));
         return update(oldTeacher);
+      }],
+    });
+  }
+
+  async function addEnrollment({
+    student,
+    enrollmentId,
+  }) {
+    return async.auto({
+      oldStudent: async () => PersonRepository
+        .findById({
+          _id: student,
+          select: { _id: 1, enrollments: 1 },
+        }),
+      updatedStudent: ['oldStudent', async ({ oldStudent }) => {
+        const newEnrollments = oldStudent.enrollments || [];
+        oldStudent.enrollments = _.uniq([...newEnrollments], enrollmentId);
+        return update(oldStudent);
+      }],
+    });
+  }
+
+  async function removeEnrollment({
+    student,
+    enrollmentId,
+  }) {
+    return async.auto({
+      oldStudent: async () => PersonRepository
+        .findById({
+          _id: student,
+          select: { _id: 1, enrollments: 1 },
+        }),
+      updatedStudent: ['oldStudent', async ({ oldStudent }) => {
+        const newEnrollments = oldStudent.enrollments || [];
+        oldStudent.enrollments = _.filter(newEnrollments, (_id) => !_.isEqual(_id, enrollmentId));
+        return update(oldStudent);
       }],
     });
   }

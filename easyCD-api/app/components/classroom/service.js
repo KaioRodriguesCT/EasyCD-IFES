@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const async = require('async');
+const mongoose = require('mongoose');
 
 const defaultErrorCreating = 'Error creating Classroom';
 const defaultErrorUpdating = 'Error updating Classroom';
@@ -9,14 +10,21 @@ exports = module.exports = function initService(
   ClassroomRepository,
   SubjectService,
   PersonService,
+  UserService,
   Utils,
 ) {
   return {
     create,
     update,
     remove,
+    findById,
+    addEnrollment,
+    removeEnrollment,
   };
 
+  async function findById({ _id }) {
+    return ClassroomRepository.findById({ _id });
+  }
   async function create(classroom) {
     if (!classroom) {
       Utils.throwError(`${defaultErrorCreating}. Classroom not sent`, 400);
@@ -92,7 +100,7 @@ exports = module.exports = function initService(
           })],
           // Adding classrom to new subject
           adding: ['validatedSubject', async () => SubjectService.addClassroom({
-            subject: oldClassroom.subject,
+            subject: classroom.subject,
             classroomId: classroom._id,
           })],
         });
@@ -115,7 +123,7 @@ exports = module.exports = function initService(
           })],
           // Adding classrom to new teacher
           adding: ['validatedTeacher', async () => PersonService.addClassroom({
-            teacher: oldClassroom.teacher,
+            teacher: classroom.teacher,
             classroomId: classroom._id,
           })],
         });
@@ -176,14 +184,29 @@ exports = module.exports = function initService(
   }
 
   async function validateTeacher({ teacherId, defaultErrorMessage }) {
-    if (!teacherId) {
-      Utils.throwError(`${defaultErrorMessage}. Teacher not sent`, 400);
-    }
-    const teacher = await PersonService.findById({ _id: teacherId });
-    if (!teacher) {
-      Utils.throwError(`${defaultErrorMessage}. Teacher not found`, 404);
-    }
-    return teacher;
+    return async.auto({
+      teacher: async () => {
+        if (!teacherId || !mongoose.isValidObjectId(teacherId)) {
+          Utils.throwError(`${defaultErrorMessage}. Teacher not sent`, 400);
+        }
+        const teacher = await PersonService.findById({ _id: teacherId });
+        if (!teacher) {
+          Utils.throwError(`${defaultErrorMessage}. Teacher not found`, 404);
+        }
+        return teacher;
+      },
+      validatedRole: ['teacher', async ({ teacher: _id }) => {
+        const user = await UserService
+          .findByPerson(_id);
+        if (!user) {
+          Utils.throwError(`${defaultErrorMessage}. User not found`, 404);
+        }
+        if (!_.isEqual(user.role, 'teacher')) {
+          Utils.throwError(`${defaultErrorMessage}. Person sent can't be teacher`, 400);
+        }
+        return user;
+      }],
+    });
   }
 
   async function validateSubject({ subjectId, defaultErrorMessage }) {
@@ -196,11 +219,48 @@ exports = module.exports = function initService(
     }
     return subject;
   }
+
+  async function addEnrollment({
+    classroom,
+    enrollmentId,
+  }) {
+    return async.auto({
+      oldClassroom: async () => ClassroomRepository
+        .findById({
+          _id: classroom,
+          select: { _id: 1, enrollments: 1 },
+        }),
+      updatedClassroom: ['oldClassroom', async ({ oldClassroom }) => {
+        const newEnrollments = oldClassroom.enrollments || [];
+        oldClassroom.enrollments = _.uniq([...newEnrollments], enrollmentId);
+        return update(oldClassroom);
+      }],
+    });
+  }
+
+  async function removeEnrollment({
+    classroom,
+    enrollmentId,
+  }) {
+    return async.auto({
+      oldClassroom: async () => ClassroomRepository
+        .findById({
+          _id: classroom,
+          select: { _id: 1, enrollments: 1 },
+        }),
+      updatedStudent: ['oldClassroom', async ({ oldClassroom }) => {
+        const newEnrollments = oldClassroom.enrollments || [];
+        oldClassroom.enrollments = _.filter(newEnrollments, (_id) => !_.isEqual(_id, enrollmentId));
+        return update(oldClassroom);
+      }],
+    });
+  }
 };
 exports['@singleton'] = true;
 exports['@require'] = [
   'components/classroom/repository',
   'components/subject/service',
   'components/person/service',
+  'components/user/service',
   'lib/utils',
 ];

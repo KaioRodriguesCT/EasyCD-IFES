@@ -1,7 +1,7 @@
 const express = require('express');
 
 exports = module.exports = function initRouter(
-  ClassroomController,
+  EnrollmentController,
   Policies,
 ) {
   const app = this;
@@ -9,31 +9,31 @@ exports = module.exports = function initRouter(
 
   // Routes
 
-  // Create a classroom
+  // Create a enrollment
   router.post(
     '/',
     Policies.JWTTeacher,
-    ClassroomController.create,
+    EnrollmentController.create,
   );
 
-  // Update a classroom
+  // Update a enrollmentenrollment
   router.put(
-    '/:classroomId',
+    '/:enrollmentId',
     Policies.JWTTeacher,
-    ClassroomController.update,
+    EnrollmentController.update,
   );
 
-  // Delete a classroom
+  // Delete a enrollment
   router.delete(
-    '/:classroomId',
+    '/:enrollmentId',
     Policies.JWTTeacher,
-    ClassroomController.remove,
+    EnrollmentController.remove,
   );
 
   app.use('/api/classroom', router);
 };
 exports['@singleton'] = true;
 exports['@require'] = [
-  'components/classroom/controller',
+  'components/enrollment/controller',
   'lib/policies',
 ];

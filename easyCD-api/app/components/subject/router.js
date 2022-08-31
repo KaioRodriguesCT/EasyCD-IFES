@@ -18,14 +18,14 @@ exports = module.exports = function initRouter(
 
   // Update a subject
   router.put(
-    '/:curriculumGrideId',
+    '/:subjectId',
     Policies.JWTTeacher,
     SubjectController.update,
   );
 
   // Delete a subject
   router.delete(
-    '/:curriculumGrideId',
+    '/:subjectId',
     Policies.JWTTeacher,
     SubjectController.remove,
   );

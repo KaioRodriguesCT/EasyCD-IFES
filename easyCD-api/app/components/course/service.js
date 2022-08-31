@@ -149,23 +149,23 @@ exports = module.exports = function initService(
     return async.auto({
       coordinator: async () => {
         if (!person || !mongoose.isValidObjectId(person)) {
-          Utils.throwError(`${defaultErrorMessage} Coordinator not sent or not a valid ID`, 400);
+          Utils.throwError(`${defaultErrorMessage}. Coordinator not sent or not a valid ID`, 400);
         }
         const coordinator = await PersonService
           .findById(person);
         if (!coordinator) {
-          Utils.throwError(`${defaultErrorMessage} Coordinator not found`, 404);
+          Utils.throwError(`${defaultErrorMessage}. Coordinator not found`, 404);
         }
         return coordinator;
       },
-      validatedRole: ['coordinator', async ({ coordinator }) => {
+      validatedRole: ['coordinator', async ({ coordinator: _id }) => {
         const user = await UserService
-          .findByPerson(coordinator._id);
+          .findByPerson(_id);
         if (!user) {
-          Utils.throwError(`${defaultErrorMessage} User not found`, 404);
+          Utils.throwError(`${defaultErrorMessage}. User not found`, 404);
         }
         if (!_.isEqual(user.role, 'teacher')) {
-          Utils.throwError(`${defaultErrorMessage} Person sent can't be coordinator`, 400);
+          Utils.throwError(`${defaultErrorMessage}. Person sent can't be coordinator`, 400);
         }
         return user;
       }],

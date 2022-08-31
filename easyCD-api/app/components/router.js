@@ -13,6 +13,7 @@ exports = module.exports = function initRoutes() {
     'curriculum-gride',
     'subject',
     'classroom',
+    'enrollment',
   ];
 
   _.each(components, (component) => {

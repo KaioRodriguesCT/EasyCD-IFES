@@ -34,6 +34,12 @@ exports = module.exports = function initModel(mongo) {
         type: String,
       },
 
+      // Student Fields
+      enrollments: {
+        type: [ObjectId],
+        ref: 'Enrollment',
+
+      },
       // Teacher Fields
       classrooms: {
         type: [ObjectId],
