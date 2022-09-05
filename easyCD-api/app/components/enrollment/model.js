@@ -46,9 +46,7 @@ exports = module.exports = function initModel(mongo) {
     },
   );
 
-  return mongo.model(Enrollment, 'Enrollment');
+  return mongo.model('Enrollment', Enrollment);
 };
 exports['@singleton'] = true;
-exports['@require'] = [
-  'lib/utils',
-];
+exports['@require'] = ['lib/mongo'];

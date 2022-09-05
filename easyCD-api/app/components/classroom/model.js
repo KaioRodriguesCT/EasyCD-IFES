@@ -60,7 +60,7 @@ exports = module.exports = function initModel(mongo) {
     },
   );
 
-  return mongo.model(Classroom, 'Classroom');
+  return mongo.model('Classroom', Classroom);
 };
 exports['@singleton'] = true;
 exports['@require'] = ['lib/mongo'];
