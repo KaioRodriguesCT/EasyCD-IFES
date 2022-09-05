@@ -14,6 +14,8 @@ exports = module.exports = function initRoutes() {
     'subject',
     'classroom',
     'enrollment',
+    'complementary-activity-type',
+    'complementary-activity',
   ];
 
   _.each(components, (component) => {

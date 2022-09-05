@@ -61,7 +61,7 @@ exports = module.exports = function initService(
           if ((_.isNull(type[field]) || _.isEmpty(type[field])) && !allowEmpty) {
             return;
           }
-          if (_.isEqual(oldType[field], oldType[field])) {
+          if (_.isEqual(oldType[field], type[field])) {
             return;
           }
           oldType[field] = type[field];

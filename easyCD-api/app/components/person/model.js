@@ -38,8 +38,12 @@ exports = module.exports = function initModel(mongo) {
       enrollments: {
         type: [ObjectId],
         ref: 'Enrollment',
-
       },
+      complementaryActivities: {
+        type: [ObjectId],
+        ref: 'ComplementaryActivity',
+      },
+
       // Teacher Fields
       classrooms: {
         type: [ObjectId],

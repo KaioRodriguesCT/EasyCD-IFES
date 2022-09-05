@@ -25,6 +25,7 @@ exports = module.exports = function initService(
   async function findById({ _id }) {
     return ClassroomRepository.findById({ _id });
   }
+
   async function create(classroom) {
     if (!classroom) {
       Utils.throwError(`${defaultErrorCreating}. Classroom not sent`, 400);
@@ -54,11 +55,11 @@ exports = module.exports = function initService(
         const newClassroom = _.pick(classroom, initialFields);
         return ClassroomRepository.create(newClassroom);
       }],
-      updateSubject: ['createdClassroom', async ({ newClassroom: subject, _id }) => SubjectService.addClassroom({
+      updateSubject: ['createdClassroom', async ({ createdClassroom: subject, _id }) => SubjectService.addClassroom({
         subject,
         classroomId: _id,
       })],
-      updateTeacher: ['createdClassroom', async ({ newClassroom: teacher, _id }) => PersonService.addClassroom({
+      updateTeacher: ['createdClassroom', async ({ createdClassroom: teacher, _id }) => PersonService.addClassroom({
         teacher,
         classroomId: _id,
       })],

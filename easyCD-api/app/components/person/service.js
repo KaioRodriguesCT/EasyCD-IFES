@@ -16,6 +16,8 @@ exports = module.exports = function initService(
     removeClassroom,
     addEnrollment,
     removeEnrollment,
+    addComplementaryActivity,
+    removeComplementaryActivity,
   };
 
   async function findById({ _id }) {
@@ -192,6 +194,48 @@ exports = module.exports = function initService(
       updatedStudent: ['oldStudent', async ({ oldStudent }) => {
         const newEnrollments = oldStudent.enrollments || [];
         oldStudent.enrollments = _.filter(newEnrollments, (_id) => !_.isEqual(_id, enrollmentId));
+        return update(oldStudent);
+      }],
+    });
+  }
+
+  async function addComplementaryActivity({
+    student,
+    complementaryActivityId,
+  }) {
+    return async.auto({
+      oldStudent: async () => PersonRepository
+        .findById({
+          _id: student,
+          select: { _id: 1, complementaryActivities: 1 },
+        }),
+      updatedStudent: ['oldStudent', async ({ oldStudent }) => {
+        const newComplementaryActivities = oldStudent.complementaryActivities || [];
+        oldStudent.complementaryActivities = _.uniq(
+          [...newComplementaryActivities],
+          complementaryActivityId,
+        );
+        return update(oldStudent);
+      }],
+    });
+  }
+
+  async function removeComplementaryActivity({
+    student,
+    complementaryActivityId,
+  }) {
+    return async.auto({
+      oldStudent: async () => PersonRepository
+        .findById({
+          _id: student,
+          select: { _id: 1, complementaryActivities: 1 },
+        }),
+      updatedStudent: ['oldStudent', async ({ oldStudent }) => {
+        const newComplementaryActivities = oldStudent.complementaryActivities || [];
+        oldStudent.complementaryActivities = _.filter(
+          newComplementaryActivities,
+          (_id) => !_.isEqual(_id, complementaryActivityId),
+        );
         return update(oldStudent);
       }],
     });

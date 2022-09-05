@@ -59,4 +59,4 @@ exports = module.exports = function initController(
   }
 };
 exports['@singleton'] = true;
-exports['@require'] = 'components/complementary-activity-type/service';
+exports['@require'] = ['components/complementary-activity-type/service'];

@@ -9,28 +9,28 @@ exports = module.exports = function initRouter(
 
   // Routes
 
-  // Create a classroom
+  // Create a complementary activity type
   router.post(
     '/',
     Policies.JWTTeacher,
     ComplementaryActivityTypeController.create,
   );
 
-  // Update a classroom
+  // Update a complementary activity type
   router.put(
     '/:complementaryActivityTypeId',
     Policies.JWTTeacher,
     ComplementaryActivityTypeController.update,
   );
 
-  // Delete a classroom
+  // Delete a complementary activity type
   router.delete(
     '/:complementaryActivityTypeId',
     Policies.JWTTeacher,
     ComplementaryActivityTypeController.remove,
   );
 
-  app.use('/api/complementaryActivityType', router);
+  app.use('/api/complementary-activity-type', router);
 };
 exports['@singleton'] = true;
 exports['@require'] = [
