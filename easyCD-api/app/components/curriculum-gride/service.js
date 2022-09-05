@@ -98,7 +98,11 @@ exports = module.exports = function initService(
         };
         _.forOwn(updatableFields, (value, field) => {
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isNil(curriculumGride[field]) && !allowEmpty) {
+          if (_.isUndefined(curriculumGride[field])) {
+            return;
+          }
+          if ((_.isNull(curriculumGride[field])
+           || _.isEmpty(curriculumGride[field])) && !allowEmpty) {
             return;
           }
           if (_.isEqual(curriculumGride[field], oldCurriculumGride[field])) {

@@ -106,7 +106,10 @@ exports = module.exports = function initService(
         };
         _.forOwn(updatableFields, (value, field) => {
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isNil(course[field]) && !allowEmpty) {
+          if (_.isUndefined(course[field])) {
+            return;
+          }
+          if ((_.isNull(course[field]) || _.isEmpty(course[field])) && !allowEmpty) {
             return;
           }
           if (_.isEqual(course[field], oldCourse[field])) {

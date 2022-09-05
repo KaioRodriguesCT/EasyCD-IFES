@@ -63,10 +63,12 @@ exports = module.exports = function initService(
           uf: { allowEmpty: true },
           address: { allowEmpty: true },
         };
-
         _.forOwn(updatableFields, (value, field) => {
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isNil(person[field]) && !allowEmpty) {
+          if (_.isUndefined(person[field])) {
+            return;
+          }
+          if ((_.isNull(person[field]) || _.isEmpty(person[field])) && !allowEmpty) {
             return;
           }
           if (_.isEqual(person[field], oldPerson[field])) {
