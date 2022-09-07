@@ -16,6 +16,7 @@ exports = module.exports = function initRoutes() {
     'enrollment',
     'complementary-activity-type',
     'complementary-activity',
+    'solicitation-type',
   ];
 
   _.each(components, (component) => {

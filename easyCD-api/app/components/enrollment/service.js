@@ -144,10 +144,10 @@ exports = module.exports = function initService(
 
   async function remove(enrollment) {
     if (_.isNil(enrollment)) {
-      Utils.throwError(`${defaultErrorUpdating}. Enrollment not sent`, 400);
+      Utils.throwError(`${defaultErrorRemoving}. Enrollment not sent`, 400);
     }
     if (_.isNil(enrollment._id)) {
-      Utils.throwError(`${defaultErrorUpdating}. Enrollment ID not sent`, 400);
+      Utils.throwError(`${defaultErrorRemoving}. Enrollment ID not sent`, 400);
     }
     await async.auto({
       oldEnrollment: async () => {
