@@ -23,6 +23,11 @@ exports = module.exports = function initModel(mongo) {
         type: Boolean,
         required: true,
       },
+      // Defines how the meta should be send and build on solicitation
+      fieldsStructure: {
+        type: [Object], // Expect a array of {name, type},
+        required: true,
+      },
     },
     {
       timestamps: {

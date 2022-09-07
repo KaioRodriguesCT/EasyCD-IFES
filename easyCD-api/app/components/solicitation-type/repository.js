@@ -25,6 +25,7 @@ exports = module.exports = function initRepository(
       'requireTeacherApproval',
       'requireCoordinatorApproval',
       'allowSubmitFile',
+      'fieldsStructure',
     ];
     _.forEach(requiredFields, (field) => {
       if (_.isNil(solicitationType[field])) {

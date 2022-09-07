@@ -25,8 +25,13 @@ exports = module.exports = function initService(
       'requireTeacherApprovval',
       'requireCoordinatorApproval',
       'allowSubmitFile',
+      'fieldsStructure',
     ];
     const newSolicitationType = _.pick(solicitationType, initialFields);
+    if (_.isEmpty(newSolicitationType.fieldsStructure)
+    || _.isNil(newSolicitationType.fieldsStructure)) {
+      Utils.throwError('Error creating Solicitation Type. Fields Structure not sent properly', 400);
+    }
     return SolicitationTypeRepository.create(newSolicitationType);
   }
 
@@ -53,6 +58,7 @@ exports = module.exports = function initService(
           requireTeacherApproval: { allowEmpty: false },
           requireCoordinatorApproval: { allowEmpty: false },
           allowSubmitFile: { allowEmpty: false },
+          fieldsStructure: { allowEmpty: false },
         };
         _.forOwn(updatableFields, (value, field) => {
           const allowEmpty = _.get(value, 'allowEmpty');
