@@ -12,14 +12,13 @@ exports = module.exports = function initModel(mongo) {
     },
     status: {
       type: String,
-      enum: ['Deferred', 'Undeferred', 'Pending'],
+      enum: ['Deferred', 'Undeferred', 'Pending', 'Canceled'],
       required: true,
       default: 'Pending',
       index: true,
     },
     teacherApproval: {
       type: Boolean,
-      required: true,
       index: true,
     },
     teacherNotes: {
@@ -27,7 +26,6 @@ exports = module.exports = function initModel(mongo) {
     },
     coordinatorApproval: {
       type: Boolean,
-      required: true,
       index: true,
     },
     coordinatorNotes: {

@@ -30,7 +30,7 @@ exports = module.exports = function initRouter(
     SolicitationTypeController.remove,
   );
 
-  app.use('/api/solicitiation-type', router);
+  app.use('/api/solicitation-type', router);
 };
 exports['@singleton'] = true;
 exports['@require'] = [

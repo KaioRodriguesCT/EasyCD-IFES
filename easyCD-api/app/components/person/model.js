@@ -43,6 +43,10 @@ exports = module.exports = function initModel(mongo) {
         type: [ObjectId],
         ref: 'ComplementaryActivity',
       },
+      solicitations: {
+        type: [ObjectId],
+        ref: 'Solicitation',
+      },
 
       // Teacher Fields
       classrooms: {

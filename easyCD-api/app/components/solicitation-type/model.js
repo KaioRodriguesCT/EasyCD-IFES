@@ -25,7 +25,17 @@ exports = module.exports = function initModel(mongo) {
       },
       // Defines how the meta should be send and build on solicitation
       fieldsStructure: {
-        type: [Object], // Expect a array of {name, type},
+        type: [{
+          name: {
+            type: String,
+            required: true,
+          },
+          type: {
+            type: String,
+            required: true,
+            enum: ['String', 'Number', 'Buffer', 'ObjectId', 'Boolean'],
+          },
+        }],
         required: true,
       },
     },
