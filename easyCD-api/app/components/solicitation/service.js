@@ -42,10 +42,13 @@ exports = module.exports = function initService(
         return SolicitationRepository.create(newSolicitation);
       }],
       updateStudent: ['createdSolicitation', async ({ createdSolicitation: _id, student }) => PersonService.addSolicitation({
-        student,
+        person: student,
         solicitationId: _id,
       })],
-      processCreatedSolicitation: ['createdSolicitation', async () => {}],
+      processCreatedSolicitation: ['createdSolicitation', async ({ createdSolicitation }) => SolicitationTypeService.processSolicitation({
+        solicitation: createdSolicitation,
+        state: 'created',
+      })],
     });
     return createdSolicitation;
   }
@@ -90,7 +93,10 @@ exports = module.exports = function initService(
         });
         return SolicitationRepository.update(oldSolicitation);
       }],
-      processUpdatedSolicitation: ['updatedSolicitation', async () => {}],
+      processUpdatedSolicitation: ['updatedSolicitation', async ({ updatedSolicitation }) => SolicitationTypeService.processSolicitation({
+        solicitation: updatedSolicitation,
+        state: 'updated',
+      })],
     });
     return updatedSolicitation;
   }
@@ -113,10 +119,13 @@ exports = module.exports = function initService(
       },
       removeSolicitation: ['oldSolicitation', async ({ oldSolicitation: { _id } }) => SolicitationRepository.removeById(_id)],
       updateStudent: ['oldSolicitation', 'removeSolicitation', async ({ oldSolicitation: { _id, student } }) => PersonService.removeSolicitation({
-        student,
+        person: student,
         solicitationId: _id,
       })],
-      processDeletedSolicitation: ['oldSolicitation', 'removeSolicitation', async () => {}],
+      processDeletedSolicitation: ['oldSolicitation', 'removeSolicitation', async ({ oldSolicitation }) => SolicitationTypeService.processSolicitation({
+        solicitation: oldSolicitation,
+        state: 'deleted',
+      })],
     });
   }
 

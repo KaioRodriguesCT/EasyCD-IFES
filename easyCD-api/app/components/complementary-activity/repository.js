@@ -23,6 +23,7 @@ exports = module.exports = function initRepository(
     const requiredFields = [
       'complementaryActivityType',
       'student',
+      'course',
       'status',
       'evidence',
       'quantity',

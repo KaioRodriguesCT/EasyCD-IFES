@@ -8,6 +8,10 @@ const defaultErrorRemoving = 'Error removing Solicitation Type';
 
 exports = module.exports = function initService(
   SolicitationTypeRepository,
+  ClassroomService,
+  ComplementaryActivityTypeService,
+  PersonService,
+  CourseService,
   Utils,
 ) {
   return {
@@ -15,7 +19,7 @@ exports = module.exports = function initService(
     update,
     remove,
     validateMeta,
-    // processCreatedSolicitation,
+    processSolicitation,
   };
 
   async function create(solicitationType) {
@@ -120,7 +124,7 @@ exports = module.exports = function initService(
     });
   }
 
-  async function validateMeta({ meta, solicitationTypeId, defaultErrorMessage }) {
+  async function validateMeta({ meta, solicitationTypeId }) {
     if (!solicitationTypeId || !mongoose.isValidObjectId(solicitationTypeId)) {
       Utils.throwError('Solicitation Type ID not sent or not a valid ID', 400);
     }
@@ -130,47 +134,267 @@ exports = module.exports = function initService(
     if (!solicitationType) {
       Utils.throwError('Solicitation Type not found', 404);
     }
-    const { fieldsStructure } = solicitationType;
-    _.forEach(fieldsStructure, (field) => {
-      const { name, type } = field;
-      if (_.isNil(meta[name])) {
-        Utils.throwError(`${defaultErrorMessage}. Required field: ${name}, not sent on meta`, 400);
-      }
-      if (!verifyFieldType({ type, field: meta[name] })) {
-        Utils.throwError(`${defaultErrorMessage}. Field ${name} sent with wrong type`, 400);
-      }
-    });
-  }
-
-  function verifyFieldType({ type, field }) {
-    switch (type) {
-      case 'String':
-        return _.isString(field);
-      case 'Number':
-        return _.isNumber(field);
-      case 'Buffer':
-        return _.isBuffer(field);
-      case 'Boolean':
-        return _.isBoolean(field);
-      case 'ObjectId':
-        return mongoose.isValidObjectId(field);
+    switch (solicitationType.name) {
+      case 'Enrollment':
+        return validateEnrollmentSolicitationMeta({ meta });
+      case 'Enrollment Change':
+        return validateEnrollmentChangeSolicitationMeta({ meta });
+      case 'Complementary Activity':
+        return validateComplementaryActivityMetaSolicitation({ meta });
       default:
         return null;
     }
   }
 
-  // TODO
-  // async function processCreatedSolicitation({ solicitation }) {
-  //   return true;
-  //    if(!solicitation){
-  //      Utils.throwError(
-  // `Error processing recently created solicitation. Solicitation not sent`, 400);
-  //    }
-  //    const {solicitation, status, student, meta} = solicitation
-  // }
+  async function validateEnrollmentSolicitationMeta({ meta }) {
+    if (!meta) {
+      Utils.throwError('Error on validate Enrollment Solicitation meta. Meta not sent', 400);
+    }
+    const { classroom: classroomId } = meta;
+    if (_.isNil(classroomId) || !mongoose.isValidObjectId(classroomId)) {
+      Utils.throwError('Error on Enrollment Solicitation meta. Classroom not sent or not a valid ID', 400);
+    }
+    const classroom = await ClassroomService.findById({ _id: classroomId });
+    if (!classroom) {
+      Utils.throwError('Error on Enrollment Solicitation meta. Classroom not found', 404);
+    }
+  }
+
+  async function validateEnrollmentChangeSolicitationMeta({ meta }) {
+    if (!meta) {
+      Utils.throwError('Error on validate Enrollment Solicitation meta. Meta not sent', 400);
+    }
+    const { classroomToEnroll, classroomToUnenroll } = meta;
+    await async.auto({
+      validateEnroll: async () => {
+        if (_.isNil(classroomToEnroll) || !mongoose.isValidObjectId(classroomToEnroll)) {
+          Utils.throwError('Error on Enrollment Change Solicitation meta. Classroom to enroll not sent or not a valid ID', 400);
+        }
+        const classroom = await ClassroomService.findById({ _id: classroomToEnroll });
+        if (!classroom) {
+          Utils.throwError('Error on Enrollment Change Solicitation meta. Classroom to enroll not found', 404);
+        }
+      },
+      validateUneroll: async () => {
+        if (_.isNil(classroomToUnenroll) || !mongoose.isValidObjectId(classroomToUnenroll)) {
+          Utils.throwError('Error on Enrollment Change Solicitation meta. Classroom to unenroll not sent or not a valid ID', 400);
+        }
+        const classroom = await ClassroomService.findById({ _id: classroomToUnenroll });
+        if (!classroom) {
+          Utils.throwError('Error on Enrollment Change Solicitation meta. Classroom to unenroll not found', 404);
+        }
+      },
+    });
+  }
+
+  async function validateComplementaryActivityMetaSolicitation({ meta }) {
+    const defaultErrorMessage = 'Error on Complementary Activity Solicitation meta';
+    if (!meta) {
+      Utils.throwError(`${defaultErrorMessage}. Error on validate Complementary Activity Solicitation meta. Meta not sent`, 400);
+    }
+    const { complementaryActivityType: cActivityType, evidence, quantity } = meta;
+    if (_.isNil(complementaryActivityType)
+    || !mongoose.isValidObjectId(complementaryActivityType)) {
+      Utils.throwError(`${defaultErrorMessage}. Complementary Activity type not sent or not a valid ID`, 400);
+    }
+    const complementaryActivityType = await ComplementaryActivityTypeService
+      .findById({ _id: cActivityType });
+    if (!complementaryActivityType) {
+      Utils.throwError(`${defaultErrorMessage}. Complementary Activity Type not found`, 404);
+    }
+    if (_.isNil(evidence) || !_.isBuffer(evidence)) {
+      Utils.throwError(`${defaultErrorMessage}. Evidence not sent or not a valid Buffer`, 400);
+    }
+    if (_.isNil(quantity) || !_.isNumber(quantity)) {
+      Utils.throwError(`${defaultErrorMessage}. Quantity not sent or not a valid number`, 400);
+    }
+  }
+
+  async function processSolicitation({
+    solicitation,
+    state,
+  }) {
+    if (!solicitation) {
+      Utils.throwError(`Error processing recently ${state} solicitation. Solicitation not sent`, 400);
+    }
+    const solicitationType = await SolicitationTypeRepository
+      .findById({ _id: solicitation.solicitationType });
+    if (!solicitationType) {
+      Utils.throwError(`Error processing ${state} Solicitation : ${solicitation._id}. Solicitation Type not found`, 404);
+    }
+    switch (solicitationType.name) {
+      case 'Enrollment':
+        return processEnrollmentSolicitation({ solicitation, solicitationType, state });
+      case 'Enrollment Change':
+        return processEnrollmentChangeSolicitation({ solicitation, solicitationType, state });
+      case 'Complementary Activity':
+        return processComplementaryActivitySolicitation({ solicitation, solicitationType, state });
+      default:
+        return null;
+    }
+  }
+
+  async function processEnrollmentSolicitation({ solicitation, solicitationType, state }) {
+    const defaultErrorMessage = 'Error on processing Enrollment Solicitation';
+    if (!solicitation || !solicitationType) {
+      Utils.throwError(`${defaultErrorMessage}. Solicitation or Solicitation type not sent`, 400);
+    }
+    const { meta } = solicitation;
+    const classroom = await ClassroomService
+      .findById({ _id: meta.classroom });
+    const teacherAndCoordinator = await ClassroomService.getClassroomTeacherAndCoordinator({
+      classroom: _.get(classroom, '_id'),
+    });
+    if (!teacherAndCoordinator) {
+      Utils.throwError(`${defaultErrorMessage}. Teacher and Coordinator not found for classroom`, 400);
+    }
+    switch (state) {
+      case 'deleted':
+      case 'created':
+        return processingRequiredApprovals({
+          solicitation,
+          coordinator: teacherAndCoordinator.coordinator,
+          teacher: teacherAndCoordinator.teacher,
+          solicitationType,
+          state,
+        });
+      case 'updated':
+        // TODO
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  async function processEnrollmentChangeSolicitation({ solicitation, solicitationType, state }) {
+    const defaultErrorMessage = 'Error on processing Enrollment Change Solicitation';
+    if (!solicitation || !solicitationType) {
+      Utils.throwError(`${defaultErrorMessage}. Solicitation or Solicitation type not sent`, 400);
+    }
+    const { meta } = solicitation;
+    // Get the classrooms.
+    const classroomToEnroll = await ClassroomService.findById({ _id: meta.classroomToEnroll });
+    const teacherAndCoordinator = await ClassroomService.getClassroomTeacherAndCoordinator({
+      classroom: _.get(classroomToEnroll, '_id'),
+    });
+    if (!teacherAndCoordinator) {
+      Utils.throwError(`${defaultErrorMessage}. Teacher and Coordinator not found for classroom`, 400);
+    }
+    switch (state) {
+      case 'deleted':
+      case 'created':
+        return processingRequiredApprovals({
+          solicitation,
+          coordinator: teacherAndCoordinator.coordinator,
+          teacher: teacherAndCoordinator.teacher,
+          solicitationType,
+          state,
+        });
+      case 'updated':
+      default:
+        return null;
+    }
+  }
+
+  async function processComplementaryActivitySolicitation({
+    solicitation,
+    solicitationType,
+    state,
+  }) {
+    const defaultErrorMessage = 'Error on processing Complementary Activity Solicitation';
+    if (!solicitation || !solicitationType) {
+      Utils.throwError(`${defaultErrorMessage}. Solicitation or Solicitation type not sent`, 400);
+    }
+    const { meta } = solicitation;
+    const course = await CourseService.findById({ _id: meta.course });
+    if (!course) {
+      Utils.throwError(`${defaultErrorMessage}. Course not found`, 404);
+    }
+    switch (state) {
+      case 'deleted':
+      case 'created':
+        return processingRequiredApprovals({
+          solicitation,
+          coordinator: course.coordinator,
+          teacher: null,
+          solicitationType,
+          state,
+        });
+      // TODO
+      case 'updated':
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  async function processingRequiredApprovals({
+    solicitation,
+    teacher,
+    coordinator,
+    solicitationType,
+    state,
+  }) {
+    return async.auto({
+      processingTeacher: async () => {
+        if (!solicitationType.requireTeacherApproval || !teacher) {
+          return null;
+        }
+        return async.auto({
+          updateTeacher: async () => {
+            switch (state) {
+              case 'created':
+                return PersonService.addSolicitation({
+                  person: teacher,
+                  solicitationId: solicitation._id,
+                });
+              case 'deleted':
+                return PersonService.removeSolicitation({
+                  person: teacher,
+                  solicitationId: solicitation._id,
+                });
+              default:
+                return null;
+            }
+          },
+          // TODO
+          sendEmail: async () => {},
+        });
+      },
+      processingCoordinator: async () => {
+        if (!solicitationType.requireCoordinatorApproval || !coordinator) {
+          return null;
+        }
+        return async.auto({
+          updateCoordinator: async () => {
+            switch (state) {
+              case 'created':
+                return PersonService.addSolicitation({
+                  person: coordinator,
+                  solicitationId: solicitation._id,
+                });
+              case 'deleted':
+                return PersonService.removeSolicitation({
+                  person: coordinator,
+                  solicitationId: solicitation._id,
+                });
+              default:
+                return null;
+            }
+          },
+          // TODO
+          sendEmail: async () => {},
+        });
+      },
+    });
+  }
 };
 exports['@singleton'] = true;
 exports['@require'] = [
   'components/solicitation-type/repository',
+  'components/classroom/service',
+  'components/complementary-activity-type/service',
+  'components/person/service',
+  'components/course/service',
   'lib/utils',
 ];

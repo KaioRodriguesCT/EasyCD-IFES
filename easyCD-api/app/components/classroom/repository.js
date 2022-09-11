@@ -8,9 +8,16 @@ exports = module.exports = function initRepository(
   return {
     create,
     update,
+    aggregate,
     removeById,
     findById,
   };
+
+  async function aggregate(pipeline) {
+    return ClassroomModel
+      .aggregate(pipeline)
+      .exec();
+  }
 
   async function findById({ _id }) {
     return ClassroomModel

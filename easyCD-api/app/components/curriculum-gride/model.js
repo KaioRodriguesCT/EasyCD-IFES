@@ -55,7 +55,7 @@ exports = module.exports = function initModel(mongo) {
     },
   );
 
-  return mongo.model(CurriculumGride, 'CurriculumGride');
+  return mongo.model('CurriculumGride', CurriculumGride);
 };
 exports['@singleton'] = true;
 exports['@require'] = ['lib/mongo'];

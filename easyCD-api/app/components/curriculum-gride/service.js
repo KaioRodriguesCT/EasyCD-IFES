@@ -197,6 +197,7 @@ exports = module.exports = function initService(
           _id: curriculumGride,
           select: { _id: 1, subjects: 1 },
         }),
+      // eslint-disable-next-line no-shadow
       updatedCurriculumGride: ['curriculumGride', async ({ curriculumGride }) => {
         const newSubjects = curriculumGride.subjects || [];
         curriculumGride.subjects = _.filter(newSubjects, (_id) => !_.isEqual(_id, subjectId));

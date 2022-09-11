@@ -41,6 +41,12 @@ exports = module.exports = function initModel(mongo) {
       type: Object,
       required: true,
     },
+    alreadyProcessed: {
+      type: Boolean,
+      required: true,
+      index: true,
+      default: false,
+    },
     /*
     // When a solicitation of a Complementary activity
     complementaryActivityType: {
@@ -54,6 +60,11 @@ exports = module.exports = function initModel(mongo) {
     quantity: {
       type: Number,
     },
+    course:{
+      type: ObjectId,
+      ref: 'Course',
+      index: true
+    }
 
     // When a solicitation of a new Enrollment
     classroom: {

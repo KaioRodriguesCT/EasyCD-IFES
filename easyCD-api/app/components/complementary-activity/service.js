@@ -37,12 +37,15 @@ exports = module.exports = function initService(
         complementaryActivityTypeId: complementaryActivity.complementaryActivityType,
         defaultErrorMessage: defaultErrorCreating,
       }),
-      createdComplementaryActivity: ['validateStudent', 'validateComplementaryActivityType', async () => {
+      // TODO
+      validateCourse: async () => {},
+      createdComplementaryActivity: ['validateStudent', 'validateComplementaryActivityType', 'validateCourse', async () => {
         const initialFields = [
           'complementaryActivityType',
           'student',
           'evidence',
           'quantity',
+          'course',
         ];
         const newComplementaryActivity = _.pick(complementaryActivity, initialFields);
         return ComplementaryActivityRepository.create(newComplementaryActivity);

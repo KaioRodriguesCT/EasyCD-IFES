@@ -246,40 +246,40 @@ exports = module.exports = function initService(
   }
 
   async function addSolicitation({
-    student,
+    person,
     solicitationId,
   }) {
     return async.auto({
-      oldStudent: async () => PersonRepository
+      oldPerson: async () => PersonRepository
         .findById({
-          _id: student,
+          _id: person,
           select: { _id: 1, solicitations: 1 },
         }),
-      updatedStudent: ['oldStudent', async ({ oldStudent }) => {
-        const newSolicitations = oldStudent.solicitations || [];
-        oldStudent.solicitations = _.uniq([...newSolicitations], solicitationId);
-        return update(oldStudent);
+      updatedPerson: ['oldPerson', async ({ oldPerson }) => {
+        const newSolicitations = oldPerson.solicitations || [];
+        oldPerson.solicitations = _.uniq([...newSolicitations], solicitationId);
+        return update(oldPerson);
       }],
     });
   }
 
   async function removeSolicitation({
-    student,
+    person,
     solicitationId,
   }) {
     return async.auto({
-      oldStudent: async () => PersonRepository
+      oldPerson: async () => PersonRepository
         .findById({
-          _id: student,
+          _id: person,
           select: { _id: 1, solicitations: 1 },
         }),
-      updatedStudent: ['oldStudent', async ({ oldStudent }) => {
-        const newSolicitations = oldStudent.solicitations || [];
-        oldStudent.solicitations = _.filter(
+      updatedPerson: ['oldPerson', async ({ oldPerson }) => {
+        const newSolicitations = oldPerson.solicitations || [];
+        oldPerson.solicitations = _.filter(
           newSolicitations,
           (_id) => !_.isEqual(_id, solicitationId),
         );
-        return update(oldStudent);
+        return update(oldPerson);
       }],
     });
   }

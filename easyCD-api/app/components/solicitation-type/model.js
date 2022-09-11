@@ -4,6 +4,7 @@ exports = module.exports = function initModel(mongo) {
   const SolicitationType = new mongo.Schema(
     {
       name: {
+        // Actually we should have : Enrollment, Enrollment Change, Complementary Activity
         type: String,
         required: true,
       },
@@ -21,21 +22,6 @@ exports = module.exports = function initModel(mongo) {
       },
       allowSubmitFile: {
         type: Boolean,
-        required: true,
-      },
-      // Defines how the meta should be send and build on solicitation
-      fieldsStructure: {
-        type: [{
-          name: {
-            type: String,
-            required: true,
-          },
-          type: {
-            type: String,
-            required: true,
-            enum: ['String', 'Number', 'Buffer', 'ObjectId', 'Boolean'],
-          },
-        }],
         required: true,
       },
     },

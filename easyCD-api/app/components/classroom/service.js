@@ -20,6 +20,7 @@ exports = module.exports = function initService(
     findById,
     addEnrollment,
     removeEnrollment,
+    getClassroomTeacherAndCoordinator,
   };
 
   async function findById({ _id }) {
@@ -259,6 +260,54 @@ exports = module.exports = function initService(
         return update(oldClassroom);
       }],
     });
+  }
+
+  async function getClassroomTeacherAndCoordinator({ classroom }) {
+    const pipeline = [
+      {
+        $match: {
+          _id: classroom,
+        },
+      },
+      {
+        $lookup: {
+          from: 'subjects',
+          localField: 'subject',
+          foreignField: '_id',
+          as: 'subject',
+        },
+      },
+      {
+        $unwind: {
+          path: '$subject',
+        },
+      },
+      {
+        $lookup: {
+          from: 'curriculumgrides',
+          localField: 'subject.curriculumGride',
+          foreignField: '_id',
+          as: 'curriculumGride',
+        },
+      },
+      {
+        $unwind: {
+          from: 'course',
+          localField: 'curriculumGride.course',
+          foreignField: 'course',
+          as: 'course',
+        },
+      },
+      {
+        $project: {
+          teacher: 1,
+          coordinator: '$course.coordinator',
+        },
+      },
+    ];
+
+    const record = await ClassroomRepository.aggregate(pipeline);
+    return _.first(record);
   }
 };
 exports['@singleton'] = true;

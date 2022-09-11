@@ -11,6 +11,12 @@ exports = module.exports = function initModel(mongo) {
         required: true,
         index: true,
       },
+      course: {
+        type: ObjectId,
+        ref: 'Course',
+        required: true,
+        index: true,
+      },
       student: {
         type: ObjectId,
         ref: 'Student',

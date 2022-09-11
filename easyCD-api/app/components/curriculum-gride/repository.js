@@ -1,7 +1,10 @@
 const _ = require('lodash');
 const async = require('async');
 
-exports = module.exports = function initRepository(CurriculumGrideModel, Utils) {
+exports = module.exports = function initRepository(
+  CurriculumGrideModel,
+  Utils,
+) {
   return {
     create,
     update,
@@ -62,5 +65,5 @@ exports = module.exports = function initRepository(CurriculumGrideModel, Utils) 
 exports['@singleton'] = true;
 exports['@require'] = [
   'components/curriculum-gride/model',
-  'libe/utils',
+  'lib/utils',
 ];
