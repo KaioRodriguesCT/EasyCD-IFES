@@ -34,7 +34,7 @@ exports = module.exports = function initRouter(UserController, Policies) {
   );
 
   // Definition
-  app.use('/api/user', router);
+  app.use('/api/users', router);
 };
 
 exports['@singleton'] = true;

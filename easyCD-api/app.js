@@ -9,6 +9,7 @@ const IoC = require('electrolyte');
 const app = bootable(express());
 
 const base = path.join(__dirname);
+const testPath = path.join(base, 'tests');
 const modelsPath = path.join(base, 'app', 'models');
 const controllersPath = path.join(base, 'app', 'controllers');
 const libPath = path.join(base, 'app', 'lib');
@@ -17,6 +18,7 @@ const componentsPath = path.join(base, 'app', 'components');
 
 // Dependencie Injection
 IoC.use(IoC.dir(base));
+IoC.use('test', IoC.dir(testPath));
 IoC.use('models', IoC.dir(modelsPath));
 IoC.use('controllers', IoC.dir(controllersPath));
 IoC.use('lib', IoC.dir(libPath));

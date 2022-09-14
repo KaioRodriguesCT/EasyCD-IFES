@@ -23,8 +23,8 @@ exports = module.exports = function initRepository(
   async function create(person) {
     const requiredFields = [
       'name',
-      'email',
       'surname',
+      'email',
       'phone',
     ];
     _.forEach(requiredFields, (field) => {

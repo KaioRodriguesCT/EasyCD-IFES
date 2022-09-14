@@ -29,8 +29,8 @@ exports = module.exports = function initService(
   async function create(person) {
     const initialFields = [
       'name',
-      'email',
       'surname',
+      'email',
       'phone',
       'city',
       'uf',
