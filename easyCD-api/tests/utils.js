@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const async = require('async');
 
 exports = module.exports = function initTestUtils(mongo) {

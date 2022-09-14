@@ -18,7 +18,7 @@ const componentsPath = path.join(base, 'app', 'components');
 
 // Dependencie Injection
 IoC.use(IoC.dir(base));
-IoC.use('test', IoC.dir(testPath));
+IoC.use('tests', IoC.dir(testPath));
 IoC.use('models', IoC.dir(modelsPath));
 IoC.use('controllers', IoC.dir(controllersPath));
 IoC.use('lib', IoC.dir(libPath));

@@ -1,14 +1,15 @@
+const _ = require('lodash');
 const { expect } = require('chai');
-const async = require('async');
 const IoC = require('electrolyte');
+// eslint-disable-next-line no-unused-vars
 const app = require('../../../../app');
 
 // Service
-const Utils = IoC.create('test/utils');
+const Utils = IoC.create('tests/utils');
 const PersonService = IoC.create('components/person/service');
 const PersonModel = IoC.create('components/person/model');
 
-describe('component/user/person', () => {
+describe('component/person/service', () => {
   afterEach(async () => {
     await Utils.cleanDatabase();
   });
@@ -31,6 +32,44 @@ describe('component/user/person', () => {
       expect(error).to.be.true;
     });
 
-    it('Should try insert a person with all the fields and success', async () => {});
+    it('Should try insert a person with all the fields and succeed', async () => {
+      const newPerson = {
+        name: 'Person',
+        surname: '#1',
+        email: 'person1@email.com',
+        phone: '27 998984171',
+        uf: 'UF test',
+        address: 'Address Test',
+      };
+      const createdPerson = await PersonService.create(newPerson);
+      _.forOwn(newPerson, (value, key) => {
+        expect(createdPerson).to.have.property(key, value);
+      });
+    });
+
+    it('Should try insert a person but send not valid fields and ignore then', async () => {
+      const newPerson = {
+        name: 'Person',
+        surname: '#1',
+        email: 'person1@email.com',
+        phone: '27 998984171',
+        uf: 'UF test',
+        address: 'Address Test',
+      };
+
+      const nonValidFields = {
+        shoulder: 'Shoulder test',
+        license: 'License test',
+      };
+
+      const createdPerson = await PersonService.create({ ...newPerson, ...nonValidFields });
+      _.forOwn(newPerson, (value, key) => {
+        expect(createdPerson).to.have.property(key, value);
+      });
+
+      _.forOwn(nonValidFields, (value, key) => {
+        expect(createdPerson).to.not.have.property(key, value);
+      });
+    });
   });
 });
