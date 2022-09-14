@@ -76,6 +76,7 @@ exports = module.exports = function initService(
           teacherNotes: { allowEmpty: true },
           coordinatorApproval: { allowEmpty: false },
           coordinatorNotes: { allowEmpty: true },
+          isProcessed: { allowEmpty: false },
         };
         _.forOwn(updatableFields, (value, field) => {
           const allowEmpty = _.get(value, 'allowEmpty');

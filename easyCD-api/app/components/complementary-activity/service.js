@@ -46,6 +46,7 @@ exports = module.exports = function initService(
           'evidence',
           'quantity',
           'course',
+          'status',
         ];
         const newComplementaryActivity = _.pick(complementaryActivity, initialFields);
         return ComplementaryActivityRepository.create(newComplementaryActivity);

@@ -20,8 +20,8 @@ exports = module.exports = function initModel(mongo) {
       status: {
         type: String,
         required: true,
-        default: 'In Progress',
         enum: ['Canceled', 'In Progress', 'Approved', 'Repproved'],
+        default: 'In Progress',
         index: true,
       },
       observation: {

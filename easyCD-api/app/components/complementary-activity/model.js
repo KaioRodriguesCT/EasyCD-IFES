@@ -27,8 +27,7 @@ exports = module.exports = function initModel(mongo) {
         type: String,
         required: true,
         index: true,
-        enum: ['Accepted', 'Rejected', 'Pending'],
-        default: 'Pending',
+        enum: ['Accepted', 'Rejected'],
       },
       statusJustification: {
         type: String,

@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
+const IoC = require('electrolyte');
 
 const defaultErrorCreating = 'Error creating Solicitation Type';
 const defaultErrorUpdating = 'Error updating Solicitation Type';
@@ -10,8 +11,10 @@ exports = module.exports = function initService(
   SolicitationTypeRepository,
   ClassroomService,
   ComplementaryActivityTypeService,
+  ComplementaryActivityService,
   PersonService,
   CourseService,
+  EnrollmentService,
   Utils,
 ) {
   return {
@@ -239,7 +242,7 @@ exports = module.exports = function initService(
     if (!solicitation || !solicitationType) {
       Utils.throwError(`${defaultErrorMessage}. Solicitation or Solicitation type not sent`, 400);
     }
-    const { meta } = solicitation;
+    const { meta, isProcessed } = solicitation;
     const classroom = await ClassroomService
       .findById({ _id: meta.classroom });
     const teacherAndCoordinator = await ClassroomService.getClassroomTeacherAndCoordinator({
@@ -260,6 +263,19 @@ exports = module.exports = function initService(
         });
       case 'updated':
         // TODO
+        if (isApproved({ solicitation, solicitationType }) && !isProcessed) {
+          const newEnrollment = {
+            classroom: classroom._id,
+            student: solicitation.student,
+          };
+          return async.auto({
+            createEnrollment: async () => EnrollmentService.create(newEnrollment),
+            updateSolicitation: ['createEnrollment', async () => {
+              const SolicitationService = IoC.create('components/solicitation/service');
+              return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
+            }],
+          });
+        }
         return null;
       default:
         return null;
@@ -271,7 +287,7 @@ exports = module.exports = function initService(
     if (!solicitation || !solicitationType) {
       Utils.throwError(`${defaultErrorMessage}. Solicitation or Solicitation type not sent`, 400);
     }
-    const { meta } = solicitation;
+    const { meta, isProcessed } = solicitation;
     // Get the classrooms.
     const classroomToEnroll = await ClassroomService.findById({ _id: meta.classroomToEnroll });
     const teacherAndCoordinator = await ClassroomService.getClassroomTeacherAndCoordinator({
@@ -291,6 +307,24 @@ exports = module.exports = function initService(
           state,
         });
       case 'updated':
+        if (isApproved({ solicitation, solicitationType }) && !isProcessed) {
+          const newEnrollment = {
+            classroom: classroomToEnroll._id,
+            student: solicitation.student,
+          };
+          return async.auto({
+            creating: async () => EnrollmentService.create(newEnrollment),
+            canceling: async () => EnrollmentService.update({
+              _id: meta.classroomToUnenroll,
+              status: 'Canceled',
+            }),
+            updateSolicitation: ['createEnrollment', async () => {
+              const SolicitationService = IoC.create('components/solicitation/service');
+              return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
+            }],
+          });
+        }
+        return null;
       default:
         return null;
     }
@@ -305,7 +339,7 @@ exports = module.exports = function initService(
     if (!solicitation || !solicitationType) {
       Utils.throwError(`${defaultErrorMessage}. Solicitation or Solicitation type not sent`, 400);
     }
-    const { meta } = solicitation;
+    const { meta, isProcessed } = solicitation;
     const course = await CourseService.findById({ _id: meta.course });
     if (!course) {
       Utils.throwError(`${defaultErrorMessage}. Course not found`, 404);
@@ -321,8 +355,35 @@ exports = module.exports = function initService(
           state,
         });
       // TODO
-      case 'updated':
+      case 'updated': {
+        const newComplementaryActivity = {
+          complementaryActivityType: meta.complementaryActivityType,
+          student: solicitation.student,
+          evidence: meta.evidence,
+          quantity: meta.quantity,
+          course: meta.course,
+        };
+
+        if (isApproved({ solicitation, solicitationType }) && !isProcessed) {
+          return async.auto({
+            creatingActivity: ComplementaryActivityService.create({ ...newComplementaryActivity, status: 'Accepted' }),
+            updateSolicitation: ['creatingActivity', async () => {
+              const SolicitationService = IoC.create('components/solicitation/service');
+              return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
+            }],
+          });
+        }
+        if (isReproved({ solicitation, solicitationType }) && !isProcessed) {
+          return async.auto({
+            creatingActivity: ComplementaryActivityService.create({ ...newComplementaryActivity, status: 'Accepted' }),
+            updateSolicitation: ['creatingActivity', async () => {
+              const SolicitationService = IoC.create('components/solicitation/service');
+              return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
+            }],
+          });
+        }
         return null;
+      }
       default:
         return null;
     }
@@ -388,13 +449,43 @@ exports = module.exports = function initService(
       },
     });
   }
+
+  function isApproved({ solicitation, solicitationType }) {
+    const { teacherApproval, coordinatorApproval } = solicitation;
+    const { requireTeacherApproval, requireCoordinatorApproval } = solicitationType;
+    if (requireTeacherApproval && !teacherApproval) {
+      return false;
+    }
+    if (requireCoordinatorApproval && !coordinatorApproval) {
+      return false;
+    }
+    return true;
+  }
+
+  function isReproved({ solicitation, solicitationType }) {
+    const { teacherApproval, coordinatorApproval } = solicitation;
+    const { requireTeacherApproval, requireCoordinatorApproval } = solicitationType;
+    if (requireCoordinatorApproval
+      && !_.isNil(coordinatorApproval)
+      && !coordinatorApproval) {
+      return true;
+    }
+    if (requireTeacherApproval
+      && !_.isNil(teacherApproval)
+      && teacherApproval) {
+      return true;
+    }
+    return false;
+  }
 };
 exports['@singleton'] = true;
 exports['@require'] = [
   'components/solicitation-type/repository',
   'components/classroom/service',
   'components/complementary-activity-type/service',
+  'components/complementary-activity/service',
   'components/person/service',
   'components/course/service',
+  'components/enrollment/service',
   'lib/utils',
 ];

@@ -41,46 +41,12 @@ exports = module.exports = function initModel(mongo) {
       type: Object,
       required: true,
     },
-    alreadyProcessed: {
+    isProcessed: {
       type: Boolean,
       required: true,
       index: true,
       default: false,
     },
-    /*
-    // When a solicitation of a Complementary activity
-    complementaryActivityType: {
-      type: ObjectId,
-      ref: 'ComplementaryActivityType',
-      index: true,
-    },
-    evidence: {
-      type: Buffer,
-    },
-    quantity: {
-      type: Number,
-    },
-    course:{
-      type: ObjectId,
-      ref: 'Course',
-      index: true
-    }
-
-    // When a solicitation of a new Enrollment
-    classroom: {
-      type: ObjectId,
-      ref: 'Classroom',
-    },
-
-    // When a solicitation of change Enrollment
-    classroomToCreate: {
-      type: ObjectId,
-      ref: 'Classroom',
-    },
-    classroomToCancel: {
-      type: ObjectId,
-      ref: 'Classroom',
-    }, */
   });
 
   // Plugins
