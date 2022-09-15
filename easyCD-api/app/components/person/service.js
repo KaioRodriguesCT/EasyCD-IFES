@@ -1,5 +1,6 @@
 const async = require('async');
 const _ = require('lodash');
+const mongoose = require('mongoose');
 
 exports = module.exports = function initService(
   PersonRepository,
@@ -49,7 +50,7 @@ exports = module.exports = function initService(
     }
     const { updatedPerson } = await async.auto({
       oldPerson: async () => {
-        const oldPerson = PersonRepository.findById({ _id: person._id });
+        const oldPerson = await PersonRepository.findById({ _id: person._id });
         if (!oldPerson) {
           Utils.throwError('Error updating person. Person not Found', 404);
         }
@@ -58,25 +59,30 @@ exports = module.exports = function initService(
       updatedPerson: ['oldPerson', async ({ oldPerson }) => {
         const updatableFields = {
           name: { allowEmpty: false },
-          email: { allowEmpty: false },
           surname: { allowEmpty: false },
+          email: { allowEmpty: false },
           phone: { allowEmpty: false },
           city: { allowEmpty: true },
           uf: { allowEmpty: true },
           address: { allowEmpty: true },
+          courses: { allowEmpty: true },
+          classrooms: { allowEmpty: true },
+          enrollments: { allowEmpty: true },
+          complementaryActivities: { allowEmpty: true },
+          solicitations: { allowEmpty: true },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = person[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(person[field])) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(person[field]) || _.isEmpty(person[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty) {
             return;
           }
-          if (_.isEqual(person[field], oldPerson[field])) {
-            return;
-          }
-          oldPerson[field] = person[field];
+          oldPerson[field] = currentValue;
         });
         return PersonRepository.update(oldPerson);
       }],
@@ -91,7 +97,6 @@ exports = module.exports = function initService(
     if (_.isNil(person._id)) {
       Utils.throwError('Error removing person. Person ID not sent', 400);
     }
-
     return PersonRepository.removeById(person._id);
   }
 
@@ -99,7 +104,14 @@ exports = module.exports = function initService(
     coordinator,
     courseId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error adding course to Coordinator';
+    if (!coordinator || !mongoose.isValidObjectId(coordinator)) {
+      Utils.throwError(`${defaultErrorMessage}. Coordinator ID not sent or not a valid ID`, 400);
+    }
+    if (!courseId || !mongoose.isValidObjectId(courseId)) {
+      Utils.throwError(`${defaultErrorMessage}. Course ID not sent or not a valid ID`, 400);
+    }
+    const { updatedCoordinator } = await async.auto({
       oldCoordinator: async () => PersonRepository
         .findById({
           _id: coordinator,
@@ -107,17 +119,25 @@ exports = module.exports = function initService(
         }),
       updatedCoordinator: ['oldCoordinator', async ({ oldCoordinator }) => {
         const newCourses = oldCoordinator.courses || [];
-        oldCoordinator.courses = _.uniq([...newCourses], courseId);
+        oldCoordinator.courses = _.uniq([...newCourses, courseId]);
         return update(oldCoordinator);
       }],
     });
+    return updatedCoordinator;
   }
 
   async function removeCourse({
     coordinator,
     courseId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error removing course from Coordinator';
+    if (!coordinator || !mongoose.isValidObjectId(coordinator)) {
+      Utils.throwError(`${defaultErrorMessage}. Coordinator ID not sent or not a valid ID`, 400);
+    }
+    if (!courseId || !mongoose.isValidObjectId(courseId)) {
+      Utils.throwError(`${defaultErrorMessage}. Course ID not sent or not a valid ID`, 400);
+    }
+    const { updatedCoordinator } = await async.auto({
       oldCoordinator: async () => PersonRepository
         .findById({
           _id: coordinator,
@@ -129,13 +149,21 @@ exports = module.exports = function initService(
         return update(oldCoordinator);
       }],
     });
+    return updatedCoordinator;
   }
 
   async function addClassroom({
     teacher,
     classroomId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error adding classroom to Teacher';
+    if (!teacher || !mongoose.isValidObjectId(teacher)) {
+      Utils.throwError(`${defaultErrorMessage}. Teacher ID not sent or not a valid ID`, 400);
+    }
+    if (!classroomId || !mongoose.isValidObjectId(classroomId)) {
+      Utils.throwError(`${defaultErrorMessage}. Classroom ID not sent or not a valid ID`, 400);
+    }
+    const { updatedTeacher } = await async.auto({
       oldTeacher: async () => PersonRepository
         .findById({
           _id: teacher,
@@ -143,17 +171,25 @@ exports = module.exports = function initService(
         }),
       updatedTeacher: ['oldTeacher', async ({ oldTeacher }) => {
         const newClassrooms = oldTeacher.classrooms || [];
-        oldTeacher.classrooms = _.uniq([...newClassrooms], classroomId);
+        oldTeacher.classrooms = _.uniq([...newClassrooms, classroomId]);
         return update(oldTeacher);
       }],
     });
+    return updatedTeacher;
   }
 
   async function removeClassroom({
     teacher,
     classroomId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error removing classroom from Teacher';
+    if (!teacher || !mongoose.isValidObjectId(teacher)) {
+      Utils.throwError(`${defaultErrorMessage}. Teacher ID not sent or not a valid ID`, 400);
+    }
+    if (!classroomId || !mongoose.isValidObjectId(classroomId)) {
+      Utils.throwError(`${defaultErrorMessage}. Classroom ID not sent or not a valid ID`, 400);
+    }
+    const { updatedTeacher } = await async.auto({
       oldTeacher: async () => PersonRepository
         .findById({
           _id: teacher,
@@ -165,13 +201,21 @@ exports = module.exports = function initService(
         return update(oldTeacher);
       }],
     });
+    return updatedTeacher;
   }
 
   async function addEnrollment({
     student,
     enrollmentId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error adding enrollment to Student';
+    if (!student || !mongoose.isValidObjectId(student)) {
+      Utils.throwError(`${defaultErrorMessage}. Student ID not sent or not a valid ID`, 400);
+    }
+    if (!enrollmentId || !mongoose.isValidObjectId(enrollmentId)) {
+      Utils.throwError(`${defaultErrorMessage}. Enrollment ID not sent or not a valid ID`, 400);
+    }
+    const { updatedStudent } = await async.auto({
       oldStudent: async () => PersonRepository
         .findById({
           _id: student,
@@ -179,17 +223,25 @@ exports = module.exports = function initService(
         }),
       updatedStudent: ['oldStudent', async ({ oldStudent }) => {
         const newEnrollments = oldStudent.enrollments || [];
-        oldStudent.enrollments = _.uniq([...newEnrollments], enrollmentId);
+        oldStudent.enrollments = _.uniq([...newEnrollments, enrollmentId]);
         return update(oldStudent);
       }],
     });
+    return updatedStudent;
   }
 
   async function removeEnrollment({
     student,
     enrollmentId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error removing enrollment from Student';
+    if (!student || !mongoose.isValidObjectId(student)) {
+      Utils.throwError(`${defaultErrorMessage}. Student ID not sent or not a valid ID`, 400);
+    }
+    if (!enrollmentId || !mongoose.isValidObjectId(enrollmentId)) {
+      Utils.throwError(`${defaultErrorMessage}. Enrollment ID not sent or not a valid ID`, 400);
+    }
+    const { updatedStudent } = await async.auto({
       oldStudent: async () => PersonRepository
         .findById({
           _id: student,
@@ -201,13 +253,21 @@ exports = module.exports = function initService(
         return update(oldStudent);
       }],
     });
+    return updatedStudent;
   }
 
   async function addComplementaryActivity({
     student,
     complementaryActivityId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error adding complementary activity to Student';
+    if (!student || !mongoose.isValidObjectId(student)) {
+      Utils.throwError(`${defaultErrorMessage}. Student ID not sent or not a valid ID`, 400);
+    }
+    if (!complementaryActivityId || !mongoose.isValidObjectId(complementaryActivityId)) {
+      Utils.throwError(`${defaultErrorMessage}. Complementary Activity ID not sent or not a valid ID`, 400);
+    }
+    const { updatedStudent } = await async.auto({
       oldStudent: async () => PersonRepository
         .findById({
           _id: student,
@@ -216,19 +276,26 @@ exports = module.exports = function initService(
       updatedStudent: ['oldStudent', async ({ oldStudent }) => {
         const newComplementaryActivities = oldStudent.complementaryActivities || [];
         oldStudent.complementaryActivities = _.uniq(
-          [...newComplementaryActivities],
-          complementaryActivityId,
+          [...newComplementaryActivities, complementaryActivityId],
         );
         return update(oldStudent);
       }],
     });
+    return updatedStudent;
   }
 
   async function removeComplementaryActivity({
     student,
     complementaryActivityId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error removing complementary activity from Student';
+    if (!student || !mongoose.isValidObjectId(student)) {
+      Utils.throwError(`${defaultErrorMessage}. Student ID not sent or not a valid ID`, 400);
+    }
+    if (!complementaryActivityId || !mongoose.isValidObjectId(complementaryActivityId)) {
+      Utils.throwError(`${defaultErrorMessage}. Complementary Activity ID not sent or not a valid ID`, 400);
+    }
+    const { updatedStudent } = await async.auto({
       oldStudent: async () => PersonRepository
         .findById({
           _id: student,
@@ -243,13 +310,21 @@ exports = module.exports = function initService(
         return update(oldStudent);
       }],
     });
+    return updatedStudent;
   }
 
   async function addSolicitation({
     person,
     solicitationId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error adding solicitation to Person';
+    if (!person || !mongoose.isValidObjectId(person)) {
+      Utils.throwError(`${defaultErrorMessage}. Person ID not sent or not a valid ID`, 400);
+    }
+    if (!solicitationId || !mongoose.isValidObjectId(solicitationId)) {
+      Utils.throwError(`${defaultErrorMessage}. Solicitation ID not sent or not a valid ID`, 400);
+    }
+    const { updatedPerson } = await async.auto({
       oldPerson: async () => PersonRepository
         .findById({
           _id: person,
@@ -257,17 +332,25 @@ exports = module.exports = function initService(
         }),
       updatedPerson: ['oldPerson', async ({ oldPerson }) => {
         const newSolicitations = oldPerson.solicitations || [];
-        oldPerson.solicitations = _.uniq([...newSolicitations], solicitationId);
+        oldPerson.solicitations = _.uniq([...newSolicitations, solicitationId]);
         return update(oldPerson);
       }],
     });
+    return updatedPerson;
   }
 
   async function removeSolicitation({
     person,
     solicitationId,
   }) {
-    return async.auto({
+    const defaultErrorMessage = 'Error removing solicitation from Person';
+    if (!person || !mongoose.isValidObjectId(person)) {
+      Utils.throwError(`${defaultErrorMessage}. Person ID not sent or not a valid ID`, 400);
+    }
+    if (!solicitationId || !mongoose.isValidObjectId(solicitationId)) {
+      Utils.throwError(`${defaultErrorMessage}. Solicitation ID not sent or not a valid ID`, 400);
+    }
+    const { updatedPerson } = await async.auto({
       oldPerson: async () => PersonRepository
         .findById({
           _id: person,
@@ -282,6 +365,7 @@ exports = module.exports = function initService(
         return update(oldPerson);
       }],
     });
+    return updatedPerson;
   }
 };
 exports['@singleton'] = true;
