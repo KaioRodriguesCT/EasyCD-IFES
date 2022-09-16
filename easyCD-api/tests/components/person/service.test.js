@@ -4,7 +4,7 @@ const { expect } = require('chai');
 const IoC = require('electrolyte');
 const mongoose = require('mongoose');
 // eslint-disable-next-line no-unused-vars
-const app = require('../../../../app');
+const app = require('../../../app');
 
 // Service
 const Utils = IoC.create('tests/utils');
@@ -32,6 +32,7 @@ describe('component/person/service', () => {
       expect(String(_.get(personFound, '_id'))).to.be.equal(String(_.get(createdPerson, '_id')));
     });
   });
+
   describe('fn: create', () => {
     it('Should try insert a person without required fields and throw error', async () => {
       const newPerson = {

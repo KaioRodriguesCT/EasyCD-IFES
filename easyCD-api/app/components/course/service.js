@@ -163,7 +163,7 @@ exports = module.exports = function initService(
       },
       validatedRole: ['coordinator', async ({ coordinator: _id }) => {
         const user = await UserService
-          .findByPerson(_id);
+          .getByPerson(_id);
         if (!user) {
           Utils.throwError(`${defaultErrorMessage}. User not found`, 404);
         }

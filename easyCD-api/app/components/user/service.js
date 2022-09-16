@@ -2,6 +2,11 @@ const bcryptjs = require('bcryptjs');
 const _ = require('lodash');
 const async = require('async');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+
+const defaultErrorCreating = 'Error creating User';
+const defaultErrorUpdating = 'Error updating User';
+const defaultErrorRemoving = 'Error removing User';
 
 const authenticationFailedMessage = 'User authentication failed';
 exports = module.exports = function initService(
@@ -12,103 +17,104 @@ exports = module.exports = function initService(
   settings,
 ) {
   return {
-    findAll,
-    findByPerson,
+    getByPerson,
+    getByUsername,
+    findById,
     create,
     update,
     remove,
     auth,
   };
 
-  // Debug purposes
-  async function findAll() {
-    return UserRepository.findAll();
+  async function findById({ _id }) {
+    return UserRepository.findById({ _id });
   }
 
-  async function findByPerson(person) {
-    return UserRepository.findByPerson(person);
+  async function getByUsername(username) {
+    return UserRepository.findOne({ filters: { username } });
+  }
+
+  async function getByPerson(person) {
+    return UserRepository.findOne({ filters: { person } });
   }
 
   async function create(user) {
-    // Start the session inside the connection
-    const session = await mongo.startSession();
-    // Start a transaction
-    session.startTransaction();
-    try {
-      const { createdUser } = await async.auto({
-        person: async () => PersonService.create(user),
-        createdUser: ['person', async ({ person }) => {
-          const initialFields = [
-            'username',
-            'role',
-            'person',
-            'siape',
-            'registration',
-          ];
-          const newUser = _.pick(user, initialFields);
+    const { createdUser } = await async.auto({
+      validateRole: async () => checkRoleFields({
+        user,
+        defaultErrorMessage: defaultErrorCreating,
+      }),
+      validateUsername: async () => validateUsername({
+        user,
+        defaultErrorMessage: defaultErrorCreating,
+      }),
+      person: ['validateRole', 'validateUsername', async () => PersonService.create(user)],
+      createdUser: ['person', async ({ person }) => {
+        const initialFields = [
+          'username',
+          'role',
+          'person',
+          'siape',
+          'registration',
+        ];
+        const newUser = _.pick(user, initialFields);
 
-          // Encrypting the password
-          newUser.password = await bcryptjs.hash(_.get(user, 'password'), 10);
+        // Encrypting the password
+        newUser.password = await bcryptjs.hash(_.get(user, 'password'), 10);
 
-          // Validating the roles and required fields for those roles
-          if (_.isEqual(newUser.role, 'teacher') && _.isNil(newUser.siape)) {
-            Utils.throwError('Error creating user. Required Field: siape is required for Teachers');
-          }
-          if (_.isEqual(newUser.role, 'student') && _.isNil(newUser.registration)) {
-            Utils.throwError('Error creating user. Required Field: Registration is required for Students');
-          }
+        // Setting  the person
+        newUser.person = _.get(person, '_id');
 
-          // Setting  the person
-          newUser.person = _.get(person, '_id');
-
-          return UserRepository.create(newUser);
-        }],
-      });
-      // Commit the transaction
-      await session.commitTransaction();
-      return _.omit(createdUser, 'password');
-    } catch (e) {
-      console.error(e);
-      await session.abortTransaction();
-      throw e;
-    } finally {
-      // End the session inside the connection
-      session.endSession();
-    }
+        return UserRepository.create(newUser);
+      }],
+    });
+    return _.omit(createdUser, 'password');
   }
 
   async function update(user) {
     if (_.isNil(user)) {
-      Utils.throwError('Error updating user. User not sent', 400);
+      Utils.throwError(`${defaultErrorUpdating}. User not sent`, 400);
     }
     if (_.isNil(user._id)) {
-      Utils.throwError('Error updating user. User ID not sent', 400);
+      Utils.throwError(`${defaultErrorUpdating}. User ID not sent`, 400);
     }
     const { updatedUser } = await async.auto({
       oldUser: async () => {
         const oldUser = await UserRepository
           .findById(user._id);
         if (!oldUser) {
-          Utils.throwError('Error updating user. User not found', 404);
+          Utils.throwError(`${defaultErrorUpdating}. User not found`, 404);
         }
         return oldUser;
       },
-      updatedUser: ['oldUser', async ({ oldUser }) => {
+      validateRole: ['oldUser', async () => (user.role ? checkRoleFields({
+        user,
+        defaultErrorMessage: defaultErrorUpdating,
+      }) : null)],
+      validateUsername: ['oldUser', async () => (user.username ? validateUsername({
+        user,
+        defaultErrorMessage: defaultErrorUpdating,
+      }) : null)],
+      updatedUser: ['validateRole', 'validateUsername', 'oldUser', async ({ oldUser }) => {
         const updatableFields = {
           username: { allowEmpty: false },
           password: { allowEmpty: false },
           role: { allowEmpty: false },
+          siape: { allowEmpty: false },
+          registration: { allowEmpty: false },
         };
-
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = user[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isNil(user[field]) && !allowEmpty) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if (_.isEqual(user[field], oldUser[field])) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty) {
             return;
           }
-          oldUser[field] = user[field];
+          oldUser[field] = currentValue;
         });
         return UserRepository.update(oldUser);
       }],
@@ -118,33 +124,23 @@ exports = module.exports = function initService(
 
   async function remove(user) {
     if (!user) {
-      Utils.throwError('Error removing user. User not sent', 400);
+      Utils.throwError(`${defaultErrorRemoving}. User not sent`, 400);
     }
     if (_.isNil(user._id)) {
-      Utils.throwError('Error removing user. User ID not sent', 400);
+      Utils.throwError(`${defaultErrorRemoving}. User ID not sent`, 400);
     }
-    const session = await mongo.startSession();
-    session.startTransaction();
-    try {
-      await async.auto({
-        oldUser: async () => {
-          const oldUser = await UserRepository
-            .findById({ _id: user._id });
-          if (!oldUser) {
-            Utils.throwError('Error removing user. User not found', 404);
-          }
-          return oldUser;
-        },
-        removePerson: ['oldUser', async ({ oldUser }) => PersonService.remove({ _id: oldUser.person })],
-        removeUser: ['oldUser', 'removePerson', async ({ oldUser }) => UserRepository.removeById(oldUser._id)],
-      });
-      await session.commitTransaction();
-    } catch (e) {
-      console.error(e);
-      await session.abortTransaction();
-    } finally {
-      session.endSession();
-    }
+    await async.auto({
+      oldUser: async () => {
+        const oldUser = await UserRepository
+          .findById({ _id: user._id });
+        if (!oldUser) {
+          Utils.throwError(`${defaultErrorRemoving}. User not found`, 404);
+        }
+        return oldUser;
+      },
+      removePerson: ['oldUser', async ({ oldUser }) => PersonService.remove({ _id: oldUser.person })],
+      removeUser: ['oldUser', 'removePerson', async ({ oldUser }) => UserRepository.removeById(oldUser._id)],
+    });
   }
 
   async function auth(user) {
@@ -160,7 +156,7 @@ exports = module.exports = function initService(
         return { username, password };
       },
       userFound: ['validateParams', async ({ validateParams }) => {
-        const userFound = await UserRepository.findByUsername(validateParams.username);
+        const userFound = await getByUsername(validateParams.username);
         if (!userFound) {
           Utils.throwError(`${authenticationFailedMessage}. Error: Username not found`, 404);
         }
@@ -187,6 +183,30 @@ exports = module.exports = function initService(
       }],
     });
     return userAuth;
+  }
+
+  // Internal Functions
+  async function validateUsername({ user, defaultErrorMessage }) {
+    const { username } = user;
+    const exists = await existsUserWithUsername({ username });
+    if (exists) {
+      Utils.throwError(`${defaultErrorMessage}. Username is already being used`, 400);
+    }
+    return true;
+  }
+
+  async function existsUserWithUsername({ username }) {
+    return UserRepository.exists({ filters: { username } });
+  }
+
+  function checkRoleFields({ user, defaultErrorMessage }) {
+    if (_.isEqual(user.role, 'student') && !user.registration) {
+      Utils.throwError(`${defaultErrorMessage}. Field: Registration is required for Student`, 400);
+    }
+    if (_.isEqual(user.role, 'teacher') && !user.siape) {
+      Utils.throwError(`${defaultErrorMessage}. Field: Siape is required for Teacher`, 400);
+    }
+    return true;
   }
 };
 exports['@singleton'] = true;

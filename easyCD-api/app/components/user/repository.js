@@ -6,39 +6,53 @@ exports = module.exports = function initRepository(UserModel, Utils) {
     create,
     update,
     removeById,
-    findAll,
     findById,
-    findByUsername,
-    findByPerson,
+    find,
+    findOne,
+    exists,
   };
 
-  async function findByPerson(person) {
+  async function find({
+    filters,
+    select,
+    sort,
+    populate,
+  }) {
     return UserModel
-      .findOne({ person })
+      .find(filters)
+      .populate(populate)
+      .select(select)
+      .sort(sort)
       .lean()
       .exec();
   }
 
-  async function findByUsername(username) {
+  async function findOne({
+    filters,
+    select,
+    sort,
+    populate,
+  }) {
     return UserModel
-      .findOne({ username })
+      .findOne(filters)
+      .populate(populate)
+      .select(select)
+      .sort(sort)
       .lean()
       .exec();
   }
 
-  async function findById(_id) {
+  async function findById({ _id }) {
     return UserModel
       .findById(_id)
       .lean()
       .exec();
   }
 
-  async function findAll() {
-    return UserModel
-      .find()
-      .lean()
-      .exec();
+  async function exists({ filters }) {
+    return UserModel.exists(filters).exec();
   }
+
   async function create(user) {
     const requiredFields = [
       'username',
@@ -50,10 +64,6 @@ exports = module.exports = function initRepository(UserModel, Utils) {
         Utils.throwError(`Error creating User. Required Field: ${field}, not sent`, 400);
       }
     });
-    const usernameAlreadyUsed = await findByUsername(user.username);
-    if (usernameAlreadyUsed) {
-      Utils.throwError('Error creating user. Username already being used.', 400);
-    }
     const newUser = await UserModel.create(user);
     return newUser.toJSON();
   }
