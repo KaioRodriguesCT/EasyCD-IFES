@@ -112,11 +112,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Course ID not sent or not a valid ID`, 400);
     }
     const { updatedCoordinator } = await async.auto({
-      oldCoordinator: async () => PersonRepository
-        .findById({
-          _id: coordinator,
-          select: { _id: 1, courses: 1 },
-        }),
+      oldCoordinator: async () => {
+        const oldCoordinator = await PersonRepository
+          .findById({
+            _id: coordinator,
+            select: { _id: 1, courses: 1 },
+          });
+        if (!oldCoordinator) {
+          Utils.throwError(`${defaultErrorMessage}. Coordinator not found`, 404);
+        }
+        return oldCoordinator;
+      },
       updatedCoordinator: ['oldCoordinator', async ({ oldCoordinator }) => {
         const newCourses = oldCoordinator.courses || [];
         oldCoordinator.courses = _.uniq([...newCourses, courseId]);
@@ -138,11 +144,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Course ID not sent or not a valid ID`, 400);
     }
     const { updatedCoordinator } = await async.auto({
-      oldCoordinator: async () => PersonRepository
-        .findById({
-          _id: coordinator,
-          select: { _id: 1, courses: 1 },
-        }),
+      oldCoordinator: async () => {
+        const oldCoordinator = await PersonRepository
+          .findById({
+            _id: coordinator,
+            select: { _id: 1, courses: 1 },
+          });
+        if (!oldCoordinator) {
+          Utils.throwError(`${defaultErrorMessage}. Coordinator not found`, 404);
+        }
+        return oldCoordinator;
+      },
       updatedCoordinator: ['oldCoordinator', async ({ oldCoordinator }) => {
         const newCourses = oldCoordinator.courses || [];
         oldCoordinator.courses = _.filter(newCourses, (_id) => !_.isEqual(_id, courseId));
@@ -164,11 +176,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Classroom ID not sent or not a valid ID`, 400);
     }
     const { updatedTeacher } = await async.auto({
-      oldTeacher: async () => PersonRepository
-        .findById({
-          _id: teacher,
-          select: { _id: 1, classrooms: 1 },
-        }),
+      oldTeacher: async () => {
+        const oldTeacher = await PersonRepository
+          .findById({
+            _id: teacher,
+            select: { _id: 1, classrooms: 1 },
+          });
+        if (!oldTeacher) {
+          Utils.throwError(`${defaultErrorMessage}. Teacher not found`, 404);
+        }
+        return oldTeacher;
+      },
       updatedTeacher: ['oldTeacher', async ({ oldTeacher }) => {
         const newClassrooms = oldTeacher.classrooms || [];
         oldTeacher.classrooms = _.uniq([...newClassrooms, classroomId]);
@@ -190,11 +208,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Classroom ID not sent or not a valid ID`, 400);
     }
     const { updatedTeacher } = await async.auto({
-      oldTeacher: async () => PersonRepository
-        .findById({
-          _id: teacher,
-          select: { _id: 1, classrooms: 1 },
-        }),
+      oldTeacher: async () => {
+        const oldTeacher = await PersonRepository
+          .findById({
+            _id: teacher,
+            select: { _id: 1, classrooms: 1 },
+          });
+        if (!oldTeacher) {
+          Utils.throwError(`${defaultErrorMessage}. Teacher not found`, 404);
+        }
+        return oldTeacher;
+      },
       updatedTeacher: ['oldTeacher', async ({ oldTeacher }) => {
         const newClassrooms = oldTeacher.classrooms || [];
         oldTeacher.classrooms = _.filter(newClassrooms, (_id) => !_.isEqual(_id, classroomId));
@@ -216,11 +240,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Enrollment ID not sent or not a valid ID`, 400);
     }
     const { updatedStudent } = await async.auto({
-      oldStudent: async () => PersonRepository
-        .findById({
-          _id: student,
-          select: { _id: 1, enrollments: 1 },
-        }),
+      oldStudent: async () => {
+        const oldStudent = await PersonRepository
+          .findById({
+            _id: student,
+            select: { _id: 1, enrollments: 1 },
+          });
+        if (!oldStudent) {
+          Utils.throwError(`${defaultErrorMessage}. Student not found`, 404);
+        }
+        return oldStudent;
+      },
       updatedStudent: ['oldStudent', async ({ oldStudent }) => {
         const newEnrollments = oldStudent.enrollments || [];
         oldStudent.enrollments = _.uniq([...newEnrollments, enrollmentId]);
@@ -242,11 +272,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Enrollment ID not sent or not a valid ID`, 400);
     }
     const { updatedStudent } = await async.auto({
-      oldStudent: async () => PersonRepository
-        .findById({
-          _id: student,
-          select: { _id: 1, enrollments: 1 },
-        }),
+      oldStudent: async () => {
+        const oldStudent = await PersonRepository
+          .findById({
+            _id: student,
+            select: { _id: 1, enrollments: 1 },
+          });
+        if (!oldStudent) {
+          Utils.throwError(`${defaultErrorMessage}. Student not found`, 404);
+        }
+        return oldStudent;
+      },
       updatedStudent: ['oldStudent', async ({ oldStudent }) => {
         const newEnrollments = oldStudent.enrollments || [];
         oldStudent.enrollments = _.filter(newEnrollments, (_id) => !_.isEqual(_id, enrollmentId));
@@ -268,11 +304,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Complementary Activity ID not sent or not a valid ID`, 400);
     }
     const { updatedStudent } = await async.auto({
-      oldStudent: async () => PersonRepository
-        .findById({
-          _id: student,
-          select: { _id: 1, complementaryActivities: 1 },
-        }),
+      oldStudent: async () => {
+        const oldStudent = await PersonRepository
+          .findById({
+            _id: student,
+            select: { _id: 1, complementaryActivities: 1 },
+          });
+        if (!oldStudent) {
+          Utils.throwError(`${defaultErrorMessage}. Student not found`, 404);
+        }
+        return oldStudent;
+      },
       updatedStudent: ['oldStudent', async ({ oldStudent }) => {
         const newComplementaryActivities = oldStudent.complementaryActivities || [];
         oldStudent.complementaryActivities = _.uniq(
@@ -296,11 +338,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Complementary Activity ID not sent or not a valid ID`, 400);
     }
     const { updatedStudent } = await async.auto({
-      oldStudent: async () => PersonRepository
-        .findById({
-          _id: student,
-          select: { _id: 1, complementaryActivities: 1 },
-        }),
+      oldStudent: async () => {
+        const oldStudent = await PersonRepository
+          .findById({
+            _id: student,
+            select: { _id: 1, complementaryActivities: 1 },
+          });
+        if (!oldStudent) {
+          Utils.throwError(`${defaultErrorMessage}. Student not found`, 404);
+        }
+        return oldStudent;
+      },
       updatedStudent: ['oldStudent', async ({ oldStudent }) => {
         const newComplementaryActivities = oldStudent.complementaryActivities || [];
         oldStudent.complementaryActivities = _.filter(
@@ -325,11 +373,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Solicitation ID not sent or not a valid ID`, 400);
     }
     const { updatedPerson } = await async.auto({
-      oldPerson: async () => PersonRepository
-        .findById({
-          _id: person,
-          select: { _id: 1, solicitations: 1 },
-        }),
+      oldPerson: async () => {
+        const oldPerson = await PersonRepository
+          .findById({
+            _id: person,
+            select: { _id: 1, solicitations: 1 },
+          });
+        if (!oldPerson) {
+          Utils.throwError(`${defaultErrorMessage}. Person not found`, 404);
+        }
+        return oldPerson;
+      },
       updatedPerson: ['oldPerson', async ({ oldPerson }) => {
         const newSolicitations = oldPerson.solicitations || [];
         oldPerson.solicitations = _.uniq([...newSolicitations, solicitationId]);
@@ -351,11 +405,17 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Solicitation ID not sent or not a valid ID`, 400);
     }
     const { updatedPerson } = await async.auto({
-      oldPerson: async () => PersonRepository
-        .findById({
-          _id: person,
-          select: { _id: 1, solicitations: 1 },
-        }),
+      oldPerson: async () => {
+        const oldPerson = await PersonRepository
+          .findById({
+            _id: person,
+            select: { _id: 1, solicitations: 1 },
+          });
+        if (!oldPerson) {
+          Utils.throwError(`${defaultErrorMessage}. Person not found`, 404);
+        }
+        return oldPerson;
+      },
       updatedPerson: ['oldPerson', async ({ oldPerson }) => {
         const newSolicitations = oldPerson.solicitations || [];
         oldPerson.solicitations = _.filter(

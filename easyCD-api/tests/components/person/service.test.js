@@ -303,6 +303,22 @@ describe('component/person/service', () => {
       expect(error).to.be.true;
     });
 
+    it('Should try add a course to person with non existent person and get error', async () => {
+      const newInfo = {
+        coordinator: new ObjectId(),
+        courseId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.addCourse(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error adding course to Coordinator. Coordinator not found');
+        expect(e).to.have.property('status', 404);
+      }
+      expect(error).to.be.true;
+    });
+
     it('Should try add a course to person and succeed', async () => {
       const createdPerson = await PersonModel.create(defaultNewPerson);
       const _id = _.get(createdPerson, '_id');
@@ -349,6 +365,22 @@ describe('component/person/service', () => {
         error = true;
         expect(e).to.have.property('message', 'Error removing course from Coordinator. Course ID not sent or not a valid ID');
         expect(e).to.have.property('status', 400);
+      }
+      expect(error).to.be.true;
+    });
+
+    it('Should try remove a course from person with a non existent person and get error', async () => {
+      const newInfo = {
+        coordinator: new ObjectId(),
+        courseId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.removeCourse(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error removing course from Coordinator. Coordinator not found');
+        expect(e).to.have.property('status', 404);
       }
       expect(error).to.be.true;
     });
@@ -410,6 +442,22 @@ describe('component/person/service', () => {
       expect(error).to.be.true;
     });
 
+    it('Should try add a classroom to person with  non existent person and get error', async () => {
+      const newInfo = {
+        teacher: new ObjectId(),
+        classroomId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.addClassroom(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error adding classroom to Teacher. Teacher not found');
+        expect(e).to.have.property('status', 404);
+      }
+      expect(error).to.be.true;
+    });
+
     it('Should try add a classroom to person and succeed', async () => {
       const createdPerson = await PersonModel.create(defaultNewPerson);
       const _id = _.get(createdPerson, '_id');
@@ -457,6 +505,22 @@ describe('component/person/service', () => {
         error = true;
         expect(e).to.have.property('message', 'Error removing classroom from Teacher. Classroom ID not sent or not a valid ID');
         expect(e).to.have.property('status', 400);
+      }
+      expect(error).to.be.true;
+    });
+
+    it('Should try remove a classroom from person withh non existent person and get error', async () => {
+      const newInfo = {
+        teacher: new ObjectId(),
+        classroomId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.removeClassroom(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error removing classroom from Teacher. Teacher not found');
+        expect(e).to.have.property('status', 404);
       }
       expect(error).to.be.true;
     });
@@ -515,6 +579,22 @@ describe('component/person/service', () => {
       expect(error).to.be.true;
     });
 
+    it('Should try add a enrollment to person with a non existent person and get error', async () => {
+      const newInfo = {
+        student: new ObjectId(),
+        enrollmentId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.addEnrollment(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error adding enrollment to Student. Student not found');
+        expect(e).to.have.property('status', 404);
+      }
+      expect(error).to.be.true;
+    });
+
     it('Should try add a classroom to person and succeed', async () => {
       const createdPerson = await PersonModel.create(defaultNewPerson);
       const _id = _.get(createdPerson, '_id');
@@ -562,6 +642,22 @@ describe('component/person/service', () => {
         error = true;
         expect(e).to.have.property('message', 'Error removing enrollment from Student. Enrollment ID not sent or not a valid ID');
         expect(e).to.have.property('status', 400);
+      }
+      expect(error).to.be.true;
+    });
+
+    it('Should try remove a enrollment from person with a non existent person and get error', async () => {
+      const newInfo = {
+        student: new ObjectId(),
+        enrollmentId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.removeEnrollment(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error removing enrollment from Student. Student not found');
+        expect(e).to.have.property('status', 404);
       }
       expect(error).to.be.true;
     });
@@ -620,6 +716,22 @@ describe('component/person/service', () => {
       expect(error).to.be.true;
     });
 
+    it('Should try add a complementary activity to person with non existent person and get error', async () => {
+      const newInfo = {
+        student: new ObjectId(),
+        complementaryActivityId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.addComplementaryActivity(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error adding complementary activity to Student. Student not found');
+        expect(e).to.have.property('status', 404);
+      }
+      expect(error).to.be.true;
+    });
+
     it('Should try add a complementary activity to person and succeed', async () => {
       const createdPerson = await PersonModel.create(defaultNewPerson);
       const _id = _.get(createdPerson, '_id');
@@ -667,6 +779,22 @@ describe('component/person/service', () => {
         error = true;
         expect(e).to.have.property('message', 'Error removing complementary activity from Student. Complementary Activity ID not sent or not a valid ID');
         expect(e).to.have.property('status', 400);
+      }
+      expect(error).to.be.true;
+    });
+
+    it('Should try remove a complementary activity from person with non existent student and get error', async () => {
+      const newInfo = {
+        student: new ObjectId(),
+        complementaryActivityId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.removeComplementaryActivity(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error removing complementary activity from Student. Student not found');
+        expect(e).to.have.property('status', 404);
       }
       expect(error).to.be.true;
     });
@@ -728,6 +856,22 @@ describe('component/person/service', () => {
       expect(error).to.be.true;
     });
 
+    it('Should try add a solicitation to person with non existent person and get error', async () => {
+      const newInfo = {
+        person: new ObjectId(),
+        solicitationId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.addSolicitation(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error adding solicitation to Person. Person not found');
+        expect(e).to.have.property('status', 404);
+      }
+      expect(error).to.be.true;
+    });
+
     it('Should try add a solicitation to person and succeed', async () => {
       const createdPerson = await PersonModel.create(defaultNewPerson);
       const _id = _.get(createdPerson, '_id');
@@ -775,6 +919,22 @@ describe('component/person/service', () => {
         error = true;
         expect(e).to.have.property('message', 'Error removing solicitation from Person. Solicitation ID not sent or not a valid ID');
         expect(e).to.have.property('status', 400);
+      }
+      expect(error).to.be.true;
+    });
+
+    it('Should try remove a solicitation from person with a non existent person and get error', async () => {
+      const newInfo = {
+        person: new ObjectId(),
+        solicitationId: new ObjectId(),
+      };
+      let error = false;
+      try {
+        await PersonService.removeSolicitation(newInfo);
+      } catch (e) {
+        error = true;
+        expect(e).to.have.property('message', 'Error removing solicitation from Person. Person not found');
+        expect(e).to.have.property('status', 404);
       }
       expect(error).to.be.true;
     });
