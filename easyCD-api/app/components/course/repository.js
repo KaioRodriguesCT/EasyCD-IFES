@@ -7,18 +7,10 @@ exports = module.exports = function initRepository(
 ) {
   return {
     findById,
-    findAll,
     create,
     update,
     removeById,
   };
-
-  async function findAll() {
-    return CourseModel
-      .find()
-      .lean()
-      .exec();
-  }
 
   async function findById({ _id, select }) {
     return CourseModel

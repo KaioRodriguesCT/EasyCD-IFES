@@ -7,25 +7,9 @@ exports = module.exports = function initRepository(UserModel, Utils) {
     update,
     removeById,
     findById,
-    find,
     findOne,
     exists,
   };
-
-  async function find({
-    filters,
-    select,
-    sort,
-    populate,
-  }) {
-    return UserModel
-      .find(filters)
-      .populate(populate)
-      .select(select)
-      .sort(sort)
-      .lean()
-      .exec();
-  }
 
   async function findOne({
     filters,

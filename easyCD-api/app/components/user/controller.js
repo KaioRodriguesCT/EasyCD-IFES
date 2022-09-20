@@ -9,17 +9,8 @@ exports = module.exports = function initController(
     create,
     update,
     remove,
-    list,
     auth,
   };
-
-  async function list(req, res, next) {
-    try {
-      return res.json({ users: await UserService.findAll() });
-    } catch (e) {
-      return next(e);
-    }
-  }
 
   async function create(req, res, next) {
     try {

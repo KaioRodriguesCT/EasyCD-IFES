@@ -30,14 +30,7 @@ exports = module.exports = function initRouter(
     CourseController.remove,
   );
 
-  // list all Courses
-  router.get(
-    '/list',
-    Policies.JWTTeacher,
-    CourseController.list,
-  );
-
-  app.use('/api/course', router);
+  app.use('/api/courses', router);
 };
 exports['@singleton'] = true;
 exports['@require'] = [

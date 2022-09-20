@@ -26,13 +26,6 @@ exports = module.exports = function initRouter(UserController, Policies) {
     UserController.remove,
   );
 
-  // Get list of users
-  router.get(
-    '/list',
-    Policies.JWTAdmin,
-    UserController.list,
-  );
-
   // Definition
   app.use('/api/users', router);
 };
