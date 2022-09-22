@@ -25,7 +25,7 @@ describe('component/person/service', () => {
   });
 
   describe('fn: findById', () => {
-    it('Should try search by id and return success', async () => {
+    it('Should try search by id and succeed', async () => {
       const createdPerson = await PersonModel.create(defaultNewPerson);
       const personFound = await PersonService.findById({ _id: _.get(createdPerson, '_id') });
       expect(personFound).to.not.be.null;

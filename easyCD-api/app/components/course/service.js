@@ -101,17 +101,17 @@ exports = module.exports = function initService(
           curriculumGrides: { allowEmpty: true },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = course[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(course[field])) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(course[field]) || _.isEmpty(course[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty) {
             return;
           }
-          if (_.isEqual(course[field], oldCourse[field])) {
-            return;
-          }
-          oldCourse[field] = course[field];
+          oldCourse[field] = currentValue;
         });
         return CourseRepository.update(oldCourse);
       }],
@@ -206,7 +206,7 @@ exports = module.exports = function initService(
     course,
     curriculumGrideId,
   }) {
-    const defaultErrorMessage = 'Error removing Curriculum Gride to Course';
+    const defaultErrorMessage = 'Error removing Curriculum Gride from Course';
     if (!course || !mongoose.isValidObjectId(course)) {
       Utils.throwError(`${defaultErrorMessage}. Course ID not sent or not a valid ID`, 400);
     }

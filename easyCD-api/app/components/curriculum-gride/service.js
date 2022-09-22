@@ -10,7 +10,6 @@ exports = module.exports = function initService(
   CurriculumGrideRepository,
   CourseService,
   Utils,
-  Mongo,
 ) {
   return {
     create,
@@ -19,7 +18,12 @@ exports = module.exports = function initService(
     findById,
     addSubject,
     removeSubject,
+    validateCourse,
   };
+
+  async function findById({ _id }) {
+    return CurriculumGrideRepository.findById({ _id });
+  }
 
   async function create(curriculumGride) {
     if (!curriculumGride) {
@@ -42,7 +46,7 @@ exports = module.exports = function initService(
         newCurriculumGride.isActive = isActive(newCurriculumGride);
         return CurriculumGrideRepository.create(newCurriculumGride);
       }],
-      updateCourse: ['createdCurriculumGride', async ({ createdCurriculumGride: course, _id }) => CourseService.addCurriculumGride({
+      updateCourse: ['createdCurriculumGride', async ({ createdCurriculumGride: { course, _id } }) => CourseService.addCurriculumGride({
         course,
         curriculumGrideId: _id,
       })],
@@ -95,20 +99,21 @@ exports = module.exports = function initService(
           dtStart: { allowEmpty: false },
           dtEnd: { allowEmpty: false },
           course: { allowEmpty: false },
+          subjects: { allowEmpty: true },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = curriculumGride[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(curriculumGride[field])) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(curriculumGride[field])
-           || _.isEmpty(curriculumGride[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty) {
             return;
           }
-          if (_.isEqual(curriculumGride[field], oldCurriculumGride[field])) {
-            return;
-          }
-          oldCurriculumGride[field] = curriculumGride[field];
+
+          oldCurriculumGride[field] = currentValue;
         });
         return CurriculumGrideRepository.update((oldCurriculumGride));
       }],
@@ -123,94 +128,106 @@ exports = module.exports = function initService(
     if (_.isNil(curriculumGride._id)) {
       Utils.throwError(`${defaultErrorRemoving}. Curriculum Gride ID not sent`, 400);
     }
-    const session = await Mongo.startSession();
-    session.startTransaction();
-    try {
-      await async.auto({
-        oldCurriculumGride: async () => {
-          const oldCurriculumGride = await CurriculumGrideRepository
-            .findById({ _id: curriculumGride._id });
-          if (!oldCurriculumGride) {
-            Utils.throwError(`${defaultErrorRemoving}. Curriculum Gride not found`, 404);
-          }
-          return oldCurriculumGride;
-        },
-        removeCurriculumGride: ['oldCurriculumGride', async ({ oldCurriculumGride: _id }) => CurriculumGrideRepository.removeById(_id)],
-        updateCourse: ['oldCurriculumGride', 'removeCurriculumGride', async ({ oldCurriculumGride: course, _id }) => CourseService.removeCurriculumGride({
-          course,
-          curriculumGrideId: _id,
-        })],
-      });
-      await session.commitTransaction();
-    } catch (e) {
-      console.error(e);
-      await session.abortTransaction();
-    } finally {
-      session.endSession();
-    }
+    await async.auto({
+      oldCurriculumGride: async () => {
+        const oldCurriculumGride = await CurriculumGrideRepository
+          .findById({ _id: curriculumGride._id });
+        if (!oldCurriculumGride) {
+          Utils.throwError(`${defaultErrorRemoving}. Curriculum Gride not found`, 404);
+        }
+        return oldCurriculumGride;
+      },
+      removeCurriculumGride: ['oldCurriculumGride', async ({ oldCurriculumGride: { _id } }) => CurriculumGrideRepository.removeById(_id)],
+      updateCourse: ['oldCurriculumGride', 'removeCurriculumGride', async ({ oldCurriculumGride: { course, _id } }) => CourseService.removeCurriculumGride({
+        course,
+        curriculumGrideId: _id,
+      })],
+    });
   }
 
   async function validateCourse({ courseId, defaultErrorMessage }) {
-    if (courseId || !mongoose.isValidObjectId(courseId)) {
-      Utils.throwError(`${defaultErrorMessage}. Course not send or not a valid ID`);
+    if (!courseId || !mongoose.isValidObjectId(courseId)) {
+      Utils.throwError(`${defaultErrorMessage}. Course not sent or not a valid ID`, 400);
     }
     const course = await CourseService.findById({ _id: courseId });
     if (!course) {
-      Utils.throwError(`${defaultErrorMessage}. Course not found`);
+      Utils.throwError(`${defaultErrorMessage}. Course not found`, 404);
     }
     return course;
   }
 
-  async function isActive({ dtStart, dtEnd }) {
+  function isActive({ dtStart, dtEnd }) {
     return moment().isBetween(moment(dtStart), moment(dtEnd));
-  }
-
-  async function findById({ _id }) {
-    return CurriculumGrideRepository.findById({ _id });
   }
 
   async function addSubject({
     curriculumGride,
     subjectId,
   }) {
-    return async.auto({
-      curriculumGride: async () => CurriculumGrideRepository
-        .findById({
-          _id: curriculumGride,
-          select: { _id: 1, subjects: 1 },
-        }),
-      updatedCurriculumGride: ['curriculumGride', async ({ curriculumGride }) => {
-        const newSubjects = curriculumGride.subjects || [];
-        curriculumGride.subjects = _.uniq([...newSubjects], subjectId);
-        return update(curriculumGride);
+    const defaultErrorMessage = 'Error adding Subject to Curriculum Gride';
+    if (!curriculumGride || !mongoose.isValidObjectId(curriculumGride)) {
+      Utils.throwError(`${defaultErrorMessage}. Curriculum gride ID not sent or not a valid ID`, 400);
+    }
+    if (!subjectId || !mongoose.isValidObjectId(subjectId)) {
+      Utils.throwError(`${defaultErrorMessage}. Subject ID not sent or not a valid ID`, 400);
+    }
+    const { updatedCurriculumGride } = await async.auto({
+      oldGride: async () => {
+        const oldGride = await CurriculumGrideRepository
+          .findById({
+            _id: curriculumGride,
+            select: { _id: 1, subjects: 1 },
+          });
+        if (!oldGride) {
+          Utils.throwError(`${defaultErrorMessage}. Curriculum Gride not found`, 404);
+        }
+        return oldGride;
+      },
+      updatedCurriculumGride: ['oldGride', async ({ oldGride }) => {
+        const newSubjects = oldGride.subjects || [];
+        oldGride.subjects = _.uniq([...newSubjects, subjectId]);
+        return update(oldGride);
       }],
     });
+    return updatedCurriculumGride;
   }
 
   async function removeSubject({
     curriculumGride,
     subjectId,
   }) {
-    return async.auto({
-      curriculumGride: async () => CurriculumGrideRepository
-        .findById({
-          _id: curriculumGride,
-          select: { _id: 1, subjects: 1 },
-        }),
-      // eslint-disable-next-line no-shadow
-      updatedCurriculumGride: ['curriculumGride', async ({ curriculumGride }) => {
-        const newSubjects = curriculumGride.subjects || [];
-        curriculumGride.subjects = _.filter(newSubjects, (_id) => !_.isEqual(_id, subjectId));
-        return update(curriculumGride);
+    const defaultErrorMessage = 'Error removing Subject from Curriculum Gride';
+    if (!curriculumGride || !mongoose.isValidObjectId(curriculumGride)) {
+      Utils.throwError(`${defaultErrorMessage}. Curriculum gride ID not sent or not a valid ID`, 400);
+    }
+    if (!subjectId || !mongoose.isValidObjectId(subjectId)) {
+      Utils.throwError(`${defaultErrorMessage}. Subject ID not sent or not a valid ID`, 400);
+    }
+    const { updatedCurriculumGride } = await async.auto({
+      oldGride: async () => {
+        const oldGride = await CurriculumGrideRepository
+          .findById({
+            _id: curriculumGride,
+            select: { _id: 1, subjects: 1 },
+          });
+        if (!oldGride) {
+          Utils.throwError(`${defaultErrorMessage}. Curriculum Gride not found`, 404);
+        }
+        return oldGride;
+      },
+      updatedCurriculumGride: ['oldGride', async ({ oldGride }) => {
+        const newSubjects = oldGride.subjects || [];
+        oldGride.subjects = _.filter(newSubjects, (_id) => !_.isEqual(_id, subjectId));
+        return update(oldGride);
       }],
     });
+    return updatedCurriculumGride;
   }
 };
 
 exports['@singleton'] = true;
-exports['@requirer'] = [
+exports['@require'] = [
   'components/curriculum-gride/repository',
   'components/course/service',
   'lib/utils',
-  'lib/mongo',
 ];

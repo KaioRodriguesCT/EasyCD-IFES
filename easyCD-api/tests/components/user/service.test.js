@@ -457,7 +457,7 @@ describe('componentes/user/service', async () => {
   });
 
   describe('fn: findById', () => {
-    it('Should try find a user by id', async () => {
+    it('Should try find a user by id and succeed', async () => {
       const createdUser = await UserService.create({ ...defaultPerson, ...defaultUser });
       const userFound = await UserService.findById({ _id: _.get(createdUser, '_id') });
       expect(userFound).to.not.be.null;

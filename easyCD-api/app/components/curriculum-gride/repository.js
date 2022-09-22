@@ -30,7 +30,7 @@ exports = module.exports = function initRepository(
     ];
     _.forEach(requiredFields, (field) => {
       if (_.isNil(curriculumGride[field])) {
-        Utils.throwError(`Error creating curriculum gride. Required Field: ${field} not sent`, 400);
+        Utils.throwError(`Error creating Curriculum Gride. Required Field: ${field} not sent`, 400);
       }
     });
     const newCurriculumGride = await CurriculumGrideModel.create(curriculumGride);

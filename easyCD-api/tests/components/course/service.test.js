@@ -32,7 +32,7 @@ describe('components/course/service', async () => {
   });
 
   describe('fn: findById', () => {
-    it('Should try find course by id and succed', async () => {
+    it('Should try find course by id and succeed', async () => {
       const createdCourse = await CourseModel.create({
         name: 'test',
         coordinator: _.get(context, 'student.person'),
@@ -307,6 +307,12 @@ describe('components/course/service', async () => {
 
       await CourseService.remove({ _id: courseId });
 
+      const removedCourse = await CourseModel
+        .findById(courseId)
+        .lean()
+        .exec();
+      expect(removedCourse).to.be.null;
+
       const updatedCoordinator = await PersonModel
         .findById(coordinatorId)
         .lean()
@@ -478,7 +484,7 @@ describe('components/course/service', async () => {
         await CourseService.removeCurriculumGride(newInfo);
       } catch (e) {
         error = true;
-        expect(e).to.have.property('message', 'Error removing Curriculum Gride to Course. Course ID not sent or not a valid ID');
+        expect(e).to.have.property('message', 'Error removing Curriculum Gride from Course. Course ID not sent or not a valid ID');
         expect(e).to.have.property('status', 400);
       }
       expect(error).to.be.true;
@@ -494,7 +500,7 @@ describe('components/course/service', async () => {
         await CourseService.removeCurriculumGride(newInfo);
       } catch (e) {
         error = true;
-        expect(e).to.have.property('message', 'Error removing Curriculum Gride to Course. Curriculum Gride ID not sent or not a valid ID');
+        expect(e).to.have.property('message', 'Error removing Curriculum Gride from Course. Curriculum Gride ID not sent or not a valid ID');
         expect(e).to.have.property('status', 400);
       }
       expect(error).to.be.true;
@@ -510,7 +516,7 @@ describe('components/course/service', async () => {
         await CourseService.removeCurriculumGride(newInfo);
       } catch (e) {
         error = true;
-        expect(e).to.have.property('message', 'Error removing Curriculum Gride to Course. Course not found');
+        expect(e).to.have.property('message', 'Error removing Curriculum Gride from Course. Course not found');
         expect(e).to.have.property('status', 404);
       }
       expect(error).to.be.true;
@@ -532,15 +538,11 @@ describe('components/course/service', async () => {
       const mappedGrides = _.map(curriculumGrides, (gride) => String(gride));
       expect(mappedGrides).to.includes(String(curriculumGrideId));
 
-      await CourseService.removeCurriculumGride({
+      const updatedCourse = await CourseService.removeCurriculumGride({
         course: courseId,
         curriculumGrideId,
       });
 
-      const updatedCourse = await CourseModel
-        .findById(courseId)
-        .lean()
-        .exec();
       expect(updatedCourse).to.have.property('curriculumGrides');
       const { curriculumGrides: updatedCG } = updatedCourse;
       expect(updatedCG).to.have.length(0);
