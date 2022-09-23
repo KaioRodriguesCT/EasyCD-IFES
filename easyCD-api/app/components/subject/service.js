@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const async = require('async');
+const mongoose = require('mongoose');
 
 const defaultErrorCreating = 'Error creating Subject';
 const defaultErrorUpdating = 'Error updating Subject';
@@ -9,7 +10,6 @@ exports = module.exports = function initService(
   SubjectRepository,
   CurriculumGrideService,
   Utils,
-  Mongo,
 ) {
   return {
     create,
@@ -18,6 +18,7 @@ exports = module.exports = function initService(
     addClassroom,
     removeClassroom,
     findById,
+    validateCurriculumGride,
   };
 
   async function findById({ _id, select }) {
@@ -43,7 +44,7 @@ exports = module.exports = function initService(
         const newSubject = _.pick(subject, initialFields);
         return SubjectRepository.create(newSubject);
       }],
-      updateCurriculumGride: ['createdSubject', async ({ createdSubject: curriculumGride, _id }) => CurriculumGrideService.addSubject({
+      updateCurriculumGride: ['createdSubject', async ({ createdSubject: { curriculumGride, _id } }) => CurriculumGrideService.addSubject({
         curriculumGride,
         subjectId: _id,
       })],
@@ -97,19 +98,20 @@ exports = module.exports = function initService(
           qtyHours: { allowEmpty: false },
           externalCod: { allowEmpty: true },
           curriculumGride: { allowEmpty: false },
+          classrooms: { allowEmpty: true },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = subject[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(subject[field])) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(subject[field]) || _.isEmpty(subject[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty) {
             return;
           }
-          if (_.isEqual(subject[field], oldSubject[field])) {
-            return;
-          }
-          oldSubject[field] = subject[field];
+          oldSubject[field] = currentValue;
         });
         return SubjectRepository.update(oldSubject);
       }],
@@ -124,39 +126,29 @@ exports = module.exports = function initService(
     if (_.isNil(subject._id)) {
       Utils.throwError(`${defaultErrorRemoving}. Subject ID not sent`, 400);
     }
-    const session = await Mongo.startSession();
-    session.startTransaction();
-    try {
-      await async.auto({
-        oldSubject: async () => {
-          const oldSubject = await SubjectRepository
-            .findById({ _id: subject._id });
-          if (!subject) {
-            Utils.throwError(`${defaultErrorRemoving}. Subject not found`, 404);
-          }
-          return oldSubject;
-        },
-        removeSubject: ['oldSubject', async ({ oldSubject }) => SubjectRepository.removeById(oldSubject._id)],
-        updateCurriculumGride: ['oldSubject', 'removeSubject', async ({ oldSubject }) => CurriculumGrideService.removeSubject({
-          curriculumGride: subject.curriculumGride,
-          subjectId: oldSubject._id,
-        })],
-      });
-      await session.commitTransaction();
-    } catch (e) {
-      console.error(e);
-      await session.abortTransaction();
-    } finally {
-      session.endSession();
-    }
+    await async.auto({
+      oldSubject: async () => {
+        const oldSubject = await SubjectRepository
+          .findById({ _id: subject._id });
+        if (!oldSubject) {
+          Utils.throwError(`${defaultErrorRemoving}. Subject not found`, 404);
+        }
+        return oldSubject;
+      },
+      removeSubject: ['oldSubject', async ({ oldSubject: { _id } }) => SubjectRepository.removeById(_id)],
+      updateCurriculumGride: ['oldSubject', 'removeSubject', async ({ oldSubject: { curriculumGride, _id } }) => CurriculumGrideService.removeSubject({
+        curriculumGride,
+        subjectId: _id,
+      })],
+    });
   }
 
   async function validateCurriculumGride({
     curriculumGrideId,
     defaultErrorMessage,
   }) {
-    if (!curriculumGrideId) {
-      Utils.throwError(`${defaultErrorMessage}. Curriculum Gride not sent`, 400);
+    if (!curriculumGrideId || !mongoose.isValidObjectId(curriculumGrideId)) {
+      Utils.throwError(`${defaultErrorMessage}. Curriculum Gride not sent or not a valid ID`, 400);
     }
     const curriculumGride = await CurriculumGrideService.findById({ _id: curriculumGrideId });
     if (!curriculumGride) {
@@ -169,36 +161,64 @@ exports = module.exports = function initService(
     subject,
     classroomId,
   }) {
-    return async.auto({
-      oldSubject: async () => SubjectRepository
-        .findById({
-          _id: subject,
-          select: { _id: 1, classrooms: 1 },
-        }),
+    const defaultErrorMessage = 'Error adding Classroom to Subject';
+    if (!subject || !mongoose.isValidObjectId(subject)) {
+      Utils.throwError(`${defaultErrorMessage}. Subject ID not sent or not a valid ID`, 400);
+    }
+    if (!classroomId || !mongoose.isValidObjectId(classroomId)) {
+      Utils.throwError(`${defaultErrorMessage}. Classroom ID not sent or not a valid ID`, 400);
+    }
+    const { updatedSubject } = await async.auto({
+      oldSubject: async () => {
+        const oldSubject = await SubjectRepository
+          .findById({
+            _id: subject,
+            select: { _id: 1, classrooms: 1 },
+          });
+        if (!oldSubject) {
+          Utils.throwError(`${defaultErrorMessage}. Subject not found`, 404);
+        }
+        return oldSubject;
+      },
       updatedSubject: ['oldSubject', async ({ oldSubject }) => {
         const newClassrooms = oldSubject.classrooms || [];
-        oldSubject.classrooms = _.uniq([...newClassrooms], classroomId);
+        oldSubject.classrooms = _.uniq([...newClassrooms, classroomId]);
         return update(oldSubject);
       }],
     });
+    return updatedSubject;
   }
 
   async function removeClassroom({
     subject,
     classroomId,
   }) {
-    return async.auto({
-      oldSubject: async () => SubjectRepository
-        .findById({
-          _id: subject,
-          select: { _id: 1, classrooms: 1 },
-        }),
+    const defaultErrorMessage = 'Error removing Classroom from Subject';
+    if (!subject || !mongoose.isValidObjectId(subject)) {
+      Utils.throwError(`${defaultErrorMessage}. Subject ID not sent or not a valid ID`, 400);
+    }
+    if (!classroomId || !mongoose.isValidObjectId(classroomId)) {
+      Utils.throwError(`${defaultErrorMessage}. Classroom ID not sent or not a valid ID`, 400);
+    }
+    const { updatedSubject } = await async.auto({
+      oldSubject: async () => {
+        const oldSubject = await SubjectRepository
+          .findById({
+            _id: subject,
+            select: { _id: 1, classrooms: 1 },
+          });
+        if (!oldSubject) {
+          Utils.throwError(`${defaultErrorMessage}. Subject not found`, 404);
+        }
+        return oldSubject;
+      },
       updatedSubject: ['oldSubject', async ({ oldSubject }) => {
         const newClassrooms = oldSubject.classrooms || [];
         oldSubject.classrooms = _.filter(newClassrooms, (_id) => !_.isEqual(_id, classroomId));
         return update(oldSubject);
       }],
     });
+    return updatedSubject;
   }
 };
 
@@ -207,5 +227,4 @@ exports['@require'] = [
   'components/subject/repository',
   'components/curriculum-gride/service',
   'lib/utils',
-  'lib/mongo',
 ];
