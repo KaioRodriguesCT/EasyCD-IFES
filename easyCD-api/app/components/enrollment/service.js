@@ -17,6 +17,8 @@ exports = module.exports = function initService(
     create,
     update,
     remove,
+    validateClassroom,
+    validateStudent,
   };
 
   async function create(enrollment) {
@@ -42,11 +44,11 @@ exports = module.exports = function initService(
         const newEnrollment = _.pick(enrollment, initialFields);
         return EnrollmentRepository.create(newEnrollment);
       }],
-      updateStudent: ['createdEnrollment', async ({ createdEnrollment: student, _id }) => PersonService.addEnrollment({
+      updateStudent: ['createdEnrollment', async ({ createdEnrollment: { student, _id } }) => PersonService.addEnrollment({
         student,
         enrollmentId: _id,
       })],
-      updateClassroom: ['createdEnrollment', async ({ createdEnrollment: classroom, _id }) => ClassroomService.addEnrollment({
+      updateClassroom: ['createdEnrollment', async ({ createdEnrollment: { classroom, _id } }) => ClassroomService.addEnrollment({
         classroom,
         enrollmentId: _id,
       })],
@@ -124,17 +126,17 @@ exports = module.exports = function initService(
           observation: { allowEmpty: true },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = enrollment[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(enrollment[field])) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(enrollment[field]) || _.isEmpty(enrollment[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty) {
             return;
           }
-          if (_.isEqual(enrollment[field], oldEnrollment[field])) {
-            return;
-          }
-          oldEnrollment[field] = enrollment[field];
+          oldEnrollment[field] = currentValue;
         });
         return EnrollmentRepository.update(oldEnrollment);
       }],
@@ -159,11 +161,11 @@ exports = module.exports = function initService(
         return oldEnrollment;
       },
       removeEnrollment: ['oldEnrollment', async ({ oldEnrollment: _id }) => EnrollmentRepository.removeById(_id)],
-      updateStudent: ['oldEnrollment', 'removeEnrollment', async ({ oldEnrollment: student, _id }) => PersonService.removeEnrollment({
+      updateStudent: ['oldEnrollment', 'removeEnrollment', async ({ oldEnrollment: { student, _id } }) => PersonService.removeEnrollment({
         student,
         enrollmentId: _id,
       })],
-      updateClassroom: ['oldEnrollment', 'removeEnrollment', async ({ oldEnrollment: classroom, _id }) => ClassroomService.removeEnrollment({
+      updateClassroom: ['oldEnrollment', 'removeEnrollment', async ({ oldEnrollment: { classroom, _id } }) => ClassroomService.removeEnrollment({
         classroom,
         enrollmentId: _id,
       })],

@@ -642,7 +642,7 @@ describe('components/classroom/service', () => {
       let error = false;
       const defaultErrorMessage = 'Default message';
       try {
-        await ClassroomService.validateSubject({ defaultErrorMessage: 'Default message' });
+        await ClassroomService.validateSubject({ defaultErrorMessage });
       } catch (e) {
         error = true;
         expect(e).to.have.property('message', `${defaultErrorMessage}. Subject not sent or not a valid ID`);
@@ -657,7 +657,7 @@ describe('components/classroom/service', () => {
       try {
         await ClassroomService.validateSubject({
           subjectId: 'nonValidObjectId',
-          defaultErrorMessage: 'Default message',
+          defaultErrorMessage,
         });
       } catch (e) {
         error = true;
@@ -673,7 +673,7 @@ describe('components/classroom/service', () => {
       try {
         await ClassroomService.validateSubject({
           subjectId: new ObjectId(),
-          defaultErrorMessage: 'Default message',
+          defaultErrorMessage,
         });
       } catch (e) {
         error = true;
