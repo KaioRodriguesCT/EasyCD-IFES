@@ -20,6 +20,8 @@ exports = module.exports = function initService(
     findById,
     addEnrollment,
     removeEnrollment,
+    validateSubject,
+    validateTeacher,
     getClassroomTeacherAndCoordinator,
   };
 
@@ -56,11 +58,11 @@ exports = module.exports = function initService(
         const newClassroom = _.pick(classroom, initialFields);
         return ClassroomRepository.create(newClassroom);
       }],
-      updateSubject: ['createdClassroom', async ({ createdClassroom: subject, _id }) => SubjectService.addClassroom({
+      updateSubject: ['createdClassroom', async ({ createdClassroom: { subject, _id } }) => SubjectService.addClassroom({
         subject,
         classroomId: _id,
       })],
-      updateTeacher: ['createdClassroom', async ({ createdClassroom: teacher, _id }) => PersonService.addClassroom({
+      updateTeacher: ['createdClassroom', async ({ createdClassroom: { teacher, _id } }) => PersonService.addClassroom({
         teacher,
         classroomId: _id,
       })],
@@ -142,18 +144,18 @@ exports = module.exports = function initService(
           teacher: { allowEmpty: false },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = classroom[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(classroom[field])) {
+
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(classroom[field])
-          || _.isEmpty(classroom[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty) {
             return;
           }
-          if (_.isEqual(classroom[field], oldClassroom[field])) {
-            return;
-          }
-          oldClassroom[field] = classroom[field];
+          oldClassroom[field] = currentValue;
         });
         return ClassroomRepository.update(oldClassroom);
       }],
@@ -177,12 +179,12 @@ exports = module.exports = function initService(
         }
         return oldClassroom;
       },
-      removeClassroom: ['oldClassroom', async ({ oldClassroom: _id }) => ClassroomRepository.removeById(_id)],
-      updateSubject: ['oldClassroom', 'removeClassroom', async ({ oldClassroom: subject, _id }) => SubjectService.removeClassroom({
+      removeClassroom: ['oldClassroom', async ({ oldClassroom: { _id } }) => ClassroomRepository.removeById(_id)],
+      updateSubject: ['oldClassroom', 'removeClassroom', async ({ oldClassroom: { subject, _id } }) => SubjectService.removeClassroom({
         subject,
         classroomId: _id,
       })],
-      updateTeacher: ['oldClassroom', 'removeClassroom', async ({ oldClassroom: teacher, _id }) => PersonService.removeClassroom({
+      updateTeacher: ['oldClassroom', 'removeClassroom', async ({ oldClassroom: { teacher, _id } }) => PersonService.removeClassroom({
         teacher,
         classroomId: _id,
       })],
@@ -193,7 +195,7 @@ exports = module.exports = function initService(
     return async.auto({
       teacher: async () => {
         if (!teacherId || !mongoose.isValidObjectId(teacherId)) {
-          Utils.throwError(`${defaultErrorMessage}. Teacher not sent`, 400);
+          Utils.throwError(`${defaultErrorMessage}. Teacher not sent or not a valid ID`, 400);
         }
         const teacher = await PersonService.findById({ _id: teacherId });
         if (!teacher) {
@@ -216,8 +218,8 @@ exports = module.exports = function initService(
   }
 
   async function validateSubject({ subjectId, defaultErrorMessage }) {
-    if (!subjectId) {
-      Utils.throwError(`${defaultErrorMessage}. Subject not sent`, 400);
+    if (!subjectId || !mongoose.isValidObjectId(subjectId)) {
+      Utils.throwError(`${defaultErrorMessage}. Subject not sent or not a valid ID`, 400);
     }
     const subject = await SubjectService.findById({ _id: subjectId });
     if (!subject) {
@@ -230,36 +232,64 @@ exports = module.exports = function initService(
     classroom,
     enrollmentId,
   }) {
-    return async.auto({
-      oldClassroom: async () => ClassroomRepository
-        .findById({
-          _id: classroom,
-          select: { _id: 1, enrollments: 1 },
-        }),
+    const defaultErrorMessage = 'Error adding Enrollment to Classroom';
+    if (!classroom || !mongoose.isValidObjectId(classroom)) {
+      Utils.throwError(`${defaultErrorMessage}. Classroom ID not sent or not a valid ID`, 400);
+    }
+    if (!enrollmentId || !mongoose.isValidObjectId(enrollmentId)) {
+      Utils.throwError(`${defaultErrorMessage}. Enrollment ID not sent or not a valid ID`, 400);
+    }
+    const { updatedClassroom } = await async.auto({
+      oldClassroom: async () => {
+        const oldClassroom = await ClassroomRepository
+          .findById({
+            _id: classroom,
+            select: { _id: 1, enrollments: 1 },
+          });
+        if (!oldClassroom) {
+          Utils.throwError(`${defaultErrorMessage}. Classroom not found`, 404);
+        }
+        return oldClassroom;
+      },
       updatedClassroom: ['oldClassroom', async ({ oldClassroom }) => {
         const newEnrollments = oldClassroom.enrollments || [];
-        oldClassroom.enrollments = _.uniq([...newEnrollments], enrollmentId);
+        oldClassroom.enrollments = _.uniq([...newEnrollments, enrollmentId]);
         return update(oldClassroom);
       }],
     });
+    return updatedClassroom;
   }
 
   async function removeEnrollment({
     classroom,
     enrollmentId,
   }) {
-    return async.auto({
-      oldClassroom: async () => ClassroomRepository
-        .findById({
-          _id: classroom,
-          select: { _id: 1, enrollments: 1 },
-        }),
-      updatedStudent: ['oldClassroom', async ({ oldClassroom }) => {
+    const defaultErrorMessage = 'Error removing Enrollment from Classroom';
+    if (!classroom || !mongoose.isValidObjectId(classroom)) {
+      Utils.throwError(`${defaultErrorMessage}. Classroom ID not sent or not a valid ID`, 400);
+    }
+    if (!enrollmentId || !mongoose.isValidObjectId(enrollmentId)) {
+      Utils.throwError(`${defaultErrorMessage}. Enrollment ID not sent or not a valid ID`, 400);
+    }
+    const { updatedClassroom } = await async.auto({
+      oldClassroom: async () => {
+        const oldClassroom = await ClassroomRepository
+          .findById({
+            _id: classroom,
+            select: { _id: 1, enrollments: 1 },
+          });
+        if (!oldClassroom) {
+          Utils.throwError(`${defaultErrorMessage}. Classroom not found`, 404);
+        }
+        return oldClassroom;
+      },
+      updatedClassroom: ['oldClassroom', async ({ oldClassroom }) => {
         const newEnrollments = oldClassroom.enrollments || [];
         oldClassroom.enrollments = _.filter(newEnrollments, (_id) => !_.isEqual(_id, enrollmentId));
         return update(oldClassroom);
       }],
     });
+    return updatedClassroom;
   }
 
   async function getClassroomTeacherAndCoordinator({ classroom }) {

@@ -374,7 +374,7 @@ describe('components/curriculum-gride/service', () => {
       try {
         await CurriculumGrideService.validateCourse({
           courseId: 'nonValidObjectId',
-          defaultErrorMessage: 'Default message',
+          defaultErrorMessage,
         });
       } catch (e) {
         error = true;
@@ -390,7 +390,7 @@ describe('components/curriculum-gride/service', () => {
       try {
         await CurriculumGrideService.validateCourse({
           courseId: new ObjectId(),
-          defaultErrorMessage: 'Default message',
+          defaultErrorMessage,
         });
       } catch (e) {
         error = true;

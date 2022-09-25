@@ -31,6 +31,7 @@ exports = module.exports = function initRepository(
       'semester',
       'allowExceedLimit',
       'teacher',
+      'subject',
     ];
     _.forEach(requiredFields, (field) => {
       if (_.isNil(classroom[field])) {
