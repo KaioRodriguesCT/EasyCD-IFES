@@ -16,7 +16,12 @@ exports = module.exports = function initRepository(
   }
 
   async function create(complementaryActivityType) {
-    const requiredFields = ['name', 'score', 'unit', 'axle'];
+    const requiredFields = [
+      'name',
+      'score',
+      'unit',
+      'axle',
+    ];
     _.forEach(requiredFields, (field) => {
       if (_.isNil(complementaryActivityType[field])) {
         Utils.throwError(`Error creating Complementary Activity Type. Required Field: ${field} not sent`, 400);

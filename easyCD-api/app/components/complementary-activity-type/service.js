@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const async = require('async');
+const mongoose = require('mongoose');
 
 const defaultErrorCreating = 'Error creating Complementary Activity Type';
 const defaultErrorUpdating = 'Error updating Complementary Activity Type';
@@ -38,7 +39,7 @@ exports = module.exports = function initService(
     }
     const { updatedType } = await async.auto({
       oldType: async () => {
-        const oldType = ComplementaryActivityTypeRepository
+        const oldType = await ComplementaryActivityTypeRepository
           .findById({ _id: type._id });
         if (!oldType) {
           Utils.throwError(`${defaultErrorUpdating}. Type not found`, 404);
@@ -54,17 +55,17 @@ exports = module.exports = function initService(
           axle: { allowEmpty: false },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = type[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(type[field])) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(type[field]) || _.isEmpty(type[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty) {
             return;
           }
-          if (_.isEqual(oldType[field], type[field])) {
-            return;
-          }
-          oldType[field] = type[field];
+          oldType[field] = currentValue;
         });
         return ComplementaryActivityTypeRepository.update(oldType);
       }],
@@ -88,7 +89,7 @@ exports = module.exports = function initService(
         }
         return oldType;
       },
-      removeType: ['oldType', async ({ oldType: _id }) => ComplementaryActivityTypeRepository.removeById(_id)],
+      removeType: ['oldType', async ({ oldType: { _id } }) => ComplementaryActivityTypeRepository.removeById(_id)],
     });
   }
 };

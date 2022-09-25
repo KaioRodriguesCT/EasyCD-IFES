@@ -112,7 +112,6 @@ exports = module.exports = function initService(
           && !allowEmpty) {
             return;
           }
-
           oldCurriculumGride[field] = currentValue;
         });
         return CurriculumGrideRepository.update((oldCurriculumGride));
