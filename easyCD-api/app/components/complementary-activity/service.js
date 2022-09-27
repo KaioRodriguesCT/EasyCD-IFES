@@ -18,6 +18,8 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
+    validateStudent,
+    validateComplementaryActivityType,
   };
 
   async function findById({ _id }) {
@@ -26,7 +28,7 @@ exports = module.exports = function initService(
 
   async function create(complementaryActivity) {
     if (!complementaryActivity) {
-      Utils.throwError(`${defaultErrorCreating}. Complementary Activity not sent`, 400);
+      Utils.throwError(`${defaultErrorCreating}. Activity not sent`, 400);
     }
     const { createdComplementaryActivity } = await async.auto({
       validateStudent: async () => validateStudent({
@@ -51,7 +53,7 @@ exports = module.exports = function initService(
         const newComplementaryActivity = _.pick(complementaryActivity, initialFields);
         return ComplementaryActivityRepository.create(newComplementaryActivity);
       }],
-      updateStudent: ['createdComplementaryActivity', async ({ createdComplementaryActivity: student, _id }) => PersonService.addComplementaryActivity({
+      updateStudent: ['createdComplementaryActivity', async ({ createdComplementaryActivity: { student, _id } }) => PersonService.addComplementaryActivity({
         student,
         complementaryActivityId: _id,
       })],
@@ -61,17 +63,17 @@ exports = module.exports = function initService(
 
   async function update(complementaryActivity) {
     if (_.isNil(complementaryActivity)) {
-      Utils.throwError(`${defaultErrorUpdating}. Complementary Activity not sent`, 400);
+      Utils.throwError(`${defaultErrorUpdating}. Activity not sent`, 400);
     }
     if (_.isNil(complementaryActivity._id)) {
-      Utils.throwError(`${defaultErrorUpdating}. Complementary Activity ID not sent`, 400);
+      Utils.throwError(`${defaultErrorUpdating}. Activity ID not sent`, 400);
     }
     const { updatedComplementaryActivity } = await async.auto({
       oldComplementaryActivity: async () => {
         const oldActivity = await ComplementaryActivityRepository
           .findById({ _id: complementaryActivity._id });
         if (!oldActivity) {
-          Utils.throwError(`${defaultErrorUpdating}. Complementary Activity not found`, 404);
+          Utils.throwError(`${defaultErrorUpdating}. Activity not found`, 404);
         }
         return oldActivity;
       },
@@ -89,18 +91,17 @@ exports = module.exports = function initService(
           quantity: { allowEmpty: false },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = complementaryActivity[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(complementaryActivity[field])) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(complementaryActivity[field])
-          || _.isEmpty(complementaryActivity[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty) {
             return;
           }
-          if (_.isEqual(oldComplementaryActivity[field], complementaryActivity[field])) {
-            return;
-          }
-          oldComplementaryActivity[field] = complementaryActivity[field];
+          oldComplementaryActivity[field] = currentValue;
         });
         return ComplementaryActivityRepository.update(oldComplementaryActivity);
       }],
@@ -110,10 +111,10 @@ exports = module.exports = function initService(
 
   async function remove(complementaryActivity) {
     if (_.isNil(complementaryActivity)) {
-      Utils.throwError(`${defaultErrorRemoving}. Complementary Activity not sent`, 400);
+      Utils.throwError(`${defaultErrorRemoving}. Activity not sent`, 400);
     }
     if (_.isNil(complementaryActivity._id)) {
-      Utils.throwError(`${defaultErrorRemoving}. Complementary Activity ID not sent`, 400);
+      Utils.throwError(`${defaultErrorRemoving}. Activity ID not sent`, 400);
     }
 
     await async.auto({
@@ -121,12 +122,12 @@ exports = module.exports = function initService(
         const oldActivity = await ComplementaryActivityRepository
           .findById({ _id: complementaryActivity._id });
         if (!oldActivity) {
-          Utils.throwError(`${defaultErrorRemoving}. Complementary Activity not found`, 404);
+          Utils.throwError(`${defaultErrorRemoving}. Activity not found`, 404);
         }
         return oldActivity;
       },
       removeComplementaryActivity: ['oldComplementaryActivity', async ({ oldComplementaryActivity: _id }) => ComplementaryActivityRepository.removeById(_id)],
-      updateStudent: ['oldComplementaryActivity', 'removeComplementaryActivity', async ({ oldComplementaryActivity: student, _id }) => PersonService.removeComplementaryActivity({
+      updateStudent: ['oldComplementaryActivity', 'removeComplementaryActivity', async ({ oldComplementaryActivity: { student, _id } }) => PersonService.removeComplementaryActivity({
         student,
         complementaryActivityId: _id,
       })],
@@ -164,12 +165,12 @@ exports = module.exports = function initService(
     defaultErrorMessage,
   }) {
     if (!complementaryActivityTypeId || !mongoose.isValidObjectId(complementaryActivityTypeId)) {
-      Utils.throwError(`${defaultErrorMessage}. Complementary Activity Type not sent`, 400);
+      Utils.throwError(`${defaultErrorMessage}. Activity Type not sent or not a valid ID`, 400);
     }
     const complementaryActivityType = await ComplementaryActivityTypeService
       .findById({ _id: complementaryActivityTypeId });
     if (!complementaryActivityType) {
-      Utils.throwError(`${defaultErrorMessage}. Complementary Activity Type not found`, 404);
+      Utils.throwError(`${defaultErrorMessage}. Activity Type not found`, 404);
     }
     return complementaryActivityType;
   }
@@ -177,6 +178,7 @@ exports = module.exports = function initService(
 exports['@singleton'] = true;
 exports['@require'] = [
   'components/complementary-activity/repository',
+  'components/complementary-activity-type/service',
   'components/person/service',
   'components/user/service',
   'lib/utils',
