@@ -24,6 +24,18 @@ exports = module.exports = function initModel(mongo) {
         type: Boolean,
         required: true,
       },
+      fieldsStructure: {
+        type: [{
+          name: {
+            type: String,
+            required: true,
+          },
+          type: {
+            type: String,
+            required: true,
+          },
+        }],
+      },
     },
     {
       timestamps: {

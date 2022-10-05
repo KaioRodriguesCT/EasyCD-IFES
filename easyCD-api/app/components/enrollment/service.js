@@ -19,6 +19,7 @@ exports = module.exports = function initService(
     remove,
     validateClassroom,
     validateStudent,
+    findOneByClassroomAndStudent,
   };
 
   async function create(enrollment) {
@@ -133,7 +134,8 @@ exports = module.exports = function initService(
           }
           if ((_.isNull(currentValue)
           || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty) {
+          && !allowEmpty
+          && !_.isBoolean((currentValue))) {
             return;
           }
           oldEnrollment[field] = currentValue;
@@ -207,6 +209,18 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Classroom not found`, 404);
     }
     return classroom;
+  }
+
+  async function findOneByClassroomAndStudent({
+    classroom,
+    student,
+  }) {
+    return EnrollmentRepository.findOne({
+      filters: {
+        classroom,
+        student,
+      },
+    });
   }
 };
 

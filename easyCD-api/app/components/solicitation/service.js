@@ -54,10 +54,10 @@ exports = module.exports = function initService(
   }
 
   async function update(solicitation) {
-    if (!_.isNil(solicitation)) {
+    if (_.isNil(solicitation)) {
       Utils.throwError(`${defaultErrorUpdating}. Solicitation not sent`, 400);
     }
-    if (!_.isNil(solicitation._id)) {
+    if (_.isNil(solicitation._id)) {
       Utils.throwError(`${defaultErrorUpdating}. Solicitation ID not sent`, 400);
     }
     const { updatedSolicitation } = await async.auto({
@@ -79,18 +79,18 @@ exports = module.exports = function initService(
           isProcessed: { allowEmpty: false },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = solicitation[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(solicitation[field])) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(solicitation[field])
-          || _.isEmpty(solicitation[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty
+          && !_.isBoolean((currentValue))) {
             return;
           }
-          if (_.isEqual(solicitation[field], oldSolicitation[field])) {
-            return;
-          }
-          oldSolicitation[field] = solicitation[field];
+          oldSolicitation[field] = currentValue;
         });
         return SolicitationRepository.update(oldSolicitation);
       }],

@@ -152,7 +152,8 @@ exports = module.exports = function initService(
           }
           if ((_.isNull(currentValue)
           || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty) {
+          && !allowEmpty
+          && !_.isBoolean((currentValue))) {
             return;
           }
           oldClassroom[field] = currentValue;
@@ -322,10 +323,20 @@ exports = module.exports = function initService(
       },
       {
         $unwind: {
-          from: 'course',
+          path: '$curriculumGride',
+        },
+      },
+      {
+        $lookup: {
+          from: 'courses',
           localField: 'curriculumGride.course',
-          foreignField: 'course',
+          foreignField: '_id',
           as: 'course',
+        },
+      },
+      {
+        $unwind: {
+          path: '$course',
         },
       },
       {

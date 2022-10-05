@@ -21,8 +21,18 @@ exports = module.exports = function initService(
     create,
     update,
     remove,
+    validateFieldsStructure,
     validateMeta,
+    validateEnrollmentSolicitationMeta,
+    validateEnrollmentChangeSolicitationMeta,
+    validateComplementaryActivityMetaSolicitation,
+    processingRequiredApprovals,
+    processEnrollmentSolicitation,
+    processEnrollmentChangeSolicitation,
+    processComplementaryActivitySolicitation,
     processSolicitation,
+    isApproved,
+    isReproved,
   };
 
   async function create(solicitationType) {
@@ -32,7 +42,7 @@ exports = module.exports = function initService(
     const initialFields = [
       'name',
       'description',
-      'requireTeacherApprovval',
+      'requireTeacherApproval',
       'requireCoordinatorApproval',
       'allowSubmitFile',
       'fieldsStructure',
@@ -44,22 +54,6 @@ exports = module.exports = function initService(
       defaultErrorMessage: defaultErrorCreating,
     });
     return SolicitationTypeRepository.create(newSolicitationType);
-  }
-
-  function validateFieldsStructure({ fieldsStructure, defaultErrorMessage }) {
-    const allowedTypes = ['String', 'Number', 'Buffer', 'Boolean', 'ObjectId'];
-    if (_.isEmpty(fieldsStructure)) {
-      Utils.throwError(`${defaultErrorMessage}. Structure of the fields sent is not valid`, 400);
-    }
-    _.forEach(fieldsStructure, (field) => {
-      const { name, type } = field;
-      if (_.isNil(name) || _.isNil(type)) {
-        Utils.throwError(`${defaultErrorMessage}. Name or type of the field are not valid, on fields structure array`, 400);
-      }
-      if (!allowedTypes.includes(type)) {
-        Utils.throwError(`${defaultErrorMessage}. Type of field ${name} not valid. Please use one of the allow types: ${_.join(allowedTypes, ', ')}`, 400);
-      }
-    });
   }
 
   async function update(solicitationType) {
@@ -78,7 +72,12 @@ exports = module.exports = function initService(
         }
         return oldSolicitationType;
       },
-      updatedSolicitation: ['oldSolicitationType', async ({ oldSolicitationType }) => {
+      validateFieldsStructure: async () => (solicitationType.fieldsStructure
+        ? validateFieldsStructure({
+          fieldsStructure: solicitationType.fieldsStructure,
+          defaultErrorMessage: defaultErrorCreating,
+        }) : null),
+      updatedSolicitationType: ['validateFieldsStructure', 'oldSolicitationType', async ({ oldSolicitationType }) => {
         const updatableFields = {
           name: { allowEmpty: false },
           description: { allowEmpty: false },
@@ -88,18 +87,18 @@ exports = module.exports = function initService(
           fieldsStructure: { allowEmpty: false },
         };
         _.forOwn(updatableFields, (value, field) => {
+          const currentValue = solicitationType[field];
           const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(solicitationType[field])) {
+          if (_.isUndefined(currentValue)) {
             return;
           }
-          if ((_.isNull(solicitationType[field])
-          || _.isEmpty(solicitationType[field])) && !allowEmpty) {
+          if ((_.isNull(currentValue)
+          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
+          && !allowEmpty
+          && !_.isBoolean((currentValue))) {
             return;
           }
-          if (_.isEqual(solicitationType[field], oldSolicitationType[field])) {
-            return;
-          }
-          oldSolicitationType[field] = solicitationType[field];
+          oldSolicitationType[field] = currentValue;
         });
         return SolicitationTypeRepository.update(oldSolicitationType);
       }],
@@ -119,12 +118,29 @@ exports = module.exports = function initService(
         const oldSolicitationType = await SolicitationTypeRepository
           .findById({ _id: solicitationType._id });
         if (!oldSolicitationType) {
-          Utils.throwError(`${defaultErrorUpdating}. Solicitation Type not found`, 404);
+          Utils.throwError(`${defaultErrorRemoving}. Solicitation Type not found`, 404);
         }
         return oldSolicitationType;
       },
       removeSolicitationType: ['oldSolicitationType', async ({ oldSolicitationType: _id }) => SolicitationTypeRepository.removeById(_id)],
     });
+  }
+
+  function validateFieldsStructure({ fieldsStructure, defaultErrorMessage }) {
+    const allowedTypes = ['String', 'Number', 'Buffer', 'Boolean', 'ObjectId'];
+    if (_.isEmpty(fieldsStructure)) {
+      Utils.throwError(`${defaultErrorMessage}. Structure of the fields sent is not valid`, 400);
+    }
+    _.forEach(fieldsStructure, (field) => {
+      const { name, type } = field;
+      if (_.isNil(name) || _.isNil(type)) {
+        Utils.throwError(`${defaultErrorMessage}. Name or type of the field are not valid, on fields structure array`, 400);
+      }
+      if (!allowedTypes.includes(type)) {
+        Utils.throwError(`${defaultErrorMessage}. Type of field ${name} not valid. Please use one of the allow types: ${_.join(allowedTypes, ', ')}`, 400);
+      }
+    });
+    return true;
   }
 
   async function validateMeta({ meta, solicitationTypeId }) {
@@ -150,54 +166,58 @@ exports = module.exports = function initService(
   }
 
   async function validateEnrollmentSolicitationMeta({ meta }) {
+    const defaultErrorMessage = 'Error on validate Enrollment Solicitation meta';
     if (!meta) {
-      Utils.throwError('Error on validate Enrollment Solicitation meta. Meta not sent', 400);
+      Utils.throwError(`${defaultErrorMessage}. Meta not sent`, 400);
     }
     const { classroom: classroomId } = meta;
     if (_.isNil(classroomId) || !mongoose.isValidObjectId(classroomId)) {
-      Utils.throwError('Error on Enrollment Solicitation meta. Classroom not sent or not a valid ID', 400);
+      Utils.throwError(`${defaultErrorMessage}. Classroom not sent or not a valid ID`, 400);
     }
     const classroom = await ClassroomService.findById({ _id: classroomId });
     if (!classroom) {
-      Utils.throwError('Error on Enrollment Solicitation meta. Classroom not found', 404);
+      Utils.throwError(`${defaultErrorMessage}. Classroom not found`, 404);
     }
+    return true;
   }
 
   async function validateEnrollmentChangeSolicitationMeta({ meta }) {
+    const defaultErrorMessage = 'Error on validate Enrollment Solicitation meta';
     if (!meta) {
-      Utils.throwError('Error on validate Enrollment Solicitation meta. Meta not sent', 400);
+      Utils.throwError(`${defaultErrorMessage}. Meta not sent`, 400);
     }
     const { classroomToEnroll, classroomToUnenroll } = meta;
     await async.auto({
       validateEnroll: async () => {
         if (_.isNil(classroomToEnroll) || !mongoose.isValidObjectId(classroomToEnroll)) {
-          Utils.throwError('Error on Enrollment Change Solicitation meta. Classroom to enroll not sent or not a valid ID', 400);
+          Utils.throwError(`${defaultErrorMessage}. Classroom to enroll not sent or not a valid ID`, 400);
         }
         const classroom = await ClassroomService.findById({ _id: classroomToEnroll });
         if (!classroom) {
-          Utils.throwError('Error on Enrollment Change Solicitation meta. Classroom to enroll not found', 404);
+          Utils.throwError(`${defaultErrorMessage}. Classroom to enroll not found`, 404);
         }
       },
       validateUneroll: async () => {
         if (_.isNil(classroomToUnenroll) || !mongoose.isValidObjectId(classroomToUnenroll)) {
-          Utils.throwError('Error on Enrollment Change Solicitation meta. Classroom to unenroll not sent or not a valid ID', 400);
+          Utils.throwError(`${defaultErrorMessage}. Classroom to unenroll not sent or not a valid ID`, 400);
         }
         const classroom = await ClassroomService.findById({ _id: classroomToUnenroll });
         if (!classroom) {
-          Utils.throwError('Error on Enrollment Change Solicitation meta. Classroom to unenroll not found', 404);
+          Utils.throwError(`${defaultErrorMessage}. Classroom to unenroll not found`, 404);
         }
       },
     });
+    return true;
   }
 
   async function validateComplementaryActivityMetaSolicitation({ meta }) {
     const defaultErrorMessage = 'Error on Complementary Activity Solicitation meta';
     if (!meta) {
-      Utils.throwError(`${defaultErrorMessage}. Error on validate Complementary Activity Solicitation meta. Meta not sent`, 400);
+      Utils.throwError(`${defaultErrorMessage}. Meta not sent`, 400);
     }
     const { complementaryActivityType: cActivityType, evidence, quantity } = meta;
-    if (_.isNil(complementaryActivityType)
-    || !mongoose.isValidObjectId(complementaryActivityType)) {
+    if (_.isNil(cActivityType)
+    || !mongoose.isValidObjectId(cActivityType)) {
       Utils.throwError(`${defaultErrorMessage}. Complementary Activity type not sent or not a valid ID`, 400);
     }
     const complementaryActivityType = await ComplementaryActivityTypeService
@@ -211,6 +231,7 @@ exports = module.exports = function initService(
     if (_.isNil(quantity) || !_.isNumber(quantity)) {
       Utils.throwError(`${defaultErrorMessage}. Quantity not sent or not a valid number`, 400);
     }
+    return true;
   }
 
   async function processSolicitation({
@@ -223,7 +244,7 @@ exports = module.exports = function initService(
     const solicitationType = await SolicitationTypeRepository
       .findById({ _id: solicitation.solicitationType });
     if (!solicitationType) {
-      Utils.throwError(`Error processing ${state} Solicitation : ${solicitation._id}. Solicitation Type not found`, 404);
+      Utils.throwError(`Error processing recently ${state} solicitation: ${solicitation._id}. Solicitation Type not found`, 404);
     }
     switch (solicitationType.name) {
       case 'Enrollment':
@@ -269,8 +290,8 @@ exports = module.exports = function initService(
             student: solicitation.student,
           };
           return async.auto({
-            createEnrollment: async () => EnrollmentService.create(newEnrollment),
-            updateSolicitation: ['createEnrollment', async () => {
+            createdEnrollment: async () => EnrollmentService.create(newEnrollment),
+            updatedSolicitation: ['createdEnrollment', async () => {
               const SolicitationService = IoC.create('components/solicitation/service');
               return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
             }],
@@ -294,7 +315,7 @@ exports = module.exports = function initService(
       classroom: _.get(classroomToEnroll, '_id'),
     });
     if (!teacherAndCoordinator) {
-      Utils.throwError(`${defaultErrorMessage}. Teacher and Coordinator not found for classroom`, 400);
+      Utils.throwError(`${defaultErrorMessage}. Teacher and Coordinator not found for classroom`, 404);
     }
     switch (state) {
       case 'deleted':
@@ -314,11 +335,18 @@ exports = module.exports = function initService(
           };
           return async.auto({
             creating: async () => EnrollmentService.create(newEnrollment),
-            canceling: async () => EnrollmentService.update({
-              _id: meta.classroomToUnenroll,
-              status: 'Canceled',
-            }),
-            updateSolicitation: ['createEnrollment', async () => {
+            canceling: async () => {
+              const enrollmentToCancel = await EnrollmentService.findOneByClassroomAndStudent({
+                classroom: meta.classroomToUnenroll,
+                student: solicitation.student,
+              });
+
+              return EnrollmentService.update({
+                _id: _.get(enrollmentToCancel, '_id'),
+                status: 'Canceled',
+              });
+            },
+            updateSolicitation: ['creating', async () => {
               const SolicitationService = IoC.create('components/solicitation/service');
               return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
             }],
@@ -366,7 +394,7 @@ exports = module.exports = function initService(
 
         if (isApproved({ solicitation, solicitationType }) && !isProcessed) {
           return async.auto({
-            creatingActivity: ComplementaryActivityService.create({ ...newComplementaryActivity, status: 'Accepted' }),
+            creatingActivity: async () => ComplementaryActivityService.create({ ...newComplementaryActivity, status: 'Accepted' }),
             updateSolicitation: ['creatingActivity', async () => {
               const SolicitationService = IoC.create('components/solicitation/service');
               return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
@@ -375,7 +403,7 @@ exports = module.exports = function initService(
         }
         if (isReproved({ solicitation, solicitationType }) && !isProcessed) {
           return async.auto({
-            creatingActivity: ComplementaryActivityService.create({ ...newComplementaryActivity, status: 'Accepted' }),
+            creatingActivity: async () => ComplementaryActivityService.create({ ...newComplementaryActivity, status: 'Rejected' }),
             updateSolicitation: ['creatingActivity', async () => {
               const SolicitationService = IoC.create('components/solicitation/service');
               return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
@@ -401,8 +429,8 @@ exports = module.exports = function initService(
         if (!solicitationType.requireTeacherApproval || !teacher) {
           return null;
         }
-        return async.auto({
-          updateTeacher: async () => {
+        const { updatedTeacher } = await async.auto({
+          updatedTeacher: async () => {
             switch (state) {
               case 'created':
                 return PersonService.addSolicitation({
@@ -421,13 +449,14 @@ exports = module.exports = function initService(
           // TODO
           sendEmail: async () => {},
         });
+        return updatedTeacher;
       },
       processingCoordinator: async () => {
         if (!solicitationType.requireCoordinatorApproval || !coordinator) {
           return null;
         }
-        return async.auto({
-          updateCoordinator: async () => {
+        const { updatedCoordinator } = await async.auto({
+          updatedCoordinator: async () => {
             switch (state) {
               case 'created':
                 return PersonService.addSolicitation({
@@ -446,6 +475,7 @@ exports = module.exports = function initService(
           // TODO
           sendEmail: async () => {},
         });
+        return updatedCoordinator;
       },
     });
   }
@@ -472,7 +502,7 @@ exports = module.exports = function initService(
     }
     if (requireTeacherApproval
       && !_.isNil(teacherApproval)
-      && teacherApproval) {
+      && !teacherApproval) {
       return true;
     }
     return false;

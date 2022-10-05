@@ -10,11 +10,27 @@ exports = module.exports = function initRepository(
     update,
     removeById,
     findById,
+    findOne,
   };
 
   async function findById({ _id }) {
     return EnrollmentModel
       .findById(_id)
+      .lean()
+      .exec();
+  }
+
+  async function findOne({
+    filters,
+    select,
+    populate,
+    sort,
+  }) {
+    return EnrollmentModel
+      .findOne(filters)
+      .select(select)
+      .populate(populate)
+      .sort(sort)
       .lean()
       .exec();
   }

@@ -62,7 +62,8 @@ exports = module.exports = function initService(
           }
           if ((_.isNull(currentValue)
           || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty) {
+          && !allowEmpty
+          && !_.isBoolean((currentValue))) {
             return;
           }
           oldType[field] = currentValue;
