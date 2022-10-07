@@ -56,9 +56,6 @@ exports = module.exports = function initRepository(
     const curriculumGride = await CurriculumGrideModel
       .findById(curriculumGrideId)
       .exec();
-    if (!curriculumGride) {
-      Utils.throwError('Error removing Curriculum Gride. Curriculum Gride not found', 404);
-    }
     return curriculumGride.delete();
   }
 };

@@ -54,9 +54,6 @@ exports = module.exports = function initRepository(
     const subject = await SubjectModel
       .findById(subjectId)
       .exec();
-    if (!subject) {
-      Utils.throwError('Error removing Subject. Subject not found', 404);
-    }
     return subject.delete();
   }
 };

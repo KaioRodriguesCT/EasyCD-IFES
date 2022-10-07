@@ -71,9 +71,6 @@ exports = module.exports = function initRepository(UserModel, Utils) {
     const user = await UserModel
       .findById(userId)
       .exec();
-    if (!user) {
-      Utils.throwError('Error removing user. User not found', 404);
-    }
     return user.delete();
   }
 };

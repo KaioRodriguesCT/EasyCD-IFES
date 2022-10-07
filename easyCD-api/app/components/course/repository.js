@@ -53,9 +53,6 @@ exports = module.exports = function initRepository(
     const course = await CourseModel
       .findById(courseId)
       .exec();
-    if (!course) {
-      Utils.throwError('Error removing course. Course not found', 404);
-    }
     return course.delete();
   }
 };

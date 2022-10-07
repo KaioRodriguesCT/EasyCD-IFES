@@ -61,9 +61,6 @@ exports = module.exports = function initRepository(
     const classroom = await ClassroomModel
       .findById(classroomId)
       .exec();
-    if (!classroom) {
-      Utils.throwError('Error removing Classroom. Classroom not found', 404);
-    }
     return classroom.delete();
   }
 };

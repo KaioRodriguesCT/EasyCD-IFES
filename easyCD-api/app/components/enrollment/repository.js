@@ -36,15 +36,6 @@ exports = module.exports = function initRepository(
   }
 
   async function create(enrollment) {
-    const requiredFields = [
-      'classroom',
-      'student',
-    ];
-    _.forEach(requiredFields, (field) => {
-      if (_.isNil(enrollment[field])) {
-        Utils.throwError(`Error creating Enrollment. Required Field: ${field} not sent`, 400);
-      }
-    });
     const newEnrollment = await EnrollmentModel.create(enrollment);
     return newEnrollment.toJSON();
   }
@@ -68,9 +59,6 @@ exports = module.exports = function initRepository(
     const enrollment = await EnrollmentModel
       .findById(enrollmentId)
       .exec();
-    if (!enrollment) {
-      Utils.throwError('Error removing Enrollment. Enrollment not found', 404);
-    }
     return enrollment.delete();
   }
 };

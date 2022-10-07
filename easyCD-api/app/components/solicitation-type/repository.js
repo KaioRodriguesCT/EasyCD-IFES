@@ -40,9 +40,7 @@ exports = module.exports = function initRepository(
     const oldSolicitationType = await SolicitationTypeModel
       .findById(solicitationType._id)
       .exec();
-    if (!oldSolicitationType) {
-      Utils.throwError('Error updating Solicitation Type. Solicitation Type not found', 404);
-    }
+
     _.forOwn(solicitationType, (value, field) => {
       oldSolicitationType[field] = value;
     });
@@ -54,9 +52,6 @@ exports = module.exports = function initRepository(
     const solicitationType = await SolicitationTypeModel
       .findById(solicitationTypeId)
       .exec();
-    if (!solicitationType) {
-      Utils.throwError('Error removing Solicitation Type. Solicitation Type not found', 404);
-    }
     return solicitationType.delete();
   }
 };

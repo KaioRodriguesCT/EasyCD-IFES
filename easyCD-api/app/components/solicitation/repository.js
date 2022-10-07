@@ -27,9 +27,6 @@ exports = module.exports = function initRepository(
     const oldSolicitation = await SolicitationModel
       .findById(solicitation._id)
       .exec();
-    if (!oldSolicitation) {
-      Utils.throwError('Error updating Solicitation. Solicitation not found', 404);
-    }
     _.forOwn(solicitation, (value, field) => {
       oldSolicitation[field] = value;
     });
@@ -41,9 +38,6 @@ exports = module.exports = function initRepository(
     const solicitation = await SolicitationModel
       .findById(solicitationId)
       .exec();
-    if (!solicitation) {
-      Utils.throwError('Error removing Solicitation. Solicitation not found', 404);
-    }
     return solicitation.delete();
   }
 };

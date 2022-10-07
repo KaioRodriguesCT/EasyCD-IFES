@@ -50,9 +50,6 @@ exports = module.exports = function initRepository(
     const type = await ComplementaryActivityTypeModel
       .findById(typeId)
       .exec();
-    if (!type) {
-      Utils.throwError('Error removing Complementary Activity Type. Type not found', 404);
-    }
     return type.delete();
   }
 };

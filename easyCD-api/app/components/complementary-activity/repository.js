@@ -56,9 +56,6 @@ exports = module.exports = function initRepository(
     const activity = await ComplementaryActivityModel
       .findById(complementaryActivityId)
       .exec();
-    if (!activity) {
-      Utils.throwError('Error removing Complementary Activity. Activity not found', 404);
-    }
     return activity.delete();
   }
 };
