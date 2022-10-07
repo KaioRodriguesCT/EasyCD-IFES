@@ -19,16 +19,6 @@ exports = module.exports = function initRepository(
   }
 
   async function create(solicitation) {
-    const requiredFields = [
-      'solicitationType',
-      'student',
-      'meta',
-    ];
-    _.forEach(requiredFields, (field) => {
-      if (_.isNil(solicitation[field])) {
-        Utils.throwError(`Error creating Solicitation. Required Field:${field}`, 400);
-      }
-    });
     const newSolicitation = await SolicitationModel.create(solicitation);
     return newSolicitation.toJSON();
   }

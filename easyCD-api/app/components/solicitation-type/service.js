@@ -33,7 +33,12 @@ exports = module.exports = function initService(
     processSolicitation,
     isApproved,
     isReproved,
+    findById,
   };
+
+  async function findById({ _id }) {
+    return SolicitationTypeRepository.findById({ _id });
+  }
 
   async function create(solicitationType) {
     if (!solicitationType) {

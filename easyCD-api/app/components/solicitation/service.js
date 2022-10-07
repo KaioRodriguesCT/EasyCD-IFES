@@ -17,21 +17,27 @@ exports = module.exports = function initService(
     create,
     update,
     remove,
+    validateStudent,
+    validateSolicitationType,
   };
 
   async function create(solicitation) {
     if (!solicitation) {
       Utils.throwError(`${defaultErrorCreating}. Solicitation not sent`, 400);
     }
-    const { createdSolicitation } = await async.auto({
-      validateMeta: async () => SolicitationTypeService.validateMeta({
-        meta: solicitation.meta,
+    const result = await async.auto({
+      valdiateSolicitationType: async () => validateSolicitationType({
+        defaultErrorMessage: defaultErrorCreating,
         solicitationTypeId: solicitation.solicitationType,
       }),
-      validateStudent: async () => validateStudent({
+      validateMeta: ['valdiateSolicitationType', async () => SolicitationTypeService.validateMeta({
+        meta: solicitation.meta,
+        solicitationTypeId: solicitation.solicitationType,
+      })],
+      validateStudent: ['valdiateSolicitationType', async () => validateStudent({
         studentId: solicitation.student,
         defaultErrorMessage: defaultErrorCreating,
-      }),
+      })],
       createdSolicitation: ['validateMeta', 'validateStudent', async () => {
         const initialFields = [
           'solicitationType',
@@ -41,7 +47,7 @@ exports = module.exports = function initService(
         const newSolicitation = _.pick(solicitation, initialFields);
         return SolicitationRepository.create(newSolicitation);
       }],
-      updateStudent: ['createdSolicitation', async ({ createdSolicitation: _id, student }) => PersonService.addSolicitation({
+      updateStudent: ['createdSolicitation', async ({ createdSolicitation: { _id, student } }) => PersonService.addSolicitation({
         person: student,
         solicitationId: _id,
       })],
@@ -50,7 +56,7 @@ exports = module.exports = function initService(
         state: 'created',
       })],
     });
-    return createdSolicitation;
+    return result.createdSolicitation;
   }
 
   async function update(solicitation) {
@@ -60,7 +66,7 @@ exports = module.exports = function initService(
     if (_.isNil(solicitation._id)) {
       Utils.throwError(`${defaultErrorUpdating}. Solicitation ID not sent`, 400);
     }
-    const { updatedSolicitation } = await async.auto({
+    const result = await async.auto({
       oldSolicitation: async () => {
         const oldSolicitation = await SolicitationRepository
           .findById({ _id: solicitation._id });
@@ -99,7 +105,7 @@ exports = module.exports = function initService(
         state: 'updated',
       })],
     });
-    return updatedSolicitation;
+    return result.updatedSolicitation;
   }
 
   async function remove(solicitation) {
@@ -154,6 +160,17 @@ exports = module.exports = function initService(
         return user;
       }],
     });
+  }
+
+  async function validateSolicitationType({ solicitationTypeId, defaultErrorMessage }) {
+    if (!solicitationTypeId || !mongoose.isValidObjectId(solicitationTypeId)) {
+      Utils.throwError(`${defaultErrorMessage}. Solicitation Type not sent or not a valid ID`, 400);
+    }
+    const solicitationType = await SolicitationTypeService.findById({ _id: solicitationTypeId });
+    if (!solicitationType) {
+      Utils.throwError(`${defaultErrorMessage}. Solicitation Type not found`, 404);
+    }
+    return solicitationType;
   }
 };
 
