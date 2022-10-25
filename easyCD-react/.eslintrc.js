@@ -1,8 +1,8 @@
 module.exports = {
   env: {
     browser: true,
-    commonjs: true,
-    es2021: true
+    es6: true,
+    jest: true
   },
   settings: {
     jest: {
@@ -111,7 +111,16 @@ module.exports = {
     'no-undef': ['error'],
     'no-const-assign': ['error'],
     'newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
-    'no-trailing-spaces': ['error']
+    'no-trailing-spaces': ['error'],
+    'import/no-anonymous-default-export': ['error', {
+      'allowArray': false,
+      'allowArrowFunction': false,
+      'allowAnonymousClass': false,
+      'allowAnonymousFunction': false,
+      'allowCallExpression': true, // The true value here is for backward compatibility
+      'allowLiteral': false,
+      'allowObject': true
+    }]
   },
   overrides: [
     {
