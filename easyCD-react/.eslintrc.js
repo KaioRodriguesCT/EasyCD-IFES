@@ -112,6 +112,7 @@ module.exports = {
     'no-const-assign': ['error'],
     'newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
     'no-trailing-spaces': ['error'],
+    'import/no-named-as-default': 0,
     'import/no-anonymous-default-export': ['error', {
       'allowArray': false,
       'allowArrowFunction': false,
