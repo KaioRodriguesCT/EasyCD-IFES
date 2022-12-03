@@ -2,7 +2,7 @@ exports = module.exports = function initSettings() {
   const config = {
     defaults: {
       app: {
-        port: 3000,
+        port: 8080,
       },
       token: {
         lifeTime: 1 * 60 * 60 * 1000,

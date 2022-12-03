@@ -10,7 +10,7 @@ import App from '@components/App/App';
 
 function Routes (){
   return (
-    <Router history={history}>
+    <Router location={history}>
       <App>
       </App>
     </Router>

@@ -1,9 +1,14 @@
+const http = require('http');
+
 exports = module.exports = function initServer(settings) {
   const app = this;
   app.phase(() => {
     const { app: appSettings } = settings;
     console.log(`Starting application, listening port ${appSettings.port}`);
-    app.listen(appSettings.port);
+    const server = http.createServer(app);
+    server.listen(appSettings.port, () => {
+      console.log(`Server running on por ${appSettings.port}`);
+    });
   });
 };
 

@@ -8,8 +8,10 @@ import isNil from 'lodash/isNil';
 
 import { createReducer } from '@shared/reducers';
 
+import ActionExample from './action-example';
+
 //Modules
-const modules = [];
+const modules = [ActionExample];
 
 //Initial State
 export const initialState = {

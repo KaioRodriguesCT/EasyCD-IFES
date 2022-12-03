@@ -1,5 +1,7 @@
 import { createSagaAction } from '@src/shared/sagas';
-import { put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest } from 'redux-saga/effects';
+
+import request from '@shared/request';
 
 //Constants
 export const constants = {
@@ -16,9 +18,9 @@ export const actions = {
 
 //Handlers
 export const handlers = {
-  [ constants.ACTION_EXAMPLE.FAILURE ]: (state, action)=> {},
-  [ constants.ACTION_EXAMPLE.SUCCESS ]: (state, action)=> {},
-  [ constants.ACTION_EXAMPLE.REQUEST ]: (state, action)=> {}
+  [ constants.ACTION_EXAMPLE.FAILURE ]: (state, action) => {},
+  [ constants.ACTION_EXAMPLE.SUCCESS ]: (state, action) => {},
+  [ constants.ACTION_EXAMPLE.REQUEST ]: (state, action) => {}
 };
 
 //Sagas
@@ -26,6 +28,8 @@ export function* sagaExample (action) {
   try {
     //Get the data from the action
     //Do a yield call into the api function
+    const { message } = yield call(apiExample);
+    console.log(message);
     yield put({
       type: constants.ACTION_EXAMPLE.SUCCESS
     });
@@ -38,13 +42,16 @@ export function* sagaExample (action) {
 }
 
 //Watchers
-export function* watchSagaExample (){
-  yield takeLatest(constants.ACTION_EXAMPLE.REQUEST,sagaExample);
+export function* watchSagaExample () {
+  yield takeLatest(constants.ACTION_EXAMPLE.REQUEST, sagaExample);
 }
 
 //Api
-export function apiExample (){
+async function apiExample () {
   //Return the result of the request here
+  return request('hello-world/', {
+    method: 'GET'
+  });
 }
 
 //Exporting all consts and functions

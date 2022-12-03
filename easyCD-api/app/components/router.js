@@ -18,6 +18,7 @@ exports = module.exports = function initRoutes() {
     'complementary-activity',
     'solicitation-type',
     'solicitation',
+    'hello-world',
   ];
 
   _.each(components, (component) => {
