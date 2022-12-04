@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  # MongoDB service
+  mongo_db:
+    image: mongo:latest
+    restart: always
+    logging:
+      driver: none
+    volumes:
+      - mongo_db:/data/db
+    ports:
+      - "27017:27017"
+
+  # NodeJS API service
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - mongo_db
+
+volumes:
+  mongo_db: {}

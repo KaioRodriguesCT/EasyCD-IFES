@@ -7,7 +7,7 @@ exports = module.exports = function initServer(settings) {
     console.log(`Starting application, listening port ${appSettings.port}`);
     const server = http.createServer(app);
     server.listen(appSettings.port, () => {
-      console.log(`Server running on por ${appSettings.port}`);
+      console.log(`Server running on port ${appSettings.port}`);
     });
   });
 };

@@ -8,7 +8,9 @@
   },
   "scripts": {
     "test": "ENVIRONMENT=test mocha -r ts-node/register --exit --check-leaks 'tests/**/*.test.js'",
-    "test:coverage": "ENVIRONMENT=test nyc --reporter=lcov yarn test"
+    "test:coverage": "ENVIRONMENT=test nyc --reporter=lcov yarn test",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "author": "Kaio Fabio",
   "license": "ISC",
@@ -29,10 +31,10 @@
     "mocha": "^9.0.0",
     "mocha-junit-reporter": "^2.0.2",
     "mocha-multi": "^1.1.6",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "mongoose": "^6.3.1",
     "mongoose-delete": "^0.5.4",
-    "nodemon": "^2.0.15",
+    "nodemon": "^2.0.20",
     "nyc": "^15.1.0",
     "supertest": "^6.2.4",
     "ts-node": "^10.9.1",

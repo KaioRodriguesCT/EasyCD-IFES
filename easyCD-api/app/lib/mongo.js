@@ -8,7 +8,14 @@ exports = module.exports = function initMongo(settings) {
   function createConnection() {
     const { database } = settings;
     let connection;
-    connection = mongoose.createConnection(`mongodb://${database.url}:${database.port}/${database.db}`);
+    const mongoUri = `mongodb://${database.url}:${database.port}/${database.db}`;
+    console.log('Trying to connect on', mongoUri);
+    connection = mongoose.createConnection(mongoUri, {
+      socketTimeoutMS: 120000,
+      connectTimeoutMS: 120000,
+      heartbeatFrequencyMS: 20000,
+      serverSelectionTimeoutMS: 60000,
+    });
 
     connection.on('error', console.error.bind(console, 'Connection Error:'));
     connection.once('open', () => {

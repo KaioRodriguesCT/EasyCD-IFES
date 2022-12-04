@@ -11,14 +11,14 @@ exports = module.exports = function initSettings() {
     },
     development: {
       database: {
-        url: 'localhost',
+        url: 'mongo_db',
         port: 27017,
         db: 'easyCD',
       },
     },
     test: {
       database: {
-        url: 'localhost',
+        url: 'mongo_db',
         port: 27017,
         db: 'easyCD-test',
       },
