@@ -48,7 +48,7 @@ module.exports = {
       }
     ],
     // prevent lint errors if you don't use some function arguments
-    'no-unused-vars': ['error', { vars: 'all', args: 'none' }],
+    'no-unused-vars': ['warn', { vars: 'all', args: 'none' }],
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     'max-params': ['warn', 5],
     'max-nested-callbacks': ['warn', 4],
