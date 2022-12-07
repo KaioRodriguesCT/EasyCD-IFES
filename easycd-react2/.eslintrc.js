@@ -3,7 +3,15 @@ module.exports = {
     browser: true,
     es2021: true
   },
-  extends: ['plugin:react/recommended', 'standard'],
+  extends: [
+    'eslint:recommended',
+    'react-app',
+    'plugin:jest/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:import/errors',
+    'plugin:import/warnings'
+  ],
+  //extends: ['plugin:react/recommended', 'standard'],
   overrides: [],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -89,5 +97,19 @@ module.exports = {
     'no-const-assign': ['error'],
     'newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
     'no-trailing-spaces': ['error']
+  },
+  settings:{
+    'import/resolver': {
+      // Needed to avoid IDE eslint warning until a better fix is found
+      alias: {
+        map: [
+          ['@src', './src'],
+          ['@components', './src/components'],
+          ['@shared', './src/shared'],
+          ['@redux', './src/redux']
+        ],
+        extensions: ['.ts', '.js', '.jsx', '.json']
+      }
+    }
   }
 };
