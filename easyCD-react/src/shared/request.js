@@ -14,7 +14,7 @@ const defaultHeaders = {
 };
 
 // Grab the opo
-function getHeaders (options) {
+function getHeaders ( options ) {
   const { body } = options;
   const headers = { ...defaultHeaders, ...options.headers };
   const isJson = Object.prototype.toString.call(body) === '[object Object]';
@@ -24,7 +24,7 @@ function getHeaders (options) {
   return headers;
 }
 
-function getOpts (options) {
+function getOpts (options ) {
   return {
     headers: getHeaders(options),
     body: get(options, 'body') || undefined,

@@ -1,40 +1,25 @@
 module.exports = {
   env: {
     browser: true,
-    es6: true,
-    jest: true
-  },
-  settings: {
-    jest: {
-      version: 26
-    },
-    react: {
-      version: 'detect'
-    },
-    'import/resolver': {
-      'babel-module': {
-        // Needed to avoid IDE eslint warning until a better fix is found
-        alias: {
-          '@src': './src',
-          '@shared': './src/shared',
-          '@redux': './src/redux',
-          '@components': './src/components',
-          '@test': './test'
-        }
-      }
-    }
+    es2021: true
   },
   extends: [
-    'react-app',
     'eslint:recommended',
+    'react-app',
+    'plugin:jest/recommended',
     'plugin:react-hooks/recommended',
     'plugin:import/errors',
     'plugin:import/warnings'
   ],
+  //extends: ['plugin:react/recommended', 'standard'],
+  overrides: [],
   parserOptions: {
+    ecmaVersion: 'latest',
     sourceType: 'module'
   },
+  plugins: ['react'],
   rules: {
+    // skipping function doesn't work for arrow functions
     'no-use-before-define': ['off', { functions: false }],
     'comma-dangle': [
       'error',
@@ -63,7 +48,7 @@ module.exports = {
       }
     ],
     // prevent lint errors if you don't use some function arguments
-    'no-unused-vars': ['error', { vars: 'all', args: 'none' }],
+    'no-unused-vars': ['warn', { vars: 'all', args: 'none' }],
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     'max-params': ['warn', 5],
     'max-nested-callbacks': ['warn', 4],
@@ -112,21 +97,20 @@ module.exports = {
     'no-const-assign': ['error'],
     'newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
     'no-trailing-spaces': ['error'],
-    'import/no-named-as-default': 0,
-    'import/no-anonymous-default-export': ['error', {
-      'allowArray': false,
-      'allowArrowFunction': false,
-      'allowAnonymousClass': false,
-      'allowAnonymousFunction': false,
-      'allowCallExpression': true, // The true value here is for backward compatibility
-      'allowLiteral': false,
-      'allowObject': true
-    }]
+    'no-anonymous-default-export': 0
   },
-  overrides: [
-    {
-      files: ['**/*.test.js'],
-      env: { mocha: true }
+  settings:{
+    'import/resolver': {
+      // Needed to avoid IDE eslint warning until a better fix is found
+      alias: {
+        map: [
+          ['@src', './src'],
+          ['@components', './src/components'],
+          ['@shared', './src/shared'],
+          ['@redux', './src/redux']
+        ],
+        extensions: ['.ts', '.js', '.jsx', '.json']
+      }
     }
-  ]
+  }
 };
