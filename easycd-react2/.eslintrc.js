@@ -96,7 +96,8 @@ module.exports = {
     'no-undef': ['error'],
     'no-const-assign': ['error'],
     'newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
-    'no-trailing-spaces': ['error']
+    'no-trailing-spaces': ['error'],
+    'no-anonymous-default-export': 0
   },
   settings:{
     'import/resolver': {
