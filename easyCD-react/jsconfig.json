@@ -6,7 +6,8 @@
       "@src/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
       "@redux/*": ["./src/redux/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@hooks/*": ["./src/hooks/*"]
     }
   },
   "exclude": ["node_modules", "dist"],

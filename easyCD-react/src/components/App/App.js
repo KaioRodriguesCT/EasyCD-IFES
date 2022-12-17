@@ -19,21 +19,8 @@ function App () {
 
   // Redux state
   const example = useSelector((state) => state.reducerExample.name);
-  const user = useSelector((state) => state.authentication.user);
 
   // Renders
-  const renderUnloggedHome = () => {
-    return (
-      <>
-        <UnloggedHome />
-      </>
-    );
-  };
-
-  const renderLoggedHome = () => {
-    return null;
-  };
-
   const renderHelloWorld = () => {
     return (
       <header className="App-header">
@@ -47,16 +34,8 @@ function App () {
     );
   };
 
-  const renderApp = () => {
-    if (user) {
-      return renderLoggedHome();
-    }
-    return renderUnloggedHome();
-  };
-
   return (
     <div className="App">
-      {/* {renderApp()} */}
       {renderHelloWorld()}
     </div>
   );

@@ -107,7 +107,8 @@ module.exports = {
           ['@src', './src'],
           ['@components', './src/components'],
           ['@shared', './src/shared'],
-          ['@redux', './src/redux']
+          ['@redux', './src/redux'],
+          ['@hooks', './src/hooks']
         ],
         extensions: ['.ts', '.js', '.jsx', '.json']
       }
