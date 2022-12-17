@@ -16,7 +16,6 @@ import Login from '@components/Login';
 import Navbar from '@src/components/Navbar';
 
 function AppRoutes () {
-
   //This method will render the routes, using the array of routes passed.
   //It will check if the route needs authentication, if not, render it without the require auth component.
   //But if needs authentication, it'll take the roles and will validate if the user are logging and allowed to acces
@@ -65,12 +64,12 @@ function AppRoutes () {
 
   //The logged routes will share the nav bar layout
   const loggedRoutes = [
-    {
-      path: '/home',
-      key: 'home',
-      element: Home,
-      roles: []
-    }
+    // {
+    //   path: '/home',
+    //   key: 'home',
+    //   element: Home,
+    //   roles: []
+    // }
   ];
 
   // The routes should be divide between thoes that require authentication, and the authentication required.
@@ -80,6 +79,14 @@ function AppRoutes () {
       <Routes>
         {renderRouters(unloggedRoutes)}
         <Route path="/" element={<Navbar />}>
+          <Route
+            index
+            element={
+              <RequireAuth>
+                <Home />
+              </RequireAuth>
+            }
+          />
           {renderRouters(loggedRoutes)}
         </Route>
         <Route path="*" element={<NotFound />} />

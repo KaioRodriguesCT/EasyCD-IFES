@@ -9,11 +9,10 @@ import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 
 //Routes
-import AppRoutes from '@src/app-routes';
+import AppRoutes from '@src/appRoutes';
 
 //Store
 import store from '@src/redux/store';
-
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
