@@ -1,12 +1,15 @@
 //React
 import { useLocation, Navigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-//Components
-import useAuth from '@hooks/useAuth';
+//Lodash
+import get from 'lodash/get';
 
 function RequireAuth () {
-  const { auth } = useAuth();
   const location = useLocation();
-  return auth?.user ? <Outlet /> : <Navigate to="/login" state={{ from: location }} replace />;
+  const user = useSelector((state) => get(state, 'authentication.user'));
+
+  //Check if exists user, if not user, return to login page
+  return user ? <Outlet /> : <Navigate to="/login" state={{ from: location }} replace />;
 }
 export default RequireAuth;
