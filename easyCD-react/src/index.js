@@ -8,17 +8,22 @@ import ReactDOM from 'react-dom/client';
 //Redux
 import { Provider } from 'react-redux';
 
+//Redux Persist
+import { PersistGate } from 'redux-persist/integration/react';
+
 //Routes
 import AppRoutes from '@src/appRoutes';
 
 //Store
-import store from '@src/redux/store';
+import { store, persistor } from '@src/redux/store';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <AppRoutes/>
+      <PersistGate loading={null} persistor={persistor}>
+        <AppRoutes/>
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );

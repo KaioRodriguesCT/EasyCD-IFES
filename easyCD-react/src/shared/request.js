@@ -3,6 +3,8 @@ import qs from 'querystring';
 
 // Lodash
 import get from 'lodash/get';
+import isString from 'lodash/isString';
+import isObject from 'lodash/isObject';
 
 // Config
 import config from '@src/config';
@@ -14,7 +16,7 @@ const defaultHeaders = {
 };
 
 // Grab the opo
-function getHeaders ( options ) {
+function getHeaders (options) {
   const { body } = options;
   const headers = { ...defaultHeaders, ...options.headers };
   const isJson = Object.prototype.toString.call(body) === '[object Object]';
@@ -24,10 +26,15 @@ function getHeaders ( options ) {
   return headers;
 }
 
+function getBody (options){
+  const body = get(options, 'body');
+  return JSON.stringify(body);
+}
+
 function getOpts (options ) {
   return {
     headers: getHeaders(options),
-    body: get(options, 'body') || undefined,
+    body: getBody(options),
     method: get(options, 'method')
   };
 }
@@ -44,7 +51,7 @@ function getPath (path, options) {
 
 // All get request need to have query prop
 // All POST, PUT and DELETE can have body
-async function request (path, options) {
+async function _request (path, options) {
   const opts = getOpts(options);
   const _path = getPath(path, options);
   const requestUrl = `${ API_BASE }/api/${ _path }`;
@@ -52,5 +59,38 @@ async function request (path, options) {
   const response = await fetch(requestUrl, opts);
   return response;
 }
+
+async function request (path, options){
+  const response = await _request(path, options);
+
+  const json = options.asRaw || response.status === 204 ? response : await jsonBody(response);
+
+  if(!get(response,'okay')){
+    return createError(json);
+  }
+
+  return json;
+}
+
+function createError (data) {
+  if (isString(data.message)) {
+    return data.message;
+  } else if (isObject(data.error)) {
+    return data.error.message;
+  } else if (isString(data.error)) {
+    return data.error;
+  } else {
+    return 'Unexpected error';
+  }
+}
+
+const jsonBody = async (response) => {
+  try {
+    return response.json();
+  } catch (err) {
+    console.warn('The server did not send a JSON response', err);
+    return {};
+  }
+};
 
 export default request;

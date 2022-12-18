@@ -13,7 +13,7 @@ import Register from '@components/Register';
 import NotFound from '@components/NotFound';
 import Home from '@components/Home';
 import Login from '@components/Login';
-import Navbar from '@src/components/Navbar';
+import Navbar from '@components/Navbar';
 
 function AppRoutes () {
   //This method will render the routes, using the array of routes passed.
