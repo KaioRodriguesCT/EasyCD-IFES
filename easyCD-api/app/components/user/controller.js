@@ -14,8 +14,9 @@ exports = module.exports = function initController(
 
   async function create(req, res, next) {
     try {
+      const user = req.body;
       return await async.auto({
-        createdUser: async () => UserService.create(req.body),
+        createdUser: async () => UserService.create(user),
         sendResponse: ['createdUser', async ({ createdUser }) => res.json({
           message: 'User created successfully',
           user: createdUser,

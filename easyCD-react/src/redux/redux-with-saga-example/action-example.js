@@ -29,6 +29,7 @@ export function* sagaExample (action) {
     //Get the data from the action
     //Do a yield call into the api function
     const { message } = yield call(apiExample);
+    // eslint-disable-next-line no-console
     console.log(message);
     yield put({
       type: constants.ACTION_EXAMPLE.SUCCESS

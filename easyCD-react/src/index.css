@@ -1,0 +1,20 @@
+.title_label {
+  color: #ffbd59;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 3em;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.title_icon {
+  font-size: 50px;
+  color: #5186cd;
+}
+
+.subtitle_label {
+    font-size: 2em !important;
+    color:#5186cd;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-weight: bold;
+
+}

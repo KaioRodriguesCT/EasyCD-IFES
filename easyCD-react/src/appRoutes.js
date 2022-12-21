@@ -9,7 +9,7 @@ import map from 'lodash/map';
 import RequireAuth from '@shared/require-auth';
 
 //Components
-import Register from '@components/Register';
+import Signup from '@src/components/Signup';
 import NotFound from '@components/NotFound';
 import Home from '@components/Home';
 import Login from '@components/Login';
@@ -24,14 +24,10 @@ function AppRoutes () {
     map(routesArray, (route) => {
       const { path, key, element, roles, noAuth } = route;
       if (noAuth) {
-        return <Route path={path} element={element()} key={key} />;
+        return <Route path={path} element={element} key={key} />;
       }
       return (
-        <Route
-          path={path}
-          element={<RequireAuth roles={roles}>{element()}</RequireAuth>}
-          key={key}
-        />
+        <Route path={path} element={<RequireAuth roles={roles}>{element}</RequireAuth>} key={key} />
       );
     });
 
@@ -49,14 +45,14 @@ function AppRoutes () {
     {
       path: '/login',
       key: 'login',
-      element: Login,
+      element: <Login />,
       roles: [],
       noAuth: true
     },
     {
-      path: '/register',
-      key: 'register',
-      element: Register,
+      path: '/signup',
+      key: 'signup',
+      element: <Signup />,
       roles: [],
       noAuth: true
     }

@@ -17,6 +17,9 @@ import AppRoutes from '@src/appRoutes';
 //Store
 import { store, persistor } from '@src/redux/store';
 
+//Default styles
+import './index.css';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

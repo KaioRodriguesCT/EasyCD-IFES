@@ -48,13 +48,13 @@
   margin-bottom: 5%;
 }
 
-.login_header {
+.login_main_header {
   text-align: center;
   margin-top: 2% !important;
   margin: 10%;
 }
 
-.login_title {
+.login_main_header_title {
   color: #ffbd59;
   font-family: 'Courier New', Courier, monospace;
   font-size: 3em;
@@ -63,3 +63,5 @@
 .register_button a{
   color: inherit;
 }
+.login_main_form{}
+.login_main_footer{}

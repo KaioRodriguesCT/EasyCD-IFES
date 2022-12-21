@@ -1,8 +1,7 @@
 //React
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-
-import bcrypt from 'bcryptjs';
 
 //Antd
 import { Button, Form, Input } from 'antd';
@@ -15,10 +14,8 @@ import { actions as authenticationActions } from '@redux/authentication';
 import get from 'lodash/get';
 import clone from 'lodash/clone';
 
-
 //Style
 import './index.css';
-import { useDispatch, useSelector } from 'react-redux';
 
 function Login () {
   const dispatch = useDispatch();
@@ -41,22 +38,16 @@ function Login () {
   };
 
   const handleSubmit = async () => {
-    //Encrypt the password first
-    const password = get(user, 'password');
-    const hashedPassword = password ? bcrypt.hashSync(password, 10) : null ;
-    dispatch(authenticationActions.userLogin({
-      ...user,
-      password: hashedPassword
-    }));
+    dispatch(authenticationActions.userLogin(user));
   };
 
   return (
     <div className="login">
       <div className="login_main">
-        <div className="login_header">
-          <label className="login_title">EasyCoord</label>
+        <div className="login_main_header">
+          <label className="login_main_header_title">EasyCoord</label>
         </div>
-        <div className="login_form">
+        <div className="login_main_form">
           <Form name="login_form" layout="vertical" onFinish={handleSubmit}>
             <Form.Item
               name="username"
@@ -82,8 +73,8 @@ function Login () {
             </Form.Item>
           </Form>
         </div>
-        <div className="login-footer">
-          <Link to={'/register'}>
+        <div className="login_main_footer">
+          <Link to={'/signup'}>
             <Button type="ghost" className="register_button">
               Sign Up
             </Button>

@@ -65,8 +65,8 @@ async function request (path, options){
 
   const json = options.asRaw || response.status === 204 ? response : await jsonBody(response);
 
-  if(!get(response,'okay')){
-    return createError(json);
+  if(!get(response, 'ok')){
+    throw createError(json);
   }
 
   return json;

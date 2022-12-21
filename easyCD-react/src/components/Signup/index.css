@@ -1,0 +1,58 @@
+.signup {
+  min-height: 100vh;
+  min-width: 100vw;
+  background-color: #f5f5f5;
+  display: flex;
+}
+.signup_main {
+  width: 50%;
+  background-color: white;
+  border-radius: 8%;
+  padding: 2%;
+  box-shadow: 8px 8px 1px #5186cd;
+  margin: auto !important;
+}
+
+.signup_main_header {
+  text-align: center;
+  margin-top: 2% !important;
+  margin-bottom: 5% !important;
+}
+
+.signup_main_body {
+}
+
+.signup_main_footer {
+}
+
+.signup_main_header_title {
+  color: #ffbd59;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 3em;
+  font-weight: bold;
+  margin-right: 10px;
+}
+.signup_main_header_title_icon {
+  font-size: 50px !important;
+  color: #5186CD;
+}
+
+.ant-form-item {
+  margin-bottom: 10px !important;
+}
+
+.signup_button{
+  background-color: #5186CD;
+  color: white;
+  font-size: 16px;
+  height: auto;
+}
+
+.signup_button:hover{
+  background-color: whitesmoke;
+  color: #5186cd;
+}
+
+.cancel_button{
+  font-size: 16px;
+}
