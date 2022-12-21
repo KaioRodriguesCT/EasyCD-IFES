@@ -4,7 +4,7 @@ const bootable = require('bootable');
 const _ = require('lodash');
 const path = require('path');
 
-exports = module.exports = function initRoutes() {
+exports = module.exports = function initRoutes(errorHandler) {
   const app = this;
   // Here shoulde have the path for all index routes files
   const components = [
@@ -32,7 +32,10 @@ exports = module.exports = function initRoutes() {
       error.status = 404;
       next(error);
     });
+
+    app.use(errorHandler);
   });
 };
 
 exports['@singleton'] = true;
+exports['@require'] = ['lib/error-handler'];
