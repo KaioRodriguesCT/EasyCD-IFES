@@ -38,6 +38,13 @@ exports = module.exports = function initModel(mongo) {
         // Only for Students
         type: String,
       },
+      // About authentication
+      accessToken: {
+        type: String,
+      },
+      refreshToken: {
+        type: String,
+      },
     },
     {
       timestamps: {

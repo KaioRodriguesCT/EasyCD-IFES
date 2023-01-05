@@ -1,7 +1,8 @@
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
+const moment = require('moment');
 
-exports = module.exports = function initJWTPolicies(Utils) {
+exports = module.exports = function initJWTPolicies(Utils, settings) {
   return {
     JWTStudent,
     JWTTeacher,
@@ -27,34 +28,33 @@ exports = module.exports = function initJWTPolicies(Utils) {
 
   function JWTRole(req, res, next, role) {
     try {
-      const token = _.get(req, 'cookies.JWT');
-      if (!token) {
+      const { headers } = req;
+      const accessToken = _.get(headers, 'authorization');
+
+      if (!accessToken) {
         return res.status(401).json({
-          message: 'Not authorized, token not available',
+          message: 'Not authorized',
         });
       }
-      return JWTPolicies(token, role, next);
+      const jwtToken = _.last(_.split(accessToken, ' '));
+      const user = jwt.verify(jwtToken, settings.accessToken.secret, (err, user) => {
+        if (err?.expiredAt < moment()) {
+          return Utils.throwError('User token expired', 409);
+        }
+        return user;
+      });
+
+      const tokenRole = _.get(user, 'role') || null;
+      /// Basic level of access
+      if (role === 'student' || _.isEqual(tokenRole, 'admin') || _.isEqual(tokenRole, role) || (_.isEqual(role, 'logged'))) {
+        return next();
+      }
+      return Utils.throwError('Not authorized', 401);
     } catch (e) {
       return next(e);
     }
   }
-
-  function JWTPolicies(token, role, next) {
-    const decodedToken = jwt.verify(token, process.env.MAIN_TOKEN_ACCESS);
-    if (!decodedToken) {
-      Utils.throwError('Something wrong with user token', 403);
-    }
-
-    const tokenRole = _.get(decodedToken, 'role') || null;
-    /// Basic level of access
-    if (role === 'student' || _.isEqual(tokenRole, 'admin') || _.isEqual(tokenRole, role) || (_.isEqual(role, 'logged'))) {
-      return next();
-    }
-    const error = new Error('Not authorized.');
-    error.status = 401;
-    throw error;
-  }
 };
 
 exports['@singleton'] = true;
-exports['@require'] = ['lib/utils'];
+exports['@require'] = ['lib/utils', 'boot/settings'];

@@ -9,6 +9,9 @@ exports = module.exports = function initRouter(UserController, Policies) {
   // User authentication
   router.post('/auth', UserController.auth);
 
+  // User re-authentication
+  router.post('/re-auth', UserController.refreshAuth);
+
   // Create an user
   router.post('/', UserController.create);
 

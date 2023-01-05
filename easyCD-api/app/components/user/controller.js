@@ -2,14 +2,13 @@ const async = require('async');
 
 exports = module.exports = function initController(
   UserService,
-  settings,
-  Utils,
 ) {
   return {
     create,
     update,
     remove,
     auth,
+    refreshAuth,
   };
 
   async function create(req, res, next) {
@@ -65,27 +64,24 @@ exports = module.exports = function initController(
     try {
       return await async.auto({
         authUser: async () => UserService.auth(req.body),
-        sendResponse: ['authUser', async ({ authUser }) => {
-          if (!authUser) {
-            Utils.throwError('Not authorized', 403);
-          }
+        sendResponse: ['authUser', async ({ authUser }) => res.json({
+          message: 'User authenticated successfully',
+          user: authUser,
+        }),
+        ],
+      });
+    } catch (e) {
+      return next(e);
+    }
+  }
 
-          const { token, username, role } = authUser;
-
-          res.cookie('JWT', token, {
-            httpOnly: true,
-            maxAge: settings.token.lifeTime,
-          });
-
-          return res.json({
-            message: 'User authenticated successfully',
-            user: {
-              username,
-              role,
-              token,
-            },
-          });
-        }],
+  async function refreshAuth(req, res, next) {
+    try {
+      const { body: { refreshToken } } = req;
+      const refreshedUser = await UserService.refreshAuth({ refreshToken });
+      return res.json({
+        message: 'User re-authenticated successfully',
+        user: refreshedUser,
       });
     } catch (e) {
       return next(e);

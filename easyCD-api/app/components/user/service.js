@@ -3,6 +3,7 @@ const _ = require('lodash');
 const async = require('async');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 const defaultErrorCreating = 'Error creating User';
 const defaultErrorUpdating = 'Error updating User';
@@ -24,6 +25,7 @@ exports = module.exports = function initService(
     update,
     remove,
     auth,
+    refreshAuth,
   };
 
   async function findById({ _id }) {
@@ -102,6 +104,8 @@ exports = module.exports = function initService(
           role: { allowEmpty: false },
           siape: { allowEmpty: false },
           registration: { allowEmpty: false },
+          accessToken: { allowEmpty: true },
+          refreshToken: { allowEmpty: true },
         };
         _.forOwn(updatableFields, (value, field) => {
           const currentValue = user[field];
@@ -164,26 +168,55 @@ exports = module.exports = function initService(
         return userFound;
       }],
       userAuth: ['userFound', 'validateParams', async ({ userFound, validateParams }) => {
-        const { username, role, password } = userFound;
+        const { password, _id } = userFound;
         const authenticated = await bcryptjs.compare(validateParams.password, password);
         if (!authenticated) {
           Utils.throwError(`${authenticationFailedMessage}. Error: User not authenticated`, 401);
         }
-        const token = jwt.sign({
-          _id: userFound._id,
-          username,
-          role,
-        }, settings.token.mainToken, {
-          expiresIn: settings.token.lifeTime,
-        });
-        return {
-          username,
-          role,
-          token,
-        };
+        const accessToken = buildAccessToken(userFound);
+        const refreshToken = buildRefreshToken(userFound);
+        const updatedUser = await update({ _id, accessToken, refreshToken });
+        return _.omit(updatedUser, 'password');
       }],
     });
     return userAuth;
+  }
+
+  async function refreshAuth({ refreshToken }) {
+    if (!refreshToken) {
+      Utils.throwError('Refresh token not sent', 401);
+    }
+
+    const tokenUser = jwt.verify(refreshToken, settings.refreshToken.secret, (err, user) => {
+      if (err?.expiredAt < moment()) {
+        return Utils.throwError('Not authorized', 401);
+      }
+      return user;
+    });
+
+    const user = await UserRepository.findById({ _id: _.get(tokenUser, '_id') });
+    if (!user) {
+      Utils.throwError('User from token not found', 401);
+    }
+
+    const userId = _.get(user, '_id');
+    const accessToken = buildAccessToken(user);
+    const newRefreshToken = buildRefreshToken(user);
+    const updatedUser = await update({ _id: userId, accessToken, refreshToken: newRefreshToken });
+    return _.omit(updatedUser, 'password');
+  }
+
+  function buildAccessToken(user) {
+    return buildUserToken(user, settings.accessToken.secret, settings.accessToken.lifeTime);
+  }
+
+  function buildRefreshToken(user) {
+    return buildUserToken(user, settings.refreshToken.secret, settings.refreshToken.lifeTime);
+  }
+
+  function buildUserToken(user, secret, lifeTime) {
+    const userFields = ['username', '_id', 'role'];
+    return jwt.sign(_.pick(user, userFields), secret, { expiresIn: lifeTime });
   }
 
   // Internal Functions
