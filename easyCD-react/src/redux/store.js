@@ -1,6 +1,7 @@
 //Redux
-import { createStore, applyMiddleware, combineReducers } from 'redux';
+import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import createSagaMiddleware from '@redux-saga/core';
+import { routerReducer } from 'react-router-redux';
 
 //Redux persist
 import { persistStore, persistReducer } from 'redux-persist';
@@ -20,24 +21,29 @@ const persistConfig = {
 };
 
 //Combining the reducers
-const combinedReducers = combineReducers(reducers);
+const combinedReducers = combineReducers({ ...reducers, routing: routerReducer });
 
 //Persisting the reducers
 const persistedReducer = persistReducer(persistConfig, combinedReducers);
 
 //Creating the saga middleware
+const composeEnhancers =
+  (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+      trace: true,
+      traceLimit: 1000
+    }))
+  || compose;
 const sagaMiddleware = createSagaMiddleware();
 
 //Creating the store
-const store = createStore(
+export const store = createStore(
   persistedReducer,
-  applyMiddleware(sagaMiddleware)
+  composeEnhancers(applyMiddleware(sagaMiddleware))
 );
 
 //Creating the persistor
-const persistor = persistStore(store);
+export const persistor = persistStore(store);
 
 //Adding the sagas to the middleware .
 sagaMiddleware.run(rootSaga);
-
-export { store, persistor };
