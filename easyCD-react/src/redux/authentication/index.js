@@ -9,10 +9,11 @@ import isNil from 'lodash/isNil';
 import { createReducer } from '@shared/reducers';
 
 import Login from './login';
+import ReAuth from './re-auth';
 
 
 //Modules
-const modules = [Login];
+const modules = [Login, ReAuth];
 
 //Initial State
 export const initialState = {
