@@ -9,6 +9,9 @@ import isObject from 'lodash/isObject';
 // Config
 import config from '@src/config';
 
+import { constants as authConstants } from '@redux/authentication';
+import { store } from '@redux/store';
+
 const { API_BASE } = config;
 
 const defaultHeaders = {
@@ -20,18 +23,23 @@ function getHeaders (options) {
   const { body } = options;
   const headers = { ...defaultHeaders, ...options.headers };
   const isJson = Object.prototype.toString.call(body) === '[object Object]';
+  //If is json, use content types
   if (isJson) {
     headers[ 'Content-Type' ] = 'application/json';
   }
+
+  //If user logged in, use access token
+  headers[ 'Authentication' ] = getAuthentication() || null;
+
   return headers;
 }
 
-function getBody (options){
+function getBody (options) {
   const body = get(options, 'body');
   return JSON.stringify(body);
 }
 
-function getOpts (options ) {
+function getOpts (options) {
   return {
     headers: getHeaders(options),
     body: getBody(options),
@@ -60,17 +68,37 @@ async function _request (path, options) {
   return response;
 }
 
-async function request (path, options){
+const request = async (path, options) => {
   const response = await _request(path, options);
+
+  //Logic to re-auth the user
+  if (response.status === 409) {
+    try {
+      const refreshToken = get(store.getState(), 'user.refreshToken');
+
+      if (!refreshToken) {
+        throw new Error('Error on get Refresh token from logged user');
+      }
+
+      //Try re-authenticate the user
+      const user = await refreshSession({ refreshToken });
+      updateUserInState(user);
+
+      //Then try the request again
+      return request(path, options);
+    } catch (e) {
+      throw createError(json);
+    }
+  }
 
   const json = options.asRaw || response.status === 204 ? response : await jsonBody(response);
 
-  if(!get(response, 'ok')){
+  if (!get(response, 'ok')) {
     throw createError(json);
   }
 
   return json;
-}
+};
 
 function createError (data) {
   if (isString(data.message)) {
@@ -93,4 +121,36 @@ const jsonBody = async (response) => {
   }
 };
 
+const getAuthentication = () => {
+  const state = store.getState();
+  const user = get(state, 'authentication.user');
+  if (!user) {
+    throw new Error('User not found on state');
+  }
+  return get(user, 'accessToken');
+};
+
+const refreshSession = async ({ refreshToken }) => {
+  const refreshPath = 'users/re-auth';
+  const opts = {
+    method: 'POST',
+    body: {
+      refreshToken
+    }
+  };
+  const refreshedUer = await _request(refreshPath, opts);
+  if(!refreshedUer){
+    throw new Error('Not able to refresh session');
+  }
+  return refreshedUer;
+};
+
+const updateUserInState = (user) => {
+  return store.dispatch({
+    type: authConstants.USER_RE_AUTH.SUCCESS,
+    user
+  });
+};
+
 export default request;
+
