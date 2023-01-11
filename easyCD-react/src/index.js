@@ -1,5 +1,5 @@
 //Essentials
-import reportWebVitals from '@src/reportWebVitals';
+import reportWebVitals from './reportWebVitals';
 
 //React
 import React from 'react';
@@ -11,11 +11,11 @@ import { Provider } from 'react-redux';
 //Redux Persist
 import { PersistGate } from 'redux-persist/integration/react';
 
-//Routes
-import AppRoutes from '@src/appRoutes';
-
 //Store
 import { store, persistor } from '@src/redux/store';
+
+//Routes
+import AppRoutes from '@src/appRoutes';
 
 //Default styles
 import './index.css';
