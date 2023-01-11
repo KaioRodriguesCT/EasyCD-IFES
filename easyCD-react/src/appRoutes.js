@@ -24,13 +24,13 @@ function AppRoutes () {
     map(routesArray, (route) => {
       const { path, key, element, roles, noAuth } = route;
       if (noAuth) {
-        return <Route path={path} key={key} element={element()} />;
+        return <Route path={path} key={key} element={element} />;
       }
       return (
         <Route
           path={path}
           key={key}
-          element={<RequireAuth roles={roles}>{element()}</RequireAuth>}
+          element={<RequireAuth roles={roles}>{element}</RequireAuth>}
         />
       );
     });

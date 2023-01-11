@@ -15,14 +15,14 @@ const unloggedRoutes = [
   {
     path: '/login',
     key: 'login',
-    element: Login,
+    element: <Login/>,
     roles: [],
     noAuth: true
   },
   {
     path: '/signup',
     key: 'signup',
-    element: Signup,
+    element: <Signup/>,
     roles: [],
     noAuth: true
   }
