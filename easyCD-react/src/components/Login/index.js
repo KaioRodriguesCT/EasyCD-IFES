@@ -1,10 +1,10 @@
 //React
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 
 //Antd
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, Spin } from 'antd';
 import { KeyOutlined, UserOutlined } from '@ant-design/icons';
 
 //Actions
@@ -19,7 +19,21 @@ import './index.css';
 
 function Login () {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  //Local state
   const [user, setUser] = useState();
+
+  //Redux state
+  const authUser = useSelector((state) => get(state, 'authentication.user'));
+  const isLoggingIn = useSelector((state) => get(state, 'authentication.isLoggingIn'));
+
+  useEffect(()=> {
+    if(!isLoggingIn && authUser){
+      navigate('/');
+    }
+
+  },[authUser, isLoggingIn, navigate]);
 
   //Handlers
   const handleInputChange = (field) => (value) => {
@@ -31,7 +45,6 @@ function Login () {
 
   const handlePassword = (value) => {
     const password = get(value, 'target.value');
-    //const hashedPassword = password ? bcrypt.hashSync(password, 10) : null;
     const newUser = clone(user) || {};
     newUser.password = password;
     setUser(newUser);
@@ -47,39 +60,41 @@ function Login () {
         <div className="login_main_header">
           <label className="login_main_header_title">EasyCoord</label>
         </div>
-        <div className="login_main_form">
-          <Form name="login_form" layout="vertical" onFinish={handleSubmit}>
-            <Form.Item
-              name="username"
-              key="username"
-              rules={[{ required: true, message: 'Please insert the username' }]}>
-              <Input prefix={<UserOutlined />} type="text" placeholder="User" allowClear onChange={handleInputChange('username')} />
-            </Form.Item>
-            <Form.Item
-              name="password"
-              key="password"
-              rules={[{ required: true, message: 'Please insert the password' }]}>
-              <Input prefix={<KeyOutlined />} type="password" placeholder="Password" allowClear onChange={handlePassword}/>
-            </Form.Item>
-            <Form.Item>
-              <Button htmlType="submit" type="ghost" className="login_button">
+        <Spin spinning={isLoggingIn}>
+          <div className="login_main_form">
+            <Form name="login_form" layout="vertical" onFinish={handleSubmit}>
+              <Form.Item
+                name="username"
+                key="username"
+                rules={[{ required: true, message: 'Please insert the username' }]}>
+                <Input prefix={<UserOutlined />} type="text" placeholder="User" allowClear onChange={handleInputChange('username')} />
+              </Form.Item>
+              <Form.Item
+                name="password"
+                key="password"
+                rules={[{ required: true, message: 'Please insert the password' }]}>
+                <Input prefix={<KeyOutlined />} type="password" placeholder="Password" allowClear onChange={handlePassword}/>
+              </Form.Item>
+              <Form.Item>
+                <Button htmlType="submit" type="ghost" className="login_button">
                 Sign In
-              </Button>
-              <div className="forgot_password_button">
-                <Link to={'/password-recovery'} className="forgot_password_button">
+                </Button>
+                <div className="forgot_password_button">
+                  <Link to={'/password-recovery'} className="forgot_password_button">
                   Forgot my password...
-                </Link>
-              </div>
-            </Form.Item>
-          </Form>
-        </div>
-        <div className="login_main_footer">
-          <Link to={'/signup'}>
-            <Button type="ghost" className="register_button">
+                  </Link>
+                </div>
+              </Form.Item>
+            </Form>
+          </div>
+          <div className="login_main_footer">
+            <Link to={'/signup'}>
+              <Button type="ghost" className="register_button">
               Sign Up
-            </Button>
-          </Link>
-        </div>
+              </Button>
+            </Link>
+          </div>
+        </Spin>
       </div>
     </div>
   );

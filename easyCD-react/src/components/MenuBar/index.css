@@ -1,0 +1,16 @@
+.menu-app{
+    border-radius: 10px;
+    position: relative;
+    height: 100%;    
+}
+
+.ant-menu-inline-collapsed{
+    min-width: auto !important;
+}
+.ant-menu{
+    min-width:250px;
+}
+
+.menu-component{
+    overflow-y: auto;
+}

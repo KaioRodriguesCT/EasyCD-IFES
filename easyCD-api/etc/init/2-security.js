@@ -7,7 +7,7 @@ module.exports = function initSecurity() {
 
   app.phase(() => {
     // allow CORS for the API route
-    const corsHeaders = 'Origin, X-Requested-With, Content-Type, Accept, CH-API-KEY, apikey';
+    const corsHeaders = 'Authentication, Origin, X-Requested-With, Content-Type, Accept, CH-API-KEY, apikey';
     const corsMethods = 'GET,HEAD,PUT,PATCH,POST,DELETE';
 
     app.options(apiRouteRegexp, (req, res) => {

@@ -11,33 +11,31 @@ import Signup from '@src/components/Signup';
     noAuth: Boolean, says that no need auth for that route
   }*/
 //The Unlogged routes will not share the navbar layout.
-const unloggedRoutes = [
+export const unloggedRoutes = [
   {
     path: '/login',
     key: 'login',
-    element: <Login/>,
+    label: 'Login',
+    element: <Login />,
     roles: [],
     noAuth: true
   },
   {
     path: '/signup',
     key: 'signup',
-    element: <Signup/>,
+    label: 'Signup',
+    element: <Signup />,
     roles: [],
     noAuth: true
   }
 ];
 
 //The logged routes will share the nav bar layout
-const loggedRoutes = [
+export const loggedRoutes = [
   // {
   //   path: '/home',
   //   key: 'home',
   //   element: Home,
   //   roles: []
-  // }
+  // },
 ];
-
-const routerNavigationData = [...unloggedRoutes, ...loggedRoutes];
-
-export default routerNavigationData;

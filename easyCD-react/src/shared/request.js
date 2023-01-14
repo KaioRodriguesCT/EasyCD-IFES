@@ -29,7 +29,10 @@ function getHeaders (options) {
   }
 
   //If user logged in, use access token
-  headers[ 'Authentication' ] = getAuthentication() || null;
+  const authentication = getAuthentication();
+  if(authentication){
+    headers[ 'Authentication' ] = `JWT ${ authentication }`;
+  }
 
   return headers;
 }
@@ -82,6 +85,9 @@ const request = async (path, options) => {
 
       //Try re-authenticate the user
       const user = await refreshSession({ refreshToken });
+      if(!user){
+        return store.dispatch({ type:authConstants.USER_LOGOUT.REQUEST });
+      }
       updateUserInState(user);
 
       //Then try the request again
@@ -124,9 +130,6 @@ const jsonBody = async (response) => {
 const getAuthentication = () => {
   const state = store.getState();
   const user = get(state, 'authentication.user');
-  if (!user) {
-    throw new Error('User not found on state');
-  }
   return get(user, 'accessToken');
 };
 
@@ -139,10 +142,10 @@ const refreshSession = async ({ refreshToken }) => {
     }
   };
   const refreshedUer = await _request(refreshPath, opts);
-  if(!refreshedUer){
-    throw new Error('Not able to refresh session');
+  if(refreshedUer.status !== 200){
+    return null;
   }
-  return refreshedUer;
+  return jsonBody(refreshedUer);
 };
 
 const updateUserInState = (user) => {

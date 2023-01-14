@@ -10,10 +10,11 @@ import { createReducer } from '@shared/reducers';
 
 import Login from './login';
 import ReAuth from './re-auth';
+import Logout from './logout';
 
 
 //Modules
-const modules = [Login, ReAuth];
+const modules = [Login, ReAuth, Logout];
 
 //Initial State
 export const initialState = {

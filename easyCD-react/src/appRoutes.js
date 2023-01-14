@@ -11,9 +11,10 @@ import RequireAuth from '@shared/require-auth';
 //Components
 import NotFound from '@components/NotFound';
 import Home from '@components/Home';
-import Navbar from '@components/Navbar';
+import App from './components/App/App';
 
-import routerNavigationData from '@shared/router-navigation-data';
+//Navigation Data
+import { unloggedRoutes, loggedRoutes } from '@shared/router-navigation-data';
 
 function AppRoutes () {
   //This method will render the routes, using the array of routes passed.
@@ -39,7 +40,7 @@ function AppRoutes () {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navbar />}>
+        <Route path="/" element={<App />}>
           <Route
             index
             element={
@@ -48,8 +49,9 @@ function AppRoutes () {
               </RequireAuth>
             }
           />
+          {renderRouters(loggedRoutes)}
         </Route>
-        {renderRouters(routerNavigationData)}
+        {renderRouters(unloggedRoutes)}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
