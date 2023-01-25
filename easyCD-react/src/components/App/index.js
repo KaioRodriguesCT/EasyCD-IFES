@@ -9,23 +9,17 @@ import { unloggedRoutes, loggedRoutes } from '@src/shared/router-navigation-data
 import MenuBar from '../MenuBar';
 
 // Style
-import './App.css';
+import './index.css';
 
 function App () {
   // Renders
-
-
   return (
     <div className="app">
+      <MenuBar
+        routerNavigationData={[...unloggedRoutes, ...loggedRoutes]}
+      />
       <div className="app-content">
-        <div className="app-navbar">
-          <MenuBar
-            routerNavigationData={[...unloggedRoutes, ...loggedRoutes]}
-          />
-        </div>
-        <div className="app-body">
-          <Outlet/>
-        </div>
+        <Outlet/>
       </div>
     </div>
   );

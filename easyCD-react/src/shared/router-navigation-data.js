@@ -32,10 +32,4 @@ export const unloggedRoutes = [
 
 //The logged routes will share the nav bar layout
 export const loggedRoutes = [
-  // {
-  //   path: '/home',
-  //   key: 'home',
-  //   element: Home,
-  //   roles: []
-  // },
 ];

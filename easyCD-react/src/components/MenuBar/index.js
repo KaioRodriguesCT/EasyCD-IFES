@@ -1,10 +1,11 @@
 //React
 import React, { useCallback, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 //Antd
 import { Menu } from 'antd';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 
 //Lodash
 import filter from 'lodash/filter';
@@ -13,25 +14,43 @@ import includes from 'lodash/includes';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
 import map from 'lodash/map';
+import find from 'lodash/find';
+
+//Actions
+import { actions as authenticationActions } from '@redux/authentication';
 
 //Style
 import './index.css';
 
 function MenuBar ({ routerNavigationData }) {
-
   //Local state
-  const [collapsed, setCollapsed] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(true);
 
   //Redux
   const user = useSelector((state) => state.authentication.user);
 
   //Handlers
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleCollapse = (value) => setCollapsed(isNil(value) ? value : !collapsed);
+  const handleCollapse = () => setCollapsed(!collapsed);
+
+  const handleItemClick = (e) => {
+    const key = get(e, 'key');
+
+    if (isEqual(key, 'collpase-button')) {
+      return handleCollapse();
+    }
+    if(isEqual(key,'logout-button')){
+      dispatch(authenticationActions.userLogout());
+      navigate('/login');
+    }
+    const router = find(routerNavigationData, { key: key });
+    navigate(get(router, 'path'));
+  };
 
   //Data
   const buildMenuItem = useCallback(
-    ({ path, key, roles, icon, label }) => {
+    ({ key, roles, icon, label }) => {
       const allowedToSeeMenuItem =
         includes(roles, get(user, 'role')) || isEqual(get(user, 'role'), 'admin');
       if (allowedToSeeMenuItem) {
@@ -50,17 +69,20 @@ function MenuBar ({ routerNavigationData }) {
     const items = map(routerNavigationData, (navigationItem) => buildMenuItem(navigationItem));
     const routerItems = filter(items, (item) => !isNil(item));
     const collapseItem = {
-      key: 'collpase',
-      label: '',
-      icon: (
-        <div onClick={handleCollapse}>
-          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        </div>
-      ),
-      disabled: true
+      key: 'collpase-button',
+      label: collapsed ? 'Open' : 'Close',
+      icon: collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
     };
-    return [collapseItem, ...routerItems];
-  }, [buildMenuItem, collapsed, handleCollapse, routerNavigationData]);
+
+    const logoutItem = {
+      key: 'logout-button',
+      label:'Logout',
+      icon: <LogoutOutlined />
+    };
+
+
+    return [collapseItem, ...routerItems, logoutItem];
+  }, [buildMenuItem, collapsed, routerNavigationData]);
 
   return (
     <div className="menu-app">
@@ -69,7 +91,9 @@ function MenuBar ({ routerNavigationData }) {
         inlineCollapsed={collapsed}
         items={menuItems}
         style={{ height: '100%' }}
+        onClick={handleItemClick}
         className="menu-component"
+        onBlur={() => setCollapsed(true)}
       />
     </div>
   );

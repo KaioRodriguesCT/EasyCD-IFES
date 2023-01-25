@@ -11,7 +11,7 @@ import RequireAuth from '@shared/require-auth';
 //Components
 import NotFound from '@components/NotFound';
 import Home from '@components/Home';
-import App from './components/App/App';
+import App from './components/App';
 
 //Navigation Data
 import { unloggedRoutes, loggedRoutes } from '@shared/router-navigation-data';
