@@ -1,4 +1,8 @@
+//Antd
+import { ExperimentOutlined } from '@ant-design/icons';
+
 //Components
+import Courses from '@src/components/Courses';
 import Login from '@src/components/Login';
 import Signup from '@src/components/Signup';
 
@@ -32,4 +36,12 @@ export const unloggedRoutes = [
 
 //The logged routes will share the nav bar layout
 export const loggedRoutes = [
+  {
+    path: '/courses',
+    key: 'courses-list',
+    label: 'Courses',
+    element: <Courses />,
+    icon: <ExperimentOutlined />,
+    roles: ['teacher']
+  }
 ];

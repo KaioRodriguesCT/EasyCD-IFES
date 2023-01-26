@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 //Antd
 import { Menu } from 'antd';
-import { LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { LogoutOutlined } from '@ant-design/icons';
 
 //Lodash
 import filter from 'lodash/filter';
@@ -40,7 +40,7 @@ function MenuBar ({ routerNavigationData }) {
     if (isEqual(key, 'collpase-button')) {
       return handleCollapse();
     }
-    if(isEqual(key,'logout-button')){
+    if (isEqual(key, 'logout-button')) {
       dispatch(authenticationActions.userLogout());
       navigate('/login');
     }
@@ -68,33 +68,28 @@ function MenuBar ({ routerNavigationData }) {
   const menuItems = useMemo(() => {
     const items = map(routerNavigationData, (navigationItem) => buildMenuItem(navigationItem));
     const routerItems = filter(items, (item) => !isNil(item));
-    const collapseItem = {
-      key: 'collpase-button',
-      label: collapsed ? 'Open' : 'Close',
-      icon: collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
-    };
 
     const logoutItem = {
       key: 'logout-button',
-      label:'Logout',
+      label: 'Logout',
       icon: <LogoutOutlined />
     };
 
-
-    return [collapseItem, ...routerItems, logoutItem];
-  }, [buildMenuItem, collapsed, routerNavigationData]);
+    return [...routerItems, logoutItem];
+  }, [buildMenuItem, routerNavigationData]);
 
   return (
     <div className="menu-app">
-      <Menu
-        mode="inline"
-        inlineCollapsed={collapsed}
-        items={menuItems}
-        style={{ height: '100%' }}
-        onClick={handleItemClick}
-        className="menu-component"
-        onBlur={() => setCollapsed(true)}
-      />
+      <div onMouseEnter={() => setCollapsed(false)} onMouseLeave={() => setCollapsed(true)}>
+        <Menu
+          mode="inline"
+          inlineCollapsed={collapsed}
+          items={menuItems}
+          style={{ height: '100%' }}
+          onClick={handleItemClick}
+          className="menu-component"
+        />
+      </div>
     </div>
   );
 }

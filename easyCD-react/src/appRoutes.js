@@ -28,11 +28,7 @@ function AppRoutes () {
         return <Route path={path} key={key} element={element} />;
       }
       return (
-        <Route
-          path={path}
-          key={key}
-          element={<RequireAuth roles={roles}>{element}</RequireAuth>}
-        />
+        <Route path={path} key={key} element={<RequireAuth roles={roles}>{element}</RequireAuth>} />
       );
     });
   // The routes should be divide between thoes that require authentication, and the authentication required.
@@ -41,6 +37,7 @@ function AppRoutes () {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />}>
+          {/*Building default home page */}
           <Route
             index
             element={
@@ -49,8 +46,10 @@ function AppRoutes () {
               </RequireAuth>
             }
           />
+          {/*Building default logged pages */}
           {renderRouters(loggedRoutes)}
         </Route>
+        {/*Building default unlogged pages */}
         {renderRouters(unloggedRoutes)}
         <Route path="*" element={<NotFound />} />
       </Routes>
