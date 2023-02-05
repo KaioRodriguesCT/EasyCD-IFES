@@ -1,0 +1,25 @@
+.courses_table_header {
+  width: 100%;
+  min-height: 50px;
+  position: unset !important;
+}
+
+.ant-table-cell {
+  position: unset !important;
+}
+
+.ant-spin-container {
+  position: unset !important;
+}
+
+.ant-spin-nested-loading {
+  position: unset !important;
+}
+.actions {
+  width: 100%;
+  text-align: right;
+}
+
+.table-header {
+  width: 100%;
+}

@@ -106,6 +106,7 @@ module.exports = {
         map: [
           ['@src', './src'],
           ['@components', './src/components'],
+          ['@containers', './src/containers'],
           ['@shared', './src/shared'],
           ['@redux', './src/redux'],
           ['@hooks', './src/hooks']

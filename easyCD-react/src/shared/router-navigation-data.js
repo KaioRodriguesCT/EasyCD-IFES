@@ -1,10 +1,11 @@
 //Antd
-import { ExperimentOutlined } from '@ant-design/icons';
+import { ExperimentOutlined, TeamOutlined } from '@ant-design/icons';
 
 //Components
-import Courses from '@src/components/Courses';
-import Login from '@src/components/Login';
-import Signup from '@src/components/Signup';
+import Courses from '@src/containers/Courses';
+import Login from '@src/containers/Login';
+import People from '@src/containers/People';
+import Signup from '@src/containers/Signup';
 
 /*Expected object on array of routes:
   {
@@ -43,5 +44,13 @@ export const loggedRoutes = [
     element: <Courses />,
     icon: <ExperimentOutlined />,
     roles: ['teacher']
+  },
+  {
+    path: '/people',
+    key: 'people-list',
+    label: 'People',
+    element: <People />,
+    icon: <TeamOutlined />,
+    roles: ['admin']
   }
 ];

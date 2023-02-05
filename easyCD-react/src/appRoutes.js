@@ -9,9 +9,9 @@ import map from 'lodash/map';
 import RequireAuth from '@shared/require-auth';
 
 //Components
-import NotFound from '@components/NotFound';
-import Home from '@components/Home';
-import App from './components/App';
+import NotFound from '@src/containers/NotFound';
+import Home from '@src/containers/Home';
+import App from '@src/containers/App';
 
 //Navigation Data
 import { unloggedRoutes, loggedRoutes } from '@shared/router-navigation-data';

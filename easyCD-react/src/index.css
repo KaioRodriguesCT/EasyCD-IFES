@@ -21,3 +21,36 @@
 body{
   margin: 0;
 }
+
+.title_page_label{
+  color: #ffbd59;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 2em;
+  font-weight: bold;
+  margin-top: auto;
+  margin-bottom: auto;
+  vertical-align: middle;
+  margin-left: 10px;
+}
+
+.container_home {
+  margin-top: 5px;
+  width: 100%;
+}
+
+.container_header {
+  width: 100%;
+  min-height: 60px;
+  padding: 5px;
+  margin: auto;
+  display: flex;
+  background-color: white;
+  border-radius: 10px;
+}
+
+.container_body {
+  margin-top: 10px;
+  width: 100%;
+  background-color: transparent;
+  border-radius: 10px;
+}
