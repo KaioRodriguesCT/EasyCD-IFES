@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 //Antd
 import { ReloadOutlined } from '@ant-design/icons';
-import { Button, Card, Modal, Space, Table } from 'antd';
+import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 
 //Lodash
 import isNil from 'lodash/isNil';
@@ -35,7 +35,9 @@ function People () {
 
   //Local State
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState();
-  const [filters, setFilters] = useState();
+
+  const defaultFilters = {};
+  const [filters, setFilters] = useState(defaultFilters);
 
   //Data
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -43,10 +45,11 @@ function People () {
 
   //Hooks
   useEffect(() => {
-    if (isNil(people) && !isLoading) {
-      getPeople({ filters });
+    if (!isNil(filters)) {
+      getPeople();
     }
-  }, [filters, getPeople, isLoading, people]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   //Data
   const columns = useMemo(()=> {
@@ -106,12 +109,14 @@ function People () {
   const renderTable = () => {
     return (
       <div>
-        <Table
-          columns={columns}
-          dataSource={people}
-          pagination={false}
-          bordered={true}
-        />
+        <Spin spinning={isLoading === true}>
+          <Table
+            columns={columns}
+            dataSource={people}
+            pagination={false}
+            bordered={true}
+          />
+        </Spin>
       </div>);
   };
 

@@ -11,6 +11,7 @@ exports = module.exports = function initRepository(
     removeById,
     findById,
     findAll,
+    aggregate,
   };
 
   async function findAll({ filters, select }) {
@@ -27,6 +28,10 @@ exports = module.exports = function initRepository(
       .select(select)
       .lean()
       .exec();
+  }
+
+  async function aggregate(pipeline) {
+    return PersonModel.aggregate(pipeline);
   }
 
   async function create(person) {

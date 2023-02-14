@@ -1,5 +1,5 @@
 // Modules
-import qs from 'querystring';
+import qs from 'qs';
 
 // Lodash
 import get from 'lodash/get';
@@ -55,9 +55,10 @@ function getPath (path, options) {
   const query = get(options, 'query') || {};
   const queryString = qs.stringify(query, {
     addQueryPrefix: true,
+    encode: options.encode || false,
     arrayFormat: 'comma'
   });
-  return path +`?${ queryString }` ;
+  return path + queryString ;
 }
 
 // All get request need to have query prop

@@ -10,9 +10,10 @@ import { createReducer } from '@shared/reducers';
 
 import ListPeople from './list-people';
 import ListSlimPeople from './list-slim-people';
+import ListSlimPeopleByRole from './list-slim-people-by-role';
 
 //Modules
-const modules = [ListPeople, ListSlimPeople];
+const modules = [ListPeople, ListSlimPeople, ListSlimPeopleByRole];
 
 //Initial State
 export const initialState = {

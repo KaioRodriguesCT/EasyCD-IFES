@@ -1,5 +1,6 @@
 //React
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 //Atnd
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -9,15 +10,60 @@ import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 import CreateForm from '@src/components/Course/CreateForm';
 import UpdateForm from '@src/components/Course/UpdateForm';
 
+//Actions
+import { actions as courseActions } from '@redux/courses';
+import { actions as peopleActions } from '@redux/people';
+
+//Lodash
+import isNil from 'lodash/isNil';
+
 //Style
 import './index.css';
+import Name from '@src/components/Course/Columns/Name';
+import Coordinator from '@src/components/Course/Columns/Coordinator';
 
 function Courses () {
+  const dispatch = useDispatch();
+
   //Redux state
+  const courses = useSelector((state) => state.courses.courses);
+  const isLoading = useSelector((state) => state.courses.isLoading);
+  const peopleSlim = useSelector((state) => state.people.peopleSlim);
 
   //Local state
   const [isCreateModalVisible, setIsCreateModalVisible] = useState();
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState();
+
+  const defaultFilters = {};
+  const [filters, setFilters] = useState(defaultFilters);
+
+  //Data
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const getCourses = useCallback(() => dispatch(courseActions.listCourses({ filters })), [filters]);
+
+  const getPageData = () => {
+    dispatch(peopleActions.listSlimPeople({}));
+  };
+
+  const columns = useMemo(()=> {
+    return [
+      Name(),
+      Coordinator({ peopleSlim })
+    ];
+  },[peopleSlim]);
+
+  //Hooks
+  useEffect(() => {
+    if (!isNil(filters)) {
+      getCourses();
+    }
+  }, [filters, getCourses]);
+
+  //Executes every time that this page is open
+  useEffect(()=> {
+    getPageData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
 
   //Renders
   const renderCreateModal = () => {
@@ -55,7 +101,7 @@ function Courses () {
             />
             <Button
               icon={<ReloadOutlined />}
-              onClick={() => console.log('Refresh')}
+              onClick={() => getCourses()}
               type="default"
             />
           </Space>
@@ -82,8 +128,8 @@ function Courses () {
   const renderCoursesTable = () => {
     return (
       <div>
-        <Spin spinning={false}>
-          <Table />
+        <Spin spinning={isLoading}>
+          <Table dataSource={courses} columns={columns} pagination={false} bordered={true} size="large"/>
         </Spin>
       </div>
     );

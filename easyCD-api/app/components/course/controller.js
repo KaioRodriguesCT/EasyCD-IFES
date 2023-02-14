@@ -10,7 +10,8 @@ exports = module.exports = function initController(CourseService) {
 
   async function list(req, res, next) {
     try {
-      return res.json({ courses: await CourseService.findAll() });
+      const { query: { filters } } = req;
+      return res.json({ courses: await CourseService.findAll({ filters }) });
     } catch (e) {
       return next(e);
     }

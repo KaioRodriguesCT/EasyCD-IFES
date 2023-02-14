@@ -17,10 +17,15 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
+    findAll,
     validateCoordinator,
     addCurriculumGride,
     removeCurriculumGride,
   };
+
+  async function findAll({ filters }) {
+    return CourseRepository.findAll({ filters });
+  }
 
   async function findById({ _id }) {
     return CourseRepository.findById({ _id });

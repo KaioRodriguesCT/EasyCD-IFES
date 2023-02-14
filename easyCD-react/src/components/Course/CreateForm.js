@@ -8,7 +8,6 @@ import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
 
 //Lodash
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 
 //Actions
 import { actions as peopleActions } from '@redux/people';
@@ -26,18 +25,14 @@ function CreateForm ({ closeModal }) {
 
   //Redux state
   const peopleSlim = useSelector((state) => state.people.peopleSlim);
-  const isLoading = useSelector((state) => state.people.isLoading);
 
   //Local state
   const [newCourse, setNewCourse] = useState();
 
   //Hooks
   useEffect(()=> {
-    if(isNil(peopleSlim) && !isLoading){
-      dispatch(peopleActions.listSlimPeople({ filters:{ role:'teacher' } }));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[isLoading, peopleSlim]);
+    dispatch(peopleActions.listSlimPeopleByRole({ role: 'teacher' }));
+  });
 
   //Handlers
   const onFormSubmit = async (values) => {

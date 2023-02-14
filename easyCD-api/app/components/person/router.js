@@ -9,8 +9,9 @@ exports = module.exports = function initRouter(PeopleController, Policies) {
   // User authentication
   router.get('/', Policies.JWTLogged, PeopleController.list);
 
-  // User authentication
   router.get('/slim', Policies.JWTLogged, PeopleController.listSlim);
+
+  router.get('/slim-by-role', Policies.JWTLogged, PeopleController.listSlimByRole);
 
   // Definition
   app.use('/api/people', router);

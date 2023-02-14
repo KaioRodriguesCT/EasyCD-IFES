@@ -1,7 +1,7 @@
 exports = module.exports = function initController(
   PeopleService,
 ) {
-  return { list, listSlim };
+  return { list, listSlim, listSlimByRole };
 
   async function list(req, res, next) {
     try {
@@ -15,7 +15,18 @@ exports = module.exports = function initController(
 
   async function listSlim(req, res, next) {
     try {
-      const peopleSlim = await PeopleService.findAllSlim();
+      const { query: { filters } } = req;
+      const peopleSlim = await PeopleService.findAllSlim({ filters });
+      return res.json({ peopleSlim });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function listSlimByRole(req, res, next) {
+    try {
+      const { query: { role } } = req;
+      const peopleSlim = await PeopleService.findAllSlimByRole({ role });
       return res.json({ peopleSlim });
     } catch (e) {
       return next(e);

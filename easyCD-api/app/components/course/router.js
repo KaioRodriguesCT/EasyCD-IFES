@@ -30,6 +30,12 @@ exports = module.exports = function initRouter(
     CourseController.remove,
   );
 
+  router.get(
+    '/',
+    Policies.JWTLogged,
+    CourseController.list,
+  );
+
   app.use('/api/courses', router);
 };
 exports['@singleton'] = true;

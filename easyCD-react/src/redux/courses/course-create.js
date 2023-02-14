@@ -27,8 +27,9 @@ export const handlers = {
   },
   [ constants.COURSE_CREATE.SUCCESS ]: (state, action) => {
     const { course, message } = action;
+    const courses = state.courses ? [...state.courses, course] : [course];
     Message.success(message);
-    return { ...state, lastCreatedCourse: course, isCreating: false };
+    return { ...state, lastCreatedCourse: course, courses, isCreating: false };
   },
   [ constants.COURSE_CREATE.FAILURE ]: (state, action) => {
     const { message } = action;

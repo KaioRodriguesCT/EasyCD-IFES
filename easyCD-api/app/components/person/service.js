@@ -23,6 +23,7 @@ exports = module.exports = function initService(
     addSolicitation,
     removeSolicitation,
     findAllSlim,
+    findAllSlimByRole,
   };
 
   async function findAll({ filters }) {
@@ -33,14 +34,35 @@ exports = module.exports = function initService(
     return PersonRepository.findById({ _id });
   }
 
-  async function findAllSlim() {
+  async function findAllSlim({ filters }) {
     return PersonRepository.findAll({
       select: {
         _id: 1,
         name: 1,
         email: 1,
       },
+      filters,
     });
+  }
+
+  async function findAllSlimByRole({ role }) {
+    const pipeline = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: 'person',
+          as: 'user',
+        },
+      },
+      {
+        $match: {
+          'user.role': role,
+        },
+      },
+    ];
+
+    return PersonRepository.aggregate(pipeline);
   }
 
   async function create(person) {

@@ -10,28 +10,28 @@ import request from '@shared/request';
 
 //Constants
 export const constants = {
-  PEOPLE_LIST_SLIM: createSagaAction('PEOPLE_LIST_SLIM') // it wil create a objejct with 3 props, REQUEST, SUCCES, AND FAILURE
+  PEOPLE_LIST_SLIM_BY_ROLE: createSagaAction('PEOPLE_LIST_SLIM_BY_ROLE') // it wil create a objejct with 3 props, REQUEST, SUCCES, AND FAILURE
 };
 
 //Actions
 export const actions = {
-  listSlimPeople: ({ filters }) => ({
-    type: constants.PEOPLE_LIST_SLIM.REQUEST, //Always request, to keep the cycle,
-    filters
+  listSlimPeopleByRole: ({ role }) => ({
+    type: constants.PEOPLE_LIST_SLIM_BY_ROLE.REQUEST, //Always request, to keep the cycle,
+    role
   })
 };
 
 //Handlers
 export const handlers = {
-  [ constants.PEOPLE_LIST_SLIM.REQUEST ]: (state, action) => {
+  [ constants.PEOPLE_LIST_SLIM_BY_ROLE.REQUEST ]: (state, action) => {
     return { ...state, isLoading: true };
   },
-  [ constants.PEOPLE_LIST_SLIM.SUCCESS ]: (state, action) => {
+  [ constants.PEOPLE_LIST_SLIM_BY_ROLE.SUCCESS ]: (state, action) => {
     const { peopleSlim } = action;
     return { ...state, peopleSlim, isLoading: false };
 
   },
-  [ constants.PEOPLE_LIST_SLIM.FAILURE ]: (state, action) => {
+  [ constants.PEOPLE_LIST_SLIM_BY_ROLE.FAILURE ]: (state, action) => {
     const { message } = action;
     Message.error(message);
     return { ...state, isLoading: false, peopleSlim: [] };
@@ -41,16 +41,16 @@ export const handlers = {
 //Sagas
 export function* saga (action) {
   try {
-    const { filters } = action;
-    const { peopleSlim } = yield call(api, { filters });
+    const { role } = action;
+    const { peopleSlim } = yield call(api, { role });
     // eslint-disable-next-line no-console
     yield put({
-      type: constants.PEOPLE_LIST_SLIM.SUCCESS,
+      type: constants.PEOPLE_LIST_SLIM_BY_ROLE.SUCCESS,
       peopleSlim
     });
   } catch (e) {
     yield put({
-      type: constants.PEOPLE_LIST_SLIM.FAILURE,
+      type: constants.PEOPLE_LIST_SLIM_BY_ROLE.FAILURE,
       message: e.message || e
     });
   }
@@ -58,15 +58,15 @@ export function* saga (action) {
 
 //Watchers
 export function* watcher () {
-  yield takeLatest(constants.PEOPLE_LIST_SLIM.REQUEST, saga);
+  yield takeLatest(constants.PEOPLE_LIST_SLIM_BY_ROLE.REQUEST, saga);
 }
 
 //Api
-async function api ({ filters }) {
+async function api ({ role }) {
   //Return the result of the request here
-  return request('people/slim/', {
+  return request('people/slim-by-role', {
     method: 'GET',
-    query: { filters }
+    query: { role }
   });
 }
 
