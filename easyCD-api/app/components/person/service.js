@@ -7,6 +7,7 @@ exports = module.exports = function initService(
   Utils,
 ) {
   return {
+    findAll,
     findById,
     create,
     update,
@@ -21,10 +22,25 @@ exports = module.exports = function initService(
     removeComplementaryActivity,
     addSolicitation,
     removeSolicitation,
+    findAllSlim,
   };
+
+  async function findAll({ filters }) {
+    return PersonRepository.findAll({ filters });
+  }
 
   async function findById({ _id }) {
     return PersonRepository.findById({ _id });
+  }
+
+  async function findAllSlim() {
+    return PersonRepository.findAll({
+      select: {
+        _id: 1,
+        name: 1,
+        email: 1,
+      },
+    });
   }
 
   async function create(person) {

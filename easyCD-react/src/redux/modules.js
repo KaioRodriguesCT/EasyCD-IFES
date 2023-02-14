@@ -2,9 +2,13 @@
 import { reducer as reducerExample } from '@redux/redux-with-saga-example';
 import { reducer as authentication } from '@redux/authentication';
 import { reducer as user } from '@redux/user';
+import { reducer as people } from '@redux/people';
+import { reducer as courses } from '@redux/courses';
 
 export default {
   reducerExample,
   authentication,
-  user
+  user,
+  people,
+  courses
 };

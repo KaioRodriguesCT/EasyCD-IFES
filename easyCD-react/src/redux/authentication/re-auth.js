@@ -28,7 +28,9 @@ export const handlers = {
   },
   [ constants.USER_RE_AUTH.SUCCESS ]: (state, action) => {
     const { user, message } = action;
-    Message.success(message);
+    if(message){
+      Message.success(message);
+    }
     return { ...state, isReAuthenticating: false, user };
   },
   [ constants.USER_RE_AUTH.FAILURE ]: (state, action) => {

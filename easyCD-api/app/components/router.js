@@ -18,6 +18,7 @@ exports = module.exports = function initRoutes(errorHandler) {
     'complementary-activity',
     'solicitation-type',
     'solicitation',
+    'person',
     'hello-world',
   ];
 

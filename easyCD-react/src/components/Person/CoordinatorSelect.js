@@ -1,14 +1,29 @@
 //React
-import React from 'react';
+import React, { useMemo } from 'react';
 
 //Antd
 import { Select } from 'antd';
 
-function CoordinatorSelect ({ onChange }){
+//Lodash
+import get from 'lodash/get';
+import map from 'lodash/map';
+
+function CoordinatorSelect ({ onChange, peopleSlim, defaultValue }){
+  //Data
+  const options = useMemo(()=>{
+    return map(peopleSlim,(person) => ({
+      label: get(person, 'name'),
+      value: get(person,'_id')
+    }));
+  },[peopleSlim]);
+
   return (
     <Select
-      options={[]}
+      options={options}
       onChange={onChange}
+      placeholder="Select Coordinator"
+      allowClear
+      defaultValue={defaultValue}
     />
   );
 }

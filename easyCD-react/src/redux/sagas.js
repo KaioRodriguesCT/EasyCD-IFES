@@ -5,12 +5,16 @@ import { all, fork } from 'redux-saga/effects';
 import { rootSaga as sagaExample } from '@redux/redux-with-saga-example';
 import { rootSaga as authentication } from '@redux/authentication';
 import { rootSaga as user } from '@redux/user';
+import { rootSaga as people } from '@redux/people';
+import { rootSaga as courses } from '@redux/courses';
 
 export function* rootSaga (){
   const sagas = [
     sagaExample,
     authentication,
-    user
+    user,
+    people,
+    courses
   ].map(fork);
   yield all(sagas);
 }

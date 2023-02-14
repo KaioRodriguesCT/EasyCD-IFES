@@ -10,7 +10,16 @@ exports = module.exports = function initRepository(
     update,
     removeById,
     findById,
+    findAll,
   };
+
+  async function findAll({ filters, select }) {
+    return PersonModel
+      .find(filters)
+      .select(select)
+      .lean()
+      .exec();
+  }
 
   async function findById({ _id, select }) {
     return PersonModel

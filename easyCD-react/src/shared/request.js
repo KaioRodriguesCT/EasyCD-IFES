@@ -57,7 +57,7 @@ function getPath (path, options) {
     addQueryPrefix: true,
     arrayFormat: 'comma'
   });
-  return path + queryString;
+  return path +`?${ queryString }` ;
 }
 
 // All get request need to have query prop
@@ -77,26 +77,25 @@ const request = async (path, options) => {
   //Logic to re-auth the user
   if (response.status === 409) {
     try {
-      const refreshToken = get(store.getState(), 'user.refreshToken');
-
+      const refreshToken = get(store.getState(), 'authentication.user.refreshToken');
       if (!refreshToken) {
         throw new Error('Error on get Refresh token from logged user');
       }
 
       //Try re-authenticate the user
-      const user = await refreshSession({ refreshToken });
+      const { user } = await refreshSession({ refreshToken });
       if(!user){
         return store.dispatch({ type:authConstants.USER_LOGOUT.REQUEST });
       }
       updateUserInState(user);
 
       //Then try the request again
+
       return request(path, options);
     } catch (e) {
       throw createError(json);
     }
   }
-
   const json = options.asRaw || response.status === 204 ? response : await jsonBody(response);
 
   if (!get(response, 'ok')) {
@@ -142,9 +141,7 @@ const refreshSession = async ({ refreshToken }) => {
     }
   };
   const refreshedUer = await _request(refreshPath, opts);
-  if(refreshedUer.status !== 200){
-    return null;
-  }
+
   return jsonBody(refreshedUer);
 };
 

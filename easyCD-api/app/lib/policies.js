@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
@@ -29,8 +30,7 @@ exports = module.exports = function initJWTPolicies(Utils, settings) {
   function JWTRole(req, res, next, role) {
     try {
       const { headers } = req;
-      const accessToken = _.get(headers, 'authorization');
-
+      const accessToken = _.get(headers, 'authentication');
       if (!accessToken) {
         return res.status(401).json({
           message: 'Not authorized',

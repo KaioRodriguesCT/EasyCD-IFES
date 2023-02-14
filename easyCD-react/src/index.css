@@ -53,4 +53,8 @@ body{
   width: 100%;
   background-color: transparent;
   border-radius: 10px;
+  position: unset !important;
+}
+.container_body_header{
+  position: unset !important;
 }
