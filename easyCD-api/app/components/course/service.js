@@ -77,7 +77,7 @@ exports = module.exports = function initService(
       },
       processingCoordinator: ['oldCourse', async ({ oldCourse }) => {
         if (!course.coordinator
-          || _.isEqual(oldCourse.coordinator, course.coordinator)) {
+          || _.isEqual(String(oldCourse.coordinator), course.coordinator)) {
           return;
         }
         await async.auto({
@@ -105,19 +105,10 @@ exports = module.exports = function initService(
           coordinator: { allowEmpty: false },
           curriculumGrides: { allowEmpty: true },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = course[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldCourse[field] = currentValue;
+        await Utils.updateModelWithValidFields({
+          oldModel: oldCourse,
+          newModel: course,
+          updatableFields,
         });
         return CourseRepository.update(oldCourse);
       }],

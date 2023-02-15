@@ -34,7 +34,7 @@ exports = module.exports = function initController(CourseService) {
   async function update(req, res, next) {
     try {
       const { courseId } = req.params;
-      const course = req.body;
+      const { course } = req.body;
       return await async.auto({
         updatedCourse: async () => CourseService.update({ ...course, _id: courseId }),
         sendResponse: ['updatedCourse', async ({ updatedCourse }) => res.json({

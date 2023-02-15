@@ -66,6 +66,9 @@ function CreateForm ({ closeModal }) {
           <Form.Item name="coordinator" label="Coordinator:" rules={[{ required: true, message:'Coordinator is required !' }]}>
             <CoordinatorSelect peopleSlim={peopleSlim} onChange={handleSelectChange(newCourse, setNewCourse,'coordinator')} />
           </Form.Item>
+          <Form.Item name="description" label="Description:">
+            <Input.TextArea onChange={handleInputChange(newCourse, setNewCourse, 'description')}/>
+          </Form.Item>
           <Space direction="horizontal" size="small">
             <Form.Item>
               <Button type="primary" htmlType="submit" icon={<SaveOutlined/>}>Save</Button>

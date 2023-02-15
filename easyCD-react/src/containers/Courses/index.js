@@ -21,6 +21,7 @@ import get from 'lodash/get';
 //Columns
 import Name from '@components/Course/Columns/Name';
 import Coordinator from '@components/Course/Columns/Coordinator';
+import Description from '@src/components/Course/Columns/Description';
 import Actions from '@components/Course/Columns/Actions';
 
 //Style
@@ -38,14 +39,16 @@ function Courses () {
   //Local state
   const [isCreateModalVisible, setIsCreateModalVisible] = useState();
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState();
+  const [courseBeingUpdated, setCourseBeingUpdated] = useState();
 
   const defaultFilters = {};
   const [filters, setFilters] = useState(defaultFilters);
 
 
   //Handlers
-  const onEditClick = (record) => {
-    console.log(record);
+  const onEditClick = (course) => {
+    setIsUpdateModalVisible(true);
+    setCourseBeingUpdated(course);
   };
 
   const onDeleteClick = (record) => {
@@ -71,6 +74,7 @@ function Courses () {
     return [
       Name(),
       Coordinator({ peopleSlim }),
+      Description(),
       Actions({ onDeleteClick, onEditClick })
     ];
   },[peopleSlim]);
@@ -95,7 +99,8 @@ function Courses () {
         visible={isCreateModalVisible}
         onCancel={() => setIsCreateModalVisible(false)}
         footer={null}
-        closable={false}>
+        closable={false}
+        destroyOnClose={true}>
         <CreateForm closeModal={() => setIsCreateModalVisible(false)} />
       </Modal>
     );
@@ -106,8 +111,10 @@ function Courses () {
       <Modal
         visible={isUpdateModalVisible}
         onCancel={() => setIsUpdateModalVisible(false)}
-        closable={false}>
-        <UpdateForm closeModal={() => setIsUpdateModalVisible(false)} />
+        footer={null}
+        closable={false}
+        destroyOnClose={true}>
+        <UpdateForm closeModal={() => setIsUpdateModalVisible(false)} course={courseBeingUpdated}/>
       </Modal>
     );
   };

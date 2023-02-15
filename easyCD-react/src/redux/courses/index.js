@@ -10,15 +10,17 @@ import { createReducer } from '@shared/reducers';
 
 import CourseCreate from './course-create';
 import CourseDelete from './course-delete';
+import CourseUpdate from './course-update';
 import ListCourses from './list-courses';
 
 //Modules
-const modules = [CourseCreate, ListCourses, CourseDelete];
+const modules = [CourseCreate, ListCourses, CourseDelete, CourseUpdate];
 
 //Initial State
 export const initialState = {
   isCreating: false,
   isDeleting: false,
+  isUpdating: false,
   lastCourseCreated: null,
 
   isLoading: false,
