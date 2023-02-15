@@ -41,6 +41,7 @@ function CreateForm ({ closeModal }) {
     if(isFunction(closeModal)){
       closeModal();
     }
+    await form.resetFields();
   };
 
   const onCancel = () => {

@@ -9,14 +9,16 @@ import isNil from 'lodash/isNil';
 import { createReducer } from '@shared/reducers';
 
 import CourseCreate from './course-create';
+import CourseDelete from './course-delete';
 import ListCourses from './list-courses';
 
 //Modules
-const modules = [CourseCreate, ListCourses];
+const modules = [CourseCreate, ListCourses, CourseDelete];
 
 //Initial State
 export const initialState = {
   isCreating: false,
+  isDeleting: false,
   lastCourseCreated: null,
 
   isLoading: false,

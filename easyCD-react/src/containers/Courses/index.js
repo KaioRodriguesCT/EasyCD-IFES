@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 //Atnd
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ExclamationCircleFilled, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 
 //Components
@@ -16,12 +16,17 @@ import { actions as peopleActions } from '@redux/people';
 
 //Lodash
 import isNil from 'lodash/isNil';
+import get from 'lodash/get';
+
+//Columns
+import Name from '@components/Course/Columns/Name';
+import Coordinator from '@components/Course/Columns/Coordinator';
+import Actions from '@components/Course/Columns/Actions';
 
 //Style
 import './index.css';
-import Name from '@src/components/Course/Columns/Name';
-import Coordinator from '@src/components/Course/Columns/Coordinator';
 
+// eslint-disable-next-line max-statements
 function Courses () {
   const dispatch = useDispatch();
 
@@ -37,6 +42,23 @@ function Courses () {
   const defaultFilters = {};
   const [filters, setFilters] = useState(defaultFilters);
 
+
+  //Handlers
+  const onEditClick = (record) => {
+    console.log(record);
+  };
+
+  const onDeleteClick = (record) => {
+    Modal.confirm({
+      title:`Are you sure that you want to delete the course: ${ get(record, 'name') } ?`,
+      content:'Once you delete the course, all data related to that course will be inactivate or lost on database.',
+      icon:<ExclamationCircleFilled/>,
+      onOk () {
+        dispatch(courseActions.deleteCourse( get(record,'_id') ));
+      }
+    });
+  };
+
   //Data
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCourses = useCallback(() => dispatch(courseActions.listCourses({ filters })), [filters]);
@@ -48,7 +70,8 @@ function Courses () {
   const columns = useMemo(()=> {
     return [
       Name(),
-      Coordinator({ peopleSlim })
+      Coordinator({ peopleSlim }),
+      Actions({ onDeleteClick, onEditClick })
     ];
   },[peopleSlim]);
 
