@@ -5,36 +5,34 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 //Antd
 import { message as Message } from 'antd';
 
-
 import request from '@shared/request';
 
 //Constants
 export const constants = {
-  COURSE_LIST: createSagaAction('COURSE_LIST') // it wil create a objejct with 3 props, REQUEST, SUCCES, AND FAILURE
+  CURRICULUM_GRIDE_LIST: createSagaAction('CURRICULUM_GRIDE_LIST') // it wil create a objejct with 3 props, REQUEST, SUCCES, AND FAILURE
 };
 
 //Actions
 export const actions = {
-  listCourses: ({ filters }) => ({
-    type: constants.COURSE_LIST.REQUEST, //Always request, to keep the cycle,
+  listCurriculumGrides: ({ filters }) => ({
+    type: constants.CURRICULUM_GRIDE_LIST.REQUEST, //Always request, to keep the cycle,
     filters
   })
 };
 
 //Handlers
 export const handlers = {
-  [ constants.COURSE_LIST.REQUEST ]: (state, action) => {
+  [ constants.CURRICULUM_GRIDE_LIST.REQUEST ]: (state, action) => {
     return { ...state, isLoading: true };
   },
-  [ constants.COURSE_LIST.SUCCESS ]: (state, action) => {
-    const { courses } = action;
-    return { ...state, courses, isLoading: false };
-
+  [ constants.CURRICULUM_GRIDE_LIST.SUCCESS ]: (state, action) => {
+    const { curriculumGrides } = action;
+    return { ...state, curriculumGrides, isLoading: false };
   },
-  [ constants.COURSE_LIST.FAILURE ]: (state, action) => {
+  [ constants.CURRICULUM_GRIDE_LIST.FAILURE ]: (state, action) => {
     const { message } = action;
     Message.error(message);
-    return { ...state, isLoading: false, courses: [] };
+    return { ...state, isLoading: false, curriculumGrides: [] };
   }
 };
 
@@ -43,15 +41,15 @@ export function* saga (action) {
   try {
     const { filters } = action;
 
-    const { courses } = yield call(api, { filters });
+    const { curriculumGrides } = yield call(api, { filters });
     // eslint-disable-next-line no-console
     yield put({
-      type: constants.COURSE_LIST.SUCCESS,
-      courses
+      type: constants.CURRICULUM_GRIDE_LIST.SUCCESS,
+      curriculumGrides
     });
   } catch (e) {
     yield put({
-      type: constants.COURSE_LIST.FAILURE,
+      type: constants.CURRICULUM_GRIDE_LIST.FAILURE,
       message: e.message || e
     });
   }
@@ -59,13 +57,13 @@ export function* saga (action) {
 
 //Watchers
 export function* watcher () {
-  yield takeLatest(constants.COURSE_LIST.REQUEST, saga);
+  yield takeLatest(constants.CURRICULUM_GRIDE_LIST.REQUEST, saga);
 }
 
 //Api
 async function api ({ filters }) {
   //Return the result of the request here
-  return request('courses/', {
+  return request('curriculum-grides/', {
     method: 'GET',
     query: { filters }
   });

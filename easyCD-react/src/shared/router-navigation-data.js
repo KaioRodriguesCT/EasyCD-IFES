@@ -1,8 +1,9 @@
 //Antd
-import { ExperimentOutlined, TeamOutlined } from '@ant-design/icons';
+import { ExperimentOutlined, HddOutlined, TeamOutlined } from '@ant-design/icons';
 
 //Components
 import Courses from '@src/containers/Courses';
+import CurriculumGride from '@src/containers/CurriculumGride';
 import Login from '@src/containers/Login';
 import People from '@src/containers/People';
 import Signup from '@src/containers/Signup';
@@ -52,5 +53,13 @@ export const loggedRoutes = [
     element: <People />,
     icon: <TeamOutlined />,
     roles: ['admin']
+  },
+  {
+    path: '/curriculum-grid',
+    key: 'curriculum-grid',
+    label: 'Curriculum Grid',
+    element: <CurriculumGride />,
+    icon: <HddOutlined />,
+    roles: ['teacher']
   }
 ];

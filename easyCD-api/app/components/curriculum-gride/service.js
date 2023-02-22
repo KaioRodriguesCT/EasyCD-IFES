@@ -16,10 +16,15 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
+    findAll,
     addSubject,
     removeSubject,
     validateCourse,
   };
+
+  async function findAll({ filters }) {
+    return CurriculumGrideRepository.findAll({ filters });
+  }
 
   async function findById({ _id }) {
     return CurriculumGrideRepository.findById({ _id });
@@ -72,7 +77,7 @@ exports = module.exports = function initService(
       },
       processingCourse: ['oldCurriculumGride', async ({ oldCurriculumGride }) => {
         if (!curriculumGride.course
-          || _.isEqual(oldCurriculumGride.course, curriculumGride.course)) {
+          || _.isEqual(String(oldCurriculumGride.course), curriculumGride.course)) {
           return;
         }
         await async.auto({
@@ -98,23 +103,16 @@ exports = module.exports = function initService(
           name: { allowEmpty: false },
           dtStart: { allowEmpty: false },
           dtEnd: { allowEmpty: false },
+          isActive: { allowEmpty: false },
           course: { allowEmpty: false },
           subjects: { allowEmpty: true },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = curriculumGride[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldCurriculumGride[field] = currentValue;
+        await Utils.updateModelWithValidFields({
+          oldModel: oldCurriculumGride,
+          newModel: curriculumGride,
+          updatableFields,
         });
+
         return CurriculumGrideRepository.update((oldCurriculumGride));
       }],
     });

@@ -4,11 +4,13 @@ import { reducer as authentication } from '@redux/authentication';
 import { reducer as user } from '@redux/user';
 import { reducer as people } from '@redux/people';
 import { reducer as courses } from '@redux/courses';
+import { reducer as curriculumGrides } from '@redux/curriculum-grides';
 
 export default {
   reducerExample,
   authentication,
   user,
   people,
-  courses
+  courses,
+  curriculumGrides
 };

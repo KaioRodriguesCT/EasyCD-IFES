@@ -7,6 +7,7 @@ import { rootSaga as authentication } from '@redux/authentication';
 import { rootSaga as user } from '@redux/user';
 import { rootSaga as people } from '@redux/people';
 import { rootSaga as courses } from '@redux/courses';
+import { rootSaga as curriculumGrides } from '@redux/curriculum-grides';
 
 export function* rootSaga (){
   const sagas = [
@@ -14,7 +15,8 @@ export function* rootSaga (){
     authentication,
     user,
     people,
-    courses
+    courses,
+    curriculumGrides
   ].map(fork);
   yield all(sagas);
 }
