@@ -12,30 +12,19 @@
 }
 
 .subtitle_label {
-    font-size: 2em !important;
-    color:#5186cd;
-    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-    font-weight: bold;
-
+  font-size: 2em !important;
+  color: #5186cd;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-weight: bold;
 }
-body{
+body {
   margin: 0;
 }
 
-.title_page_label{
-  color: #ffbd59;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 2em;
-  font-weight: bold;
-  margin-top: auto;
-  margin-bottom: auto;
-  vertical-align: middle;
-  margin-left: 10px;
-}
-
 .container_home {
-  margin-top: 5px;
   width: 100%;
+  height: 100vh;
+  background-color: white;
 }
 
 .container_header {
@@ -49,12 +38,14 @@ body{
 }
 
 .container_body {
+  margin: 0 auto;
   margin-top: 10px;
   width: 100%;
   background-color: transparent;
   border-radius: 10px;
   position: unset !important;
+  padding: 5px;
 }
-.container_body_header{
+.container_body_header {
   position: unset !important;
 }

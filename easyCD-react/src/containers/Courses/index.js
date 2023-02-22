@@ -9,6 +9,8 @@ import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 //Components
 import CreateForm from '@src/components/Course/CreateForm';
 import UpdateForm from '@src/components/Course/UpdateForm';
+import ComponentHeader from '@src/components/ComponentHeader';
+import ComponentFooter from '@src/components/ComponentFooter';
 
 //Actions
 import { actions as courseActions } from '@redux/courses';
@@ -43,7 +45,6 @@ function Courses () {
 
   const defaultFilters = {};
   const [filters, setFilters] = useState(defaultFilters);
-
 
   //Handlers
   const onEditClick = (course) => {
@@ -141,7 +142,7 @@ function Courses () {
   };
 
   const renderFilters = () => {
-    return <div className="courses_table_header">Filters</div>;
+    return <div></div>;
   };
 
   const renderDataHeader = () => {
@@ -167,15 +168,14 @@ function Courses () {
 
   return (
     <div className="container_home">
-      <div className="container_header">
-        <span className="title_page_label">Courses</span>
-      </div>
+      <ComponentHeader title={'Courses'}/>
       <div className="container_body">
         {renderDataHeader()}
         {renderCoursesTable()}
       </div>
       {renderCreateModal()}
       {renderUpdateModal()}
+      <ComponentFooter/>
     </div>
   );
 }

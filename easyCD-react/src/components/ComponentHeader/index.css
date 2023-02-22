@@ -1,0 +1,20 @@
+.component_header {
+  margin: auto;
+  min-height: 60px;
+  padding: 5px;
+  margin: auto;
+  display: flex;
+  background-color: white;
+  border-radius: 10px;
+}
+
+.title_page_label {
+  color: #ffbd59;
+  font-family: sans-serif;
+  font-size: 3em;
+  font-weight: bold;
+  vertical-align: middle;
+  margin-left: 10px;
+  text-align: center;
+  margin: auto;
+}

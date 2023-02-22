@@ -11,6 +11,8 @@ import isNil from 'lodash/isNil';
 
 //Components
 import UpdateForm from '@src/components/Person/UpdateForm';
+import ComponentHeader from '@src/components/ComponentHeader';
+import ComponentFooter from '@src/components/ComponentFooter';
 
 //Actions
 import { actions as peopleActions } from '@redux/people';
@@ -92,12 +94,12 @@ function People () {
   };
 
   const renderFilters = () => {
-    return <div>Filters</div>;
+    return <div></div>;
   };
 
   const renderTableHeader = () => {
     return (
-      <Card className="container_body_header">
+      <Card className="people_table_header">
         <Space direction="vertical" className="table-header">
           {renderFilters()}
           {renderActionsButtons()}
@@ -122,10 +124,9 @@ function People () {
 
   return (
     <div className="container_home">
-      <div className="container_header">
-        <span className="title_page_label">People</span>
-      </div>
+      <ComponentHeader title={'People'}/>
       <div className="container_body">{renderTableHeader()}{renderTable()}</div>
+      <ComponentFooter/>
       {renderUpdateModal()}
     </div>
   );
