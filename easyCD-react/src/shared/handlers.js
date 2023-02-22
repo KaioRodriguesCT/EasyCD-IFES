@@ -8,6 +8,12 @@ const handleInputChange = (state, setState, field) => (value) => {
   setState(newState);
 };
 
+const handleSwitchChange = (state, setState, field) => (value) => {
+  const newState = clone(state) || {};
+  newState[ field ] = value || false;
+  setState(newState);
+};
+
 // const handlePasswordChange = (state, setState, field) => (value) => {
 //   const newState = clone(state) || {};
 //   const password = get(value, 'target.value') || null;
@@ -22,4 +28,4 @@ const handleSelectChange = (state, setState, field) => value => {
   setState(newState);
 
 };
-export { handleInputChange, handleSelectChange };
+export { handleInputChange, handleSelectChange, handleSwitchChange };

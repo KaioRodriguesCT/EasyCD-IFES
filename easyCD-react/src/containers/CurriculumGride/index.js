@@ -12,6 +12,7 @@ import get from 'lodash/get';
 
 //Actions
 import { actions as curriculumGrideActions } from '@redux/curriculum-grides';
+import { actions as courseActions } from '@redux/courses';
 
 //Components
 import ComponentFooter from '@src/components/ComponentFooter';
@@ -29,11 +30,13 @@ import Actions from '@src/components/SharedComponents/Columns/Actions';
 //Style
 import './index.css';
 
+// eslint-disable-next-line max-statements
 function CurriculumGride () {
   const dispatch = useDispatch();
 
   //Redux state
   const curriculumGrides = useSelector((state) => state.curriculumGrides.curriculumGrides);
+  const courses = useSelector((state) => state.courses.courses);
   const isLoading = useSelector((state) => state.curriculumGrides.isLoading);
 
   //Local state
@@ -72,10 +75,14 @@ function CurriculumGride () {
     [filters]
   );
 
+  const getPageData = () => {
+    dispatch(courseActions.listCourses({}));
+  };
+
   const columns = useMemo(
     () => [
       Name(),
-      Course(),
+      Course({ courses }),
       DateColumn({
         title: 'Dt Start',
         dataIndex: 'dtStart'
@@ -93,7 +100,8 @@ function CurriculumGride () {
         onEditClick
       })
     ],
-    []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [courses]
   );
 
   //Hooks
@@ -102,6 +110,12 @@ function CurriculumGride () {
       getCurriculumGrides();
     }
   }, [filters, getCurriculumGrides]);
+
+  //Executes every time that this page is open
+  useEffect(()=> {
+    getPageData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
 
   //Renders
   const renderCreateModal = () => {

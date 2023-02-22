@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 //Antd
 import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
-import { Button, Card, DatePicker, Form, Input, Space } from 'antd';
+import { Button, Card, DatePicker, Form, Input, Space, Switch } from 'antd';
 
 //Actions
 import { actions as courseActions } from '@redux/courses';
@@ -21,7 +21,7 @@ import CourseSelect from '@components/Course/CourseSelect';
 import dayjs from 'dayjs';
 
 //Handlers
-import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
+import { handleInputChange, handleSelectChange, handleSwitchChange } from '@src/shared/handlers';
 
 function UpdateForm ({ curriculumGride, closeModal }) {
   const dispatch = useDispatch();
@@ -109,6 +109,13 @@ function UpdateForm ({ curriculumGride, closeModal }) {
             label="Period:"
             rules={[{ required: true, message: 'Range is required !' }]}>
             <DatePicker.RangePicker onChange={handlePeriodChange} />
+          </Form.Item>
+          <Form.Item
+            valuePropName="checked"
+            name="isActive"
+            label="Is Active:"
+          >
+            <Switch onChange={handleSwitchChange(newCurriculumGride, setNewCurriculumGride, 'isActive')}/>
           </Form.Item>
           <Space direction="horizontal" size="small">
             <Form.Item>

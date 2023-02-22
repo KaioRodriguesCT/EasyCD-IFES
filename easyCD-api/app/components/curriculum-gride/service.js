@@ -103,23 +103,16 @@ exports = module.exports = function initService(
           name: { allowEmpty: false },
           dtStart: { allowEmpty: false },
           dtEnd: { allowEmpty: false },
+          isActive: { allowEmpty: false },
           course: { allowEmpty: false },
           subjects: { allowEmpty: true },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = curriculumGride[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldCurriculumGride[field] = currentValue;
+        await Utils.updateModelWithValidFields({
+          oldModel: oldCurriculumGride,
+          newModel: curriculumGride,
+          updatableFields,
         });
+
         return CurriculumGrideRepository.update((oldCurriculumGride));
       }],
     });
