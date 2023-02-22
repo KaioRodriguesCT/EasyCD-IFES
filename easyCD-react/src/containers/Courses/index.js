@@ -24,7 +24,7 @@ import get from 'lodash/get';
 import Name from '@components/Course/Columns/Name';
 import Coordinator from '@components/Course/Columns/Coordinator';
 import Description from '@src/components/Course/Columns/Description';
-import Actions from '@components/Course/Columns/Actions';
+import Actions from '@components/SharedComponents/Columns/Actions';
 
 //Style
 import './index.css';
@@ -78,6 +78,7 @@ function Courses () {
       Description(),
       Actions({ onDeleteClick, onEditClick })
     ];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[peopleSlim]);
 
   //Hooks

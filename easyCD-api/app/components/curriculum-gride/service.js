@@ -16,10 +16,15 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
+    findAll,
     addSubject,
     removeSubject,
     validateCourse,
   };
+
+  async function findAll({ filters }) {
+    return CurriculumGrideRepository.findAll({ filters });
+  }
 
   async function findById({ _id }) {
     return CurriculumGrideRepository.findById({ _id });
@@ -72,7 +77,7 @@ exports = module.exports = function initService(
       },
       processingCourse: ['oldCurriculumGride', async ({ oldCurriculumGride }) => {
         if (!curriculumGride.course
-          || _.isEqual(oldCurriculumGride.course, curriculumGride.course)) {
+          || _.isEqual(String(oldCurriculumGride.course), curriculumGride.course)) {
           return;
         }
         await async.auto({

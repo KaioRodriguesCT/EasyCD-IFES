@@ -30,7 +30,13 @@ exports = module.exports = function initRouter(
     CurriculumGrideController.remove,
   );
 
-  app.use('/api/curriculum-gride', router);
+  router.get(
+    '/',
+    Policies.JWTTeacher,
+    CurriculumGrideController.list,
+  );
+
+  app.use('/api/curriculum-grides', router);
 };
 exports['@singleton'] = true;
 exports['@require'] = [

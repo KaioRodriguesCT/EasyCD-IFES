@@ -5,6 +5,7 @@ exports = module.exports = function initController(CurriculumGrideService) {
     create,
     update,
     remove,
+    list,
   };
 
   async function create(req, res, next) {
@@ -12,7 +13,7 @@ exports = module.exports = function initController(CurriculumGrideService) {
       return await async.auto({
         createdCurriculumGride: async () => CurriculumGrideService.create(req.body),
         sendResponse: ['createdCurriculumGride', async ({ createdCurriculumGride }) => res.json({
-          message: 'Curriculum Gide created successfully',
+          message: 'Curriculum Gride created successfully',
           curriculumGride: createdCurriculumGride,
         })],
       });
@@ -24,7 +25,7 @@ exports = module.exports = function initController(CurriculumGrideService) {
   async function update(req, res, next) {
     try {
       const { curriculumGrideId } = req.params;
-      const curriculumGride = req.body;
+      const { curriculumGride } = req.body;
       return await async.auto({
         updatedCurriculumGride: async () => CurriculumGrideService.update({
           ...curriculumGride,
@@ -51,6 +52,15 @@ exports = module.exports = function initController(CurriculumGrideService) {
           message: 'Curriculum Gride deleted successfully',
         })],
       });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function list(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+      return res.json({ curriculumGrides: await CurriculumGrideService.findAll({ filters }) });
     } catch (e) {
       return next(e);
     }
