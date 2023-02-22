@@ -1,5 +1,5 @@
 //React
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 //Antd
@@ -18,7 +18,7 @@ import isFunction from 'lodash/isFunction';
 //Components
 import CourseSelect from '@components/Course/CourseSelect';
 
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 //Handlers
 import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
@@ -33,6 +33,17 @@ function UpdateForm ({ curriculumGride, closeModal }) {
   //Local state
   const [newCurriculumGride, setNewCurriculumGride] = useState(curriculumGride);
 
+  //Data
+  const initialValues = useMemo(() => {
+    const dtStart = get(curriculumGride, 'dtStart') || null;
+    const dtEnd = get(curriculumGride, 'dtEnd') || null;
+    return {
+      ...curriculumGride,
+      range:
+        dtStart && dtEnd ? [dayjs(dtStart, 'YYYY-MM-DD'), dayjs(dtEnd, 'YYYY-MM-DD')] : undefined
+    };
+  }, [curriculumGride]);
+
   //Hooks
   useEffect(() => {
     dispatch(courseActions.listCourses({}));
@@ -40,8 +51,9 @@ function UpdateForm ({ curriculumGride, closeModal }) {
   }, []);
 
   useEffect(() => {
-    setNewCurriculumGride(curriculumGride);
-  }, [curriculumGride]);
+    setNewCurriculumGride(initialValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   //Handlers
   const onFormSubmit = async () => {
@@ -71,15 +83,8 @@ function UpdateForm ({ curriculumGride, closeModal }) {
   //Renders
   const renderForm = () => {
     return (
-      <Card title="Curriculum Gride - Create Form">
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFormSubmit}
-          initialValues={{
-            ...curriculumGride,
-            range: [moment(get(curriculumGride, 'dtStart')), moment(get(curriculumGride, 'dtEnd'))]
-          }}>
+      <Card title="Curriculum Gride - Update Form">
+        <Form form={form} layout="vertical" onFinish={onFormSubmit} initialValues={initialValues}>
           <Form.Item
             name="name"
             label="Name:"
