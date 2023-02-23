@@ -30,7 +30,13 @@ exports = module.exports = function initRouter(
     SubjectController.remove,
   );
 
-  app.use('/api/subject', router);
+  router.get(
+    '/',
+    Policies.JWTTeacher,
+    SubjectController.list,
+  );
+
+  app.use('/api/subjects', router);
 };
 exports['@singleton'] = true;
 exports['@require'] = [

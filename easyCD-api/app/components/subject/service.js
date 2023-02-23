@@ -18,8 +18,13 @@ exports = module.exports = function initService(
     addClassroom,
     removeClassroom,
     findById,
+    findAll,
     validateCurriculumGride,
   };
+
+  async function findAll({ filters }) {
+    return SubjectRepository.findAll({ filters });
+  }
 
   async function findById({ _id, select }) {
     return SubjectRepository.findById({ _id, select });
@@ -70,7 +75,7 @@ exports = module.exports = function initService(
       },
       processingCurriculumGride: ['oldSubject', async ({ oldSubject }) => {
         if (!subject.curriculumGride
-            || _.isEqual(oldSubject.curriculumGride, subject.curriculumGride)) {
+            || _.isEqual(String(oldSubject.curriculumGride), subject.curriculumGride)) {
           return;
         }
         await async.auto({
