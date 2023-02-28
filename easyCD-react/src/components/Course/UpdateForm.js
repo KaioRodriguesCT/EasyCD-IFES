@@ -14,7 +14,7 @@ import { actions as courseActions } from '@redux/courses';
 import isFunction from 'lodash/isFunction';
 
 //Components
-import CoordinatorSelect from '@components/Person/CoordinatorSelect';
+import PeopleSelect from '@src/components/Person/PeopleSelect';
 
 //Handlers
 import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
@@ -72,9 +72,10 @@ function UpdateForm ({ course, closeModal }) {
             name="coordinator"
             label="Coordinator:"
             rules={[{ required: true, message: 'Coordinator is required !' }]}>
-            <CoordinatorSelect
+            <PeopleSelect
               peopleSlim={peopleSlim}
               onChange={handleSelectChange(newCourse, setNewCourse, 'coordinator')}
+              placeholder="Select coordinator"
             />
           </Form.Item>
           <Form.Item name="description" label="Description:">

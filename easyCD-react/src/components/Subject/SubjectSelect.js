@@ -8,24 +8,24 @@ import { Select } from 'antd';
 import get from 'lodash/get';
 import map from 'lodash/map';
 
-function CoordinatorSelect ({ onChange, peopleSlim, defaultValue }){
+function SubjectSelect ({ onChange, subjects, defaultValue }) {
   //Data
-  const options = useMemo(()=>{
-    return map(peopleSlim,(person) => ({
-      label: get(person, 'name'),
-      value: get(person,'_id')
+  const options = useMemo(() => {
+    return map(subjects, (subject) => ({
+      label: get(subject, 'name'),
+      value: get(subject, '_id')
     }));
-  },[peopleSlim]);
+  }, [subjects]);
 
   return (
     <Select
       options={options}
       onChange={onChange}
-      placeholder="Select Coordinator"
+      placeholder="Select an subject"
       allowClear
       defaultValue={defaultValue}
     />
   );
 }
 
-export default CoordinatorSelect;
+export default SubjectSelect;

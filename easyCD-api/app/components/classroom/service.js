@@ -18,12 +18,17 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
+    findAll,
     addEnrollment,
     removeEnrollment,
     validateSubject,
     validateTeacher,
     getClassroomTeacherAndCoordinator,
   };
+
+  async function findAll({ filters }) {
+    return ClassroomRepository.findAll({ filters });
+  }
 
   async function findById({ _id }) {
     return ClassroomRepository.findById({ _id });
@@ -42,7 +47,6 @@ exports = module.exports = function initService(
         teacherId: classroom.teacher,
         defaultErrorMessage: defaultErrorCreating,
       }),
-      // TODO
       validateEnrollments: async () => {},
       createdClassroom: ['validateSubject', 'validateTeacher', 'validateEnrollments', async () => {
         const initialFields = [
@@ -52,7 +56,6 @@ exports = module.exports = function initService(
           'allowExceedLimit',
           'enrollments',
           'classTimes',
-          'classDays',
           'teacher',
         ];
         const newClassroom = _.pick(classroom, initialFields);

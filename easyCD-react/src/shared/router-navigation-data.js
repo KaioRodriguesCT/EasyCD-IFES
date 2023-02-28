@@ -1,5 +1,5 @@
 //Antd
-import { ExperimentOutlined, HddOutlined, ReadOutlined, TeamOutlined } from '@ant-design/icons';
+import { ContainerOutlined, ExperimentOutlined, HddOutlined, ReadOutlined, TeamOutlined } from '@ant-design/icons';
 
 //Components
 import Courses from '@src/containers/Courses';
@@ -8,6 +8,7 @@ import Login from '@src/containers/Login';
 import People from '@src/containers/People';
 import Signup from '@src/containers/Signup';
 import Subjects from '@src/containers/Subjects';
+import Classrooms from '@src/containers/Classrooms';
 
 /*Expected object on array of routes:
   {
@@ -69,6 +70,14 @@ export const loggedRoutes = [
     label: 'Subjects',
     element: <Subjects />,
     icon: <ReadOutlined />,
+    roles: ['admin']
+  },
+  {
+    path: '/classrooms',
+    key: 'classrooms',
+    label: 'Classrooms',
+    element: <Classrooms />,
+    icon: <ContainerOutlined />,
     roles: ['admin']
   }
 ];
