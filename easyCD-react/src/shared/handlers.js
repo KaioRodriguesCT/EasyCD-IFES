@@ -8,6 +8,12 @@ const handleInputChange = (state, setState, field) => (value) => {
   setState(newState);
 };
 
+const handleInputNumberChange = (state, setState, field) => (value) => {
+  const newState = clone(state) || {};
+  newState[ field ] = value || null;
+  setState(newState);
+};
+
 const handleSwitchChange = (state, setState, field) => (value) => {
   const newState = clone(state) || {};
   newState[ field ] = value || false;
@@ -28,4 +34,4 @@ const handleSelectChange = (state, setState, field) => value => {
   setState(newState);
 
 };
-export { handleInputChange, handleSelectChange, handleSwitchChange };
+export { handleInputChange, handleSelectChange, handleSwitchChange, handleInputNumberChange };

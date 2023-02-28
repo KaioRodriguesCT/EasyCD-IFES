@@ -5,6 +5,7 @@ import { reducer as user } from '@redux/user';
 import { reducer as people } from '@redux/people';
 import { reducer as courses } from '@redux/courses';
 import { reducer as curriculumGrides } from '@redux/curriculum-grides';
+import { reducer as subjects } from '@redux/subjects';
 
 export default {
   reducerExample,
@@ -12,5 +13,6 @@ export default {
   user,
   people,
   courses,
-  curriculumGrides
+  curriculumGrides,
+  subjects
 };
