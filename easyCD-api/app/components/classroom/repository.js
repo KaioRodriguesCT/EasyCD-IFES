@@ -37,7 +37,6 @@ exports = module.exports = function initRepository(
   async function create(classroom) {
     const requiredFields = [
       'semester',
-      'allowExceedLimit',
       'teacher',
       'subject',
     ];

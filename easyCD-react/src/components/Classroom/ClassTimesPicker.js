@@ -68,15 +68,17 @@ function ClassTimesPicker ({ defaultValue, onChange }) {
             onChange={onChangeDay(index)}
           />
           <DatePicker.TimePicker
+            format={'HH:mm'}
             placeholder="Start"
             showSecond={false}
-            defaultValue={classTime.start ? moment(classTime.start, 'HH:mm') : null}
+            value={classTime.start ? moment(classTime.start, 'HH:mm') : null}
             onChange={onChangeStartOrEnd('start', index)}
           />
           <DatePicker.TimePicker
+            format={'HH:mm'}
             placeholder="End"
             showSecond={false}
-            defaultValue={classTime.end ? moment(classTime.end, 'HH:mm') : null}
+            value={classTime.end ? moment(classTime.end, 'HH:mm') : null}
             onChange={onChangeStartOrEnd('end', index)}
           />
           <Button icon={<DeleteOutlined/>} type="primary" danger onClick={() => removeClasstime(index)}/>

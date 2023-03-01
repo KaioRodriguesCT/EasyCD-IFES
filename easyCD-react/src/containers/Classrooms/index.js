@@ -30,6 +30,8 @@ import Actions from '@src/components/SharedComponents/Columns/Actions';
 
 //Style
 import './index.css';
+import BooleanColumn from '@src/components/SharedComponents/Columns/BooleanColumn';
+import IntegerColumn from '@src/components/SharedComponents/Columns/IntegerColumn';
 
 // eslint-disable-next-line max-statements
 function Classrooms () {
@@ -85,6 +87,8 @@ function Classrooms () {
       Semester(),
       ClassTimes(),
       Teacher({ peopleSlim }),
+      BooleanColumn({ title:'Allow Exc. Limit', dataIndex:'allowExceedLimit' }),
+      IntegerColumn({ title:'Enroll. Limit', dataIndex:'enrollmentsLimit' }),
       Actions({ onDeleteClick, onEditClick })
     ];
   },[onDeleteClick, peopleSlim, subjects]);

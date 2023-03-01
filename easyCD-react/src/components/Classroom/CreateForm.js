@@ -126,7 +126,7 @@ function CreateForm ({ closeModal }) {
               name="allowExceedLimit"
               label="Allow Exceed Limit:"
             >
-              <Switch onChange={handleSwitchChangeLocal('allowExceedLimit')}/>
+              <Switch onChange={handleSwitchChangeLocal('allowExceedLimit')} defa/>
             </Form.Item>
           </Space>
           <Form.Item
