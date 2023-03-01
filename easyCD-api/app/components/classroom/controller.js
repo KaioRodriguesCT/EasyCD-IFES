@@ -27,7 +27,7 @@ exports = module.exports = function initController(
   async function update(req, res, next) {
     try {
       const { classroomId } = req.params;
-      const classroom = req.body;
+      const { classroom } = req.body;
       return await async.auto({
         updatedClassroom: async () => ClassroomService.update({
           ...classroom,

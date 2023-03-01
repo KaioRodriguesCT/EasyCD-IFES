@@ -91,7 +91,7 @@ exports = module.exports = function initService(
       },
       processingSubject: ['oldClassroom', async ({ oldClassroom }) => {
         if (!classroom.subject
-            || _.isEqual(oldClassroom.subject, classroom.subject)) {
+            || _.isEqual(String(oldClassroom.subject), classroom.subject)) {
           return;
         }
         await async.auto({
@@ -114,7 +114,7 @@ exports = module.exports = function initService(
       }],
       processingTeacher: ['oldClassroom', async ({ oldClassroom }) => {
         if (!classroom.teacher
-            || _.isEqual(oldClassroom.teacher, classroom.teacher)) {
+            || _.isEqual(String(oldClassroom.teacher), classroom.teacher)) {
           return;
         }
         await async.auto({
@@ -146,21 +146,13 @@ exports = module.exports = function initService(
           classDays: { allowEmpty: true },
           teacher: { allowEmpty: false },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = classroom[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
 
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldClassroom[field] = currentValue;
+        await Utils.updateModelWithValidFields({
+          oldModel: oldClassroom,
+          newModel: classroom,
+          updatableFields,
         });
+
         return ClassroomRepository.update(oldClassroom);
       }],
     });

@@ -105,20 +105,13 @@ exports = module.exports = function initService(
           curriculumGride: { allowEmpty: false },
           classrooms: { allowEmpty: true },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = subject[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldSubject[field] = currentValue;
+
+        await Utils.updateModelWithValidFields({
+          oldModel: oldSubject,
+          newModel: subject,
+          updatableFields,
         });
+
         return SubjectRepository.update(oldSubject);
       }],
     });

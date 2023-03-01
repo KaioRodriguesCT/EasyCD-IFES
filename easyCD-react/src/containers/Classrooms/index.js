@@ -18,16 +18,18 @@ import { actions as peopleActions } from '@redux/people';
 //Components
 import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
+import CreateForm from '@src/components/Classroom/CreateForm';
+import UpdateForm from '@src/components/Classroom/UpdateForm';
 
 //Columns
 import Subject from '@src/components/Classroom/Columns/Subject';
 import Semester from '@src/components/Classroom/Columns/Semester';
 import ClassTimes from '@src/components/Classroom/Columns/ClassTime';
 import Teacher from '@src/components/Classroom/Columns/Teacher';
+import Actions from '@src/components/SharedComponents/Columns/Actions';
 
 //Style
 import './index.css';
-import CreateForm from '@src/components/Classroom/CreateForm';
 
 // eslint-disable-next-line max-statements
 function Classrooms () {
@@ -42,7 +44,7 @@ function Classrooms () {
   //Local state
   const [isCreateModalVisible, setIsCreateModalVisible] = useState();
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState();
-  const [clasroomBeingUpdated, setClassroomBeingUpdated] = useState();
+  const [classroomBeingUpdated, setClassroomBeingUpdated] = useState();
 
   const defaultFilters = {};
   const [filters, setFilters] = useState(defaultFilters);
@@ -53,7 +55,7 @@ function Classrooms () {
     setClassroomBeingUpdated(classroom);
   };
 
-  const onDeleteClick = (classroom) => {
+  const onDeleteClick = useCallback((classroom) => {
     Modal.confirm({
       title: 'Are you sure that you want to delete this Classroom ?',
       content:
@@ -63,7 +65,8 @@ function Classrooms () {
         dispatch(clasroomActions.deleteClassroom(get(classroom, '_id')));
       }
     });
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
 
   //Data
   const getClassrooms = useCallback(
@@ -81,9 +84,10 @@ function Classrooms () {
       Subject({ subjects }),
       Semester(),
       ClassTimes(),
-      Teacher({ peopleSlim })
+      Teacher({ peopleSlim }),
+      Actions({ onDeleteClick, onEditClick })
     ];
-  },[peopleSlim, subjects]);
+  },[onDeleteClick, peopleSlim, subjects]);
 
   //Hooks
   useEffect(()=> {
@@ -121,10 +125,10 @@ function Classrooms () {
         footer={null}
         closable={false}
         destroyOnClose={true}>
-        {/* <UpdateForm
+        <UpdateForm
           closeModal={() => setIsUpdateModalVisible(false)}
-          curriculumGride={curriculumGrideBeingUpdated}
-        /> */}
+          classroom={classroomBeingUpdated}
+        />
       </Modal>
     );
   };

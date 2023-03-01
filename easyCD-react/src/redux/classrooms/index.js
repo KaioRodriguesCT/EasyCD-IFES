@@ -9,10 +9,13 @@ import isNil from 'lodash/isNil';
 import { createReducer } from '@shared/reducers';
 
 import ClassroomCreate from './classroom-create';
+import ClassroomDelete from './classroom-delete';
+import ClassroomUpdate from './classroom-update';
 import ListClassrooms from './list-classrooms';
 
+
 //Modules
-const modules = [ClassroomCreate, ListClassrooms];
+const modules = [ClassroomCreate,ClassroomDelete, ClassroomUpdate, ListClassrooms];
 
 //Initial State
 export const initialState = {
