@@ -5,11 +5,11 @@ exports = module.exports = function initSettings() {
         port: 8080,
       },
       accessToken: {
-        lifeTime: '15s',
+        lifeTime: '30m',
         secret: process.env.ACCESS_TOKEN_SECRET,
       },
       refreshToken: {
-        lifeTime: '10m',
+        lifeTime: '60m',
         secret: process.env.REFRESH_TOKEN_SECRET,
       },
     },
