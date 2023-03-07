@@ -30,7 +30,13 @@ exports = module.exports = function initRouter(
     EnrollmentController.remove,
   );
 
-  app.use('/api/classroom', router);
+  router.get(
+    '/',
+    Policies.JWTTeacher,
+    EnrollmentController.list,
+  );
+
+  app.use('/api/enrollments', router);
 };
 exports['@singleton'] = true;
 exports['@require'] = [

@@ -20,6 +20,7 @@ exports = module.exports = function initService(
     validateClassroom,
     validateStudent,
     findOneByClassroomAndStudent,
+    findAll,
   };
 
   async function create(enrollment) {
@@ -54,6 +55,7 @@ exports = module.exports = function initService(
         enrollmentId: _id,
       })],
     });
+    console.log('Here');
     return createdEnrollment;
   }
 
@@ -75,7 +77,7 @@ exports = module.exports = function initService(
       },
       processingStudent: ['oldEnrollment', async ({ oldEnrollment }) => {
         if (!enrollment.student
-            || _.isEqual(oldEnrollment.student, enrollment.student)) {
+            || _.isEqual(String(oldEnrollment.student), String(enrollment.student))) {
           return;
         }
         await async.auto({
@@ -98,7 +100,7 @@ exports = module.exports = function initService(
       }],
       processingClassroom: ['oldEnrollment', async ({ oldEnrollment }) => {
         if (!enrollment.classroom
-            || _.isEqual(oldEnrollment.classroom, enrollment.classroom)) {
+            || _.isEqual(String(oldEnrollment.classroom), String(enrollment.classroom))) {
           return;
         }
         await async.auto({
@@ -126,20 +128,13 @@ exports = module.exports = function initService(
           status: { allowEmpty: false },
           observation: { allowEmpty: true },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = enrollment[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldEnrollment[field] = currentValue;
+
+        await Utils.updateModelWithValidFields({
+          oldModel: oldEnrollment,
+          newModel: enrollment,
+          updatableFields,
         });
+
         return EnrollmentRepository.update(oldEnrollment);
       }],
     });
@@ -221,6 +216,10 @@ exports = module.exports = function initService(
         student,
       },
     });
+  }
+
+  async function findAll({ filters }) {
+    return EnrollmentRepository.findAll({ filters });
   }
 };
 

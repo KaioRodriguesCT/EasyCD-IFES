@@ -91,7 +91,7 @@ exports = module.exports = function initService(
       },
       processingSubject: ['oldClassroom', async ({ oldClassroom }) => {
         if (!classroom.subject
-            || _.isEqual(String(oldClassroom.subject), classroom.subject)) {
+            || _.isEqual(String(oldClassroom.subject), String(classroom.subject))) {
           return;
         }
         await async.auto({
@@ -114,7 +114,7 @@ exports = module.exports = function initService(
       }],
       processingTeacher: ['oldClassroom', async ({ oldClassroom }) => {
         if (!classroom.teacher
-            || _.isEqual(String(oldClassroom.teacher), classroom.teacher)) {
+            || _.isEqual(String(oldClassroom.teacher), String(classroom.teacher))) {
           return;
         }
         await async.auto({
