@@ -5,7 +5,6 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 //Antd
 import { message as Message } from 'antd';
 
-
 import request from '@shared/request';
 
 //Constants
@@ -15,7 +14,7 @@ export const constants = {
 
 //Actions
 export const actions = {
-  listPeople: ({ filters }) => ({
+  listPeople: ({ filters } = {}) => ({
     type: constants.PEOPLE_LIST.REQUEST, //Always request, to keep the cycle,
     filters
   })
@@ -29,7 +28,6 @@ export const handlers = {
   [ constants.PEOPLE_LIST.SUCCESS ]: (state, action) => {
     const { people } = action;
     return { ...state, people, isLoading: false };
-
   },
   [ constants.PEOPLE_LIST.FAILURE ]: (state, action) => {
     const { message } = action;

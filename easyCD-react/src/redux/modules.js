@@ -7,6 +7,8 @@ import { reducer as courses } from '@redux/courses';
 import { reducer as curriculumGrides } from '@redux/curriculum-grides';
 import { reducer as subjects } from '@redux/subjects';
 import { reducer as classrooms } from '@redux/classrooms';
+import { reducer as enrollments } from '@redux/enrollments';
+
 
 export default {
   reducerExample,
@@ -16,5 +18,6 @@ export default {
   courses,
   curriculumGrides,
   subjects,
-  classrooms
+  classrooms,
+  enrollments
 };

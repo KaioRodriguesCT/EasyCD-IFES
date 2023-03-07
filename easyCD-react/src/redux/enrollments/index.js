@@ -8,23 +8,27 @@ import isNil from 'lodash/isNil';
 
 import { createReducer } from '@shared/reducers';
 
-import ClassroomCreate from './classroom-create';
-import ClassroomDelete from './classroom-delete';
-import ClassroomUpdate from './classroom-update';
-import ListClassrooms from './list-classrooms';
+import EnrollmentCreate from './enrollment-create';
+import EnrollmentDelete from './enrollment-delete';
+import EnrollmentUpdate from './enrollment-update';
+import ListEnrollments from './list-enrollments';
+
 
 //Modules
-const modules = [ClassroomCreate, ClassroomDelete, ClassroomUpdate, ListClassrooms];
+const modules = [
+  ListEnrollments,
+  EnrollmentCreate,
+  EnrollmentDelete,
+  EnrollmentUpdate
+];
 
 //Initial State
 export const initialState = {
+  isLoading: false,
   isCreating: false,
   isDeleting: false,
   isUpdating: false,
-  lastClassroomCreated: null,
-
-  isLoading: false,
-  classrooms: null
+  enrollments: false
 };
 
 //Handlers

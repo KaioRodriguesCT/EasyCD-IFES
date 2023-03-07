@@ -10,6 +10,7 @@ import { rootSaga as courses } from '@redux/courses';
 import { rootSaga as curriculumGrides } from '@redux/curriculum-grides';
 import { rootSaga as subjects } from '@redux/subjects';
 import { rootSaga as classrooms } from '@redux/classrooms';
+import { rootSaga as enrollments } from '@redux/enrollments';
 
 export function* rootSaga (){
   const sagas = [
@@ -20,7 +21,8 @@ export function* rootSaga (){
     courses,
     curriculumGrides,
     subjects,
-    classrooms
+    classrooms,
+    enrollments
   ].map(fork);
   yield all(sagas);
 }
