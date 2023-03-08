@@ -32,6 +32,7 @@ import Actions from '@src/components/SharedComponents/Columns/Actions';
 import './index.css';
 import BooleanColumn from '@src/components/SharedComponents/Columns/BooleanColumn';
 import IntegerColumn from '@src/components/SharedComponents/Columns/IntegerColumn';
+import Name from '@src/components/Classroom/Columns/Name';
 
 // eslint-disable-next-line max-statements
 function Classrooms () {
@@ -83,6 +84,7 @@ function Classrooms () {
 
   const columns = useMemo(()=> {
     return [
+      Name(),
       Subject({ subjects }),
       Semester(),
       ClassTimes(),

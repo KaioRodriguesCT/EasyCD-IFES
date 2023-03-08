@@ -5,6 +5,10 @@ const { ObjectId } = mongoose.Types;
 exports = module.exports = function initModel(mongo) {
   const Classroom = new mongo.Schema(
     {
+      name: {
+        type: String,
+        index: true,
+      },
       subject: {
         type: ObjectId,
         ref: 'Subject',

@@ -39,6 +39,7 @@ exports = module.exports = function initRepository(
       'semester',
       'teacher',
       'subject',
+      'name',
     ];
     _.forEach(requiredFields, (field) => {
       if (_.isNil(classroom[field])) {

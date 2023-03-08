@@ -78,11 +78,11 @@ function Enrollments () {
 
   const columns = useMemo(() => [
     Student({ people }),
-    Classroom(),
+    Classroom({ classrooms }),
     Observation(),
     Status(),
     Actions({ onDeleteClick, onEditClick })
-  ],[onDeleteClick, people]);
+  ],[classrooms, onDeleteClick, people]);
 
   //Hooks
   useEffect(()=> {

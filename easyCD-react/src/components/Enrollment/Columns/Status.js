@@ -10,9 +10,9 @@ import get from 'lodash/get';
 
 function Status (){
   return {
-    title: 'Student',
-    dataIndex: 'student',
-    key: 'student',
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
     render: (_, record) => {
       const status = {
         Canceled: {

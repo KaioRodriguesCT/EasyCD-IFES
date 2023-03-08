@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 const defaultErrorCreating = 'Error creating Classroom';
 const defaultErrorUpdating = 'Error updating Classroom';
@@ -59,6 +60,8 @@ exports = module.exports = function initService(
           'teacher',
         ];
         const newClassroom = _.pick(classroom, initialFields);
+        const name = await buildClassroomName({ classroom: newClassroom });
+        newClassroom.name = name;
         return ClassroomRepository.create(newClassroom);
       }],
       updateSubject: ['createdClassroom', async ({ createdClassroom: { subject, _id } }) => SubjectService.addClassroom({
@@ -152,7 +155,8 @@ exports = module.exports = function initService(
           newModel: classroom,
           updatableFields,
         });
-
+        const name = await buildClassroomName({ classroom: oldClassroom });
+        oldClassroom.name = name;
         return ClassroomRepository.update(oldClassroom);
       }],
     });
@@ -344,6 +348,13 @@ exports = module.exports = function initService(
 
     const record = await ClassroomRepository.aggregate(pipeline);
     return _.first(record);
+  }
+
+  async function buildClassroomName({ classroom }) {
+    const subject = await SubjectService.findById({ _id: _.get(classroom, 'subject') });
+    const classTimes = _.get(classroom, 'classTimes');
+    const classDays = _.map(classTimes, (classTime) => moment().weekday(classTime.day).format('dddd'));
+    return `${_.get(subject, 'name')} - ${_.join(classDays, ' - ')}`;
   }
 };
 exports['@singleton'] = true;
