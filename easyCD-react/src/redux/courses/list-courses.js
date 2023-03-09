@@ -15,7 +15,7 @@ export const constants = {
 
 //Actions
 export const actions = {
-  listCourses: ({ filters }) => ({
+  listCourses: ({ filters } = {}) => ({
     type: constants.COURSE_LIST.REQUEST, //Always request, to keep the cycle,
     filters
   })

@@ -14,12 +14,10 @@ import { actions as peopleActions } from '@redux/people';
 //Lodash
 import clone from 'lodash/clone';
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 
 //Components
-import SubjectSelect from '../Subject/SubjectSelect';
+import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
 import ClassTimesPicker from './ClassTimesPicker';
-import PeopleSelect from '../Person/PeopleSelect';
 
 //Handlers
 import {
@@ -42,12 +40,8 @@ function CreateForm ({ closeModal }) {
 
   //Hooks
   useEffect(() => {
-    if (isNil(subjects)) {
-      dispatch(subjectActions.listSubjects({}));
-    }
-    if(isNil(peopleSlim)){
-      dispatch(peopleActions.listSlimPeopleByRole({ role: 'teacher' }));
-    }
+    dispatch(subjectActions.listSubjects({}));
+    dispatch(peopleActions.listSlimPeopleByRole({ role: 'teacher' }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -73,7 +67,8 @@ function CreateForm ({ closeModal }) {
   const handleInputNumberChangeLocal = (field) =>
     handleInputNumberChange(newClassroom, setNewClassroom, field);
 
-  const handleSwitchChangeLocal = (field) => handleSwitchChange(newClassroom,setNewClassroom,field);
+  const handleSwitchChangeLocal = (field) =>
+    handleSwitchChange(newClassroom, setNewClassroom, field);
 
   const handleClassTimesPickerChange = (classTimes) => {
     const actualClassroom = clone(newClassroom) || {};
@@ -90,9 +85,14 @@ function CreateForm ({ closeModal }) {
             name="subject"
             label="Subject:"
             rules={[{ required: true, message: 'Subject is required !' }]}>
-            <SubjectSelect
-              subjects={subjects}
+            <ComponentSelect
+              data={subjects}
               onChange={handleSelectChange(newClassroom, setNewClassroom, 'subject')}
+              mapOptions={(subject) => ({
+                label: subject.name,
+                value: subject._id
+              })}
+              placeholder="Select subject"
             />
           </Form.Item>
           <Form.Item
@@ -116,40 +116,40 @@ function CreateForm ({ closeModal }) {
             />
           </Form.Item>
           <Space direction="horizontal" size="large">
-            <Form.Item
-              name="enrollmentsLimit"
-              label="Enrollments Limit:"
-            >
-              <InputNumber min={0} onChange={handleInputNumberChangeLocal('enrollmentsLimit')}/>
+            <Form.Item name="enrollmentsLimit" label="Enrollments Limit:">
+              <InputNumber min={0} onChange={handleInputNumberChangeLocal('enrollmentsLimit')} />
             </Form.Item>
-            <Form.Item
-              name="allowExceedLimit"
-              label="Allow Exceed Limit:"
-            >
-              <Switch onChange={handleSwitchChangeLocal('allowExceedLimit')} defa/>
+            <Form.Item name="allowExceedLimit" label="Allow Exceed Limit:">
+              <Switch onChange={handleSwitchChangeLocal('allowExceedLimit')} defa />
             </Form.Item>
           </Space>
-          <Form.Item
-            name="classTimes"
-            label="Class Times:"
-          >
-            <ClassTimesPicker onChange={handleClassTimesPickerChange}/>
+          <Form.Item name="classTimes" label="Class Times:">
+            <ClassTimesPicker onChange={handleClassTimesPickerChange} />
           </Form.Item>
           <Form.Item
             name="teacher"
             label="Teacher:"
             rules={[{ required: true, message: 'Teacher is required !' }]}>
-            <PeopleSelect
-              peopleSlim={peopleSlim}
+            <ComponentSelect
+              data={peopleSlim}
               onChange={handleSelectChange(newClassroom, setNewClassroom, 'teacher')}
+              mapOptions={(teacher) => ({
+                label: teacher.name,
+                value: teacher._id
+              })}
+              placeholder="Select teacher"
             />
           </Form.Item>
           <Space direction="horizontal" size="small">
             <Form.Item>
-              <Button type="primary" htmlType="submit" icon={<SaveOutlined/>}>Save</Button>
+              <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
+                Save
+              </Button>
             </Form.Item>
             <Form.Item>
-              <Button onClick={onCancel} icon={<CloseOutlined/>}>Cancel</Button>
+              <Button onClick={onCancel} icon={<CloseOutlined />}>
+                Cancel
+              </Button>
             </Form.Item>
           </Space>
         </Form>

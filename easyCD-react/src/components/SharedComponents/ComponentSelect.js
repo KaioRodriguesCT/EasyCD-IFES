@@ -5,17 +5,12 @@ import React, { useMemo } from 'react';
 import { Select } from 'antd';
 
 //Lodash
-import get from 'lodash/get';
 import map from 'lodash/map';
 
-function PeopleSelect ({ onChange, peopleSlim, defaultValue, placeholder }){
+function ComponentSelect ({ onChange, data, mapOptions, defaultValue, placeholder }) {
+
   //Data
-  const options = useMemo(()=>{
-    return map(peopleSlim,(person) => ({
-      label: get(person, 'name'),
-      value: get(person,'_id')
-    }));
-  },[peopleSlim]);
+  const options = useMemo(()=> map(data, mapOptions),[data, mapOptions]);
 
   return (
     <Select
@@ -27,5 +22,4 @@ function PeopleSelect ({ onChange, peopleSlim, defaultValue, placeholder }){
     />
   );
 }
-
-export default PeopleSelect;
+export default ComponentSelect;

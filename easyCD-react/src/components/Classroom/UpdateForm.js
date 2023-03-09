@@ -14,12 +14,10 @@ import { actions as peopleActions } from '@redux/people';
 //Lodash
 import clone from 'lodash/clone';
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 
 //Components
-import SubjectSelect from '../Subject/SubjectSelect';
 import ClassTimesPicker from './ClassTimesPicker';
-import PeopleSelect from '../Person/PeopleSelect';
+import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
 
 //Handlers
 import {
@@ -42,12 +40,8 @@ function UpdateForm ({ classroom, closeModal }) {
 
   //Hooks
   useEffect(() => {
-    if (isNil(subjects)) {
-      dispatch(subjectActions.listSubjects({}));
-    }
-    if (isNil(peopleSlim)) {
-      dispatch(peopleActions.listSlimPeopleByRole({ role: 'teacher' }));
-    }
+    dispatch(subjectActions.listSubjects({}));
+    dispatch(peopleActions.listSlimPeopleByRole({ role: 'teacher' }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -76,9 +70,6 @@ function UpdateForm ({ classroom, closeModal }) {
   const handleSwitchChangeLocal = (field) =>
     handleSwitchChange(newClassroom, setNewClassroom, field);
 
-  const handleSelectChangeLocal = (field) =>
-    handleSelectChange(newClassroom, setNewClassroom, field);
-
   const handleClassTimesPickerChange = (classTimes) => {
     const actualClassroom = clone(newClassroom) || {};
     actualClassroom.classTimes = classTimes;
@@ -95,9 +86,14 @@ function UpdateForm ({ classroom, closeModal }) {
             name="subject"
             label="Subject:"
             rules={[{ required: true, message: 'Subject is required !' }]}>
-            <SubjectSelect
-              subjects={subjects}
-              onChange={handleSelectChangeLocal('subject')}
+            <ComponentSelect
+              data={subjects}
+              onChange={handleSelectChange(newClassroom, setNewClassroom, 'subject')}
+              mapOptions={(subject) => ({
+                label: subject.name,
+                value: subject._id
+              })}
+              placeholder="Select subject"
             />
           </Form.Item>
           <Form.Item
@@ -136,9 +132,14 @@ function UpdateForm ({ classroom, closeModal }) {
             name="teacher"
             label="Teacher:"
             rules={[{ required: true, message: 'Teacher is required !' }]}>
-            <PeopleSelect
-              peopleSlim={peopleSlim}
-              onChange={handleSelectChangeLocal('teacher')}
+            <ComponentSelect
+              data={peopleSlim}
+              onChange={handleSelectChange(newClassroom, setNewClassroom, 'teacher')}
+              mapOptions={(teacher) => ({
+                label: teacher.name,
+                value: teacher._id
+              })}
+              placeholder="Select teacher"
             />
           </Form.Item>
           <Space direction="horizontal" size="small">

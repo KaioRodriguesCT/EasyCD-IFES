@@ -74,7 +74,7 @@ function Subjects () {
   );
 
   const getPageData = () => {
-    dispatch(curriculumGrideActions.listCurriculumGrides({}));
+    dispatch(curriculumGrideActions.listCurriculumGrides());
   };
 
   const columns = useMemo(() => [

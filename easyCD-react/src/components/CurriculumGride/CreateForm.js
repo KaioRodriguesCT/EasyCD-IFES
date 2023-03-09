@@ -9,7 +9,6 @@ import { Button, Card, DatePicker, Form, Input, Space } from 'antd';
 //Lodash
 import clone from 'lodash/clone';
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 
 //Handlers
 import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
@@ -19,7 +18,7 @@ import { actions as courseActions } from '@redux/courses';
 import { actions as curriculumGrideActions } from '@redux/curriculum-grides';
 
 //Components
-import CourseSelect from '@components/Course/CourseSelect';
+import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
 
 function CreateForm ({ closeModal }){
   const dispatch = useDispatch();
@@ -33,9 +32,7 @@ function CreateForm ({ closeModal }){
 
   //Hooks
   useEffect(() => {
-    if(isNil(courses)){
-      dispatch(courseActions.listCourses({}));
-    }
+    dispatch(courseActions.listCourses());
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
 
@@ -77,7 +74,15 @@ function CreateForm ({ closeModal }){
             <Input type="text" onChange={handleInputChange(newCurriculumGride, setNewCurriculumGride, 'name')}/>
           </Form.Item>
           <Form.Item name="course" label="Course:" rules={[{ required: true, message: 'Course is required !' }]}>
-            <CourseSelect courses={courses} onChange={handleSelectChange(newCurriculumGride, setNewCurriculumGride, 'course')}/>
+            <ComponentSelect
+              data={courses}
+              mapOptions={(course) => ({
+                label: course.name,
+                value: course._id
+              })}
+              onChange={handleSelectChange(newCurriculumGride, setNewCurriculumGride, 'course')}
+              placeholder="Select Course"
+            />
           </Form.Item>
           <Form.Item name="range" label="Period:" rules={[{ required: true, message: 'Range is required !' }]}>
             <DatePicker.RangePicker onChange={handlePeriodChange}/>

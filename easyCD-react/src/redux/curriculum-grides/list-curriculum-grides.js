@@ -14,7 +14,7 @@ export const constants = {
 
 //Actions
 export const actions = {
-  listCurriculumGrides: ({ filters }) => ({
+  listCurriculumGrides: ({ filters } = {}) => ({
     type: constants.CURRICULUM_GRIDE_LIST.REQUEST, //Always request, to keep the cycle,
     filters
   })

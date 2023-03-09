@@ -14,7 +14,7 @@ export const constants = {
 
 //Actions
 export const actions = {
-  listSubjects: ({ filters }) => ({
+  listSubjects: ({ filters } = {}) => ({
     type: constants.SUBJECTS_LIST.REQUEST, //Always request, to keep the cycle,
     filters
   })

@@ -78,7 +78,7 @@ function Classrooms () {
   );
 
   const getPageData = () => {
-    dispatch(subjectActions.listSubjects({}));
+    dispatch(subjectActions.listSubjects());
     dispatch(peopleActions.listSlimPeopleByRole({ role:'teacher' }));
   };
 

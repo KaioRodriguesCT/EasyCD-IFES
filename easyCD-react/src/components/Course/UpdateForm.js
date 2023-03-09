@@ -14,7 +14,7 @@ import { actions as courseActions } from '@redux/courses';
 import isFunction from 'lodash/isFunction';
 
 //Components
-import PeopleSelect from '@src/components/Person/PeopleSelect';
+import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
 
 //Handlers
 import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
@@ -72,9 +72,13 @@ function UpdateForm ({ course, closeModal }) {
             name="coordinator"
             label="Coordinator:"
             rules={[{ required: true, message: 'Coordinator is required !' }]}>
-            <PeopleSelect
-              peopleSlim={peopleSlim}
+            <ComponentSelect
+              data={peopleSlim}
               onChange={handleSelectChange(newCourse, setNewCourse, 'coordinator')}
+              mapOptions={(coordinator) => ({
+                label: coordinator.name,
+                value: coordinator._id
+              })}
               placeholder="Select coordinator"
             />
           </Form.Item>

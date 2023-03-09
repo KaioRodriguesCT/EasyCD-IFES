@@ -8,7 +8,6 @@ import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
 
 //Lodash
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 
 //Actions
 import { actions as clasroomActions } from '@redux/classrooms';
@@ -16,8 +15,7 @@ import { actions as peopleActions } from '@redux/people';
 import { actions as enrollmentActions } from '@redux/enrollments';
 
 //Components
-import ClassroomSelect from '../Classroom/ClassroomSelect';
-import PeopleSelect from '../Person/PeopleSelect';
+import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
 
 //Handlers
 import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
@@ -35,9 +33,7 @@ function CreateForm ({ closeModal }){
 
   //Hooks
   useEffect(() => {
-    if (isNil(clasroomActions)) {
-      dispatch(clasroomActions.listClassrooms({}));
-    }
+    dispatch(clasroomActions.listClassrooms());
     dispatch(peopleActions.listSlimPeopleByRole({ role: 'student' }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -68,18 +64,28 @@ function CreateForm ({ closeModal }){
             name="classroom"
             label="Classroom:"
             rules={[{ required: true, message: 'Classroom is required !' }]}>
-            <ClassroomSelect
-              classrooms={classrooms}
+            <ComponentSelect
+              data={classrooms}
+              placeholder="Select Classroom"
               onChange={handleSelectChange(newEnrollment, setNewEnrollment, 'classroom')}
+              mapOptions={(classroom) => ({
+                label: classroom.name,
+                value: classroom._id
+              })}
             />
           </Form.Item>
           <Form.Item
             name="student"
             label="Student:"
             rules={[{ required: true, message: 'Student is required !' }]}>
-            <PeopleSelect
-              peopleSlim={students}
+            <ComponentSelect
+              data={students}
+              mapOptions={(student)=> ({
+                label: student.name,
+                value: student._id
+              })}
               onChange={handleSelectChange(newEnrollment, setNewEnrollment, 'student')}
+              placeholder="Select student"
             />
           </Form.Item>
           <Form.Item name="observation" label="Observation">
