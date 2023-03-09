@@ -68,7 +68,7 @@ function Courses () {
   const getCourses = useCallback(() => dispatch(courseActions.listCourses({ filters })), [filters]);
 
   const getPageData = () => {
-    dispatch(peopleActions.listSlimPeople({}));
+    dispatch(peopleActions.listSlimPeople());
   };
 
   const columns = useMemo(()=> {

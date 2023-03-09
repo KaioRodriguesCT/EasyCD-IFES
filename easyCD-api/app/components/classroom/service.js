@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 const defaultErrorCreating = 'Error creating Classroom';
 const defaultErrorUpdating = 'Error updating Classroom';
@@ -18,12 +19,17 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
+    findAll,
     addEnrollment,
     removeEnrollment,
     validateSubject,
     validateTeacher,
     getClassroomTeacherAndCoordinator,
   };
+
+  async function findAll({ filters }) {
+    return ClassroomRepository.findAll({ filters });
+  }
 
   async function findById({ _id }) {
     return ClassroomRepository.findById({ _id });
@@ -42,7 +48,6 @@ exports = module.exports = function initService(
         teacherId: classroom.teacher,
         defaultErrorMessage: defaultErrorCreating,
       }),
-      // TODO
       validateEnrollments: async () => {},
       createdClassroom: ['validateSubject', 'validateTeacher', 'validateEnrollments', async () => {
         const initialFields = [
@@ -52,10 +57,11 @@ exports = module.exports = function initService(
           'allowExceedLimit',
           'enrollments',
           'classTimes',
-          'classDays',
           'teacher',
         ];
         const newClassroom = _.pick(classroom, initialFields);
+        const name = await buildClassroomName({ classroom: newClassroom });
+        newClassroom.name = name;
         return ClassroomRepository.create(newClassroom);
       }],
       updateSubject: ['createdClassroom', async ({ createdClassroom: { subject, _id } }) => SubjectService.addClassroom({
@@ -88,7 +94,7 @@ exports = module.exports = function initService(
       },
       processingSubject: ['oldClassroom', async ({ oldClassroom }) => {
         if (!classroom.subject
-            || _.isEqual(oldClassroom.subject, classroom.subject)) {
+            || _.isEqual(String(oldClassroom.subject), String(classroom.subject))) {
           return;
         }
         await async.auto({
@@ -111,7 +117,7 @@ exports = module.exports = function initService(
       }],
       processingTeacher: ['oldClassroom', async ({ oldClassroom }) => {
         if (!classroom.teacher
-            || _.isEqual(oldClassroom.teacher, classroom.teacher)) {
+            || _.isEqual(String(oldClassroom.teacher), String(classroom.teacher))) {
           return;
         }
         await async.auto({
@@ -143,21 +149,14 @@ exports = module.exports = function initService(
           classDays: { allowEmpty: true },
           teacher: { allowEmpty: false },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = classroom[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
 
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldClassroom[field] = currentValue;
+        await Utils.updateModelWithValidFields({
+          oldModel: oldClassroom,
+          newModel: classroom,
+          updatableFields,
         });
+        const name = await buildClassroomName({ classroom: oldClassroom });
+        oldClassroom.name = name;
         return ClassroomRepository.update(oldClassroom);
       }],
     });
@@ -349,6 +348,13 @@ exports = module.exports = function initService(
 
     const record = await ClassroomRepository.aggregate(pipeline);
     return _.first(record);
+  }
+
+  async function buildClassroomName({ classroom }) {
+    const subject = await SubjectService.findById({ _id: _.get(classroom, 'subject') });
+    const classTimes = _.get(classroom, 'classTimes');
+    const classDays = _.map(classTimes, (classTime) => moment().weekday(classTime.day).format('dddd'));
+    return `${_.get(subject, 'name')} - ${_.join(classDays, ' - ')}`;
   }
 };
 exports['@singleton'] = true;

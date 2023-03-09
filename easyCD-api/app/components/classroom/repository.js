@@ -11,8 +11,16 @@ exports = module.exports = function initRepository(
     aggregate,
     removeById,
     findById,
+    findAll,
   };
 
+  async function findAll({ filters, select }) {
+    return ClassroomModel
+      .find(filters)
+      .select(select)
+      .lean()
+      .exec();
+  }
   async function aggregate(pipeline) {
     return ClassroomModel
       .aggregate(pipeline)
@@ -29,9 +37,9 @@ exports = module.exports = function initRepository(
   async function create(classroom) {
     const requiredFields = [
       'semester',
-      'allowExceedLimit',
       'teacher',
       'subject',
+      'name',
     ];
     _.forEach(requiredFields, (field) => {
       if (_.isNil(classroom[field])) {

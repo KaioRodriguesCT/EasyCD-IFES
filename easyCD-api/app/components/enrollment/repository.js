@@ -3,7 +3,6 @@ const async = require('async');
 
 exports = module.exports = function initRepository(
   EnrollmentModel,
-  Utils,
 ) {
   return {
     create,
@@ -11,7 +10,15 @@ exports = module.exports = function initRepository(
     removeById,
     findById,
     findOne,
+    findAll,
   };
+
+  async function findAll({ filters }) {
+    return EnrollmentModel
+      .find(filters)
+      .lean()
+      .exec();
+  }
 
   async function findById({ _id }) {
     return EnrollmentModel

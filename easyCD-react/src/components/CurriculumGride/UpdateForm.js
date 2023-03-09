@@ -16,7 +16,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 //Components
-import CourseSelect from '@components/Course/CourseSelect';
+import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
 
 import dayjs from 'dayjs';
 
@@ -46,7 +46,7 @@ function UpdateForm ({ curriculumGride, closeModal }) {
 
   //Hooks
   useEffect(() => {
-    dispatch(courseActions.listCourses({}));
+    dispatch(courseActions.listCourses());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -99,9 +99,14 @@ function UpdateForm ({ curriculumGride, closeModal }) {
             name="course"
             label="Course:"
             rules={[{ required: true, message: 'Course is required !' }]}>
-            <CourseSelect
-              courses={courses}
+            <ComponentSelect
+              data={courses}
+              mapOptions={(course) => ({
+                label: course.name,
+                value: course._id
+              })}
               onChange={handleSelectChange(newCurriculumGride, setNewCurriculumGride, 'course')}
+              placeholder="Select Course"
             />
           </Form.Item>
           <Form.Item

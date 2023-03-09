@@ -1,5 +1,5 @@
 //React
-import React, { useEffect,  useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 //Antd
@@ -21,7 +21,7 @@ import {
 } from '@src/shared/handlers';
 
 //Components
-import CurriculumGrideSelect from '../CurriculumGride/CurriculumGrideSelect';
+import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
 
 function UpdateForm ({ subject, closeModal }) {
   const dispatch = useDispatch();
@@ -82,9 +82,14 @@ function UpdateForm ({ subject, closeModal }) {
             name="curriculumGride"
             label="Curriculum Gride:"
             rules={[{ required: true, message: 'Curriculum Gride is required !' }]}>
-            <CurriculumGrideSelect
-              curriculumGrides={curriculumGrides}
+            <ComponentSelect
+              data={curriculumGrides}
               onChange={handleSelectChange(newSubject, setNewSubject, 'curriculumGride')}
+              mapOptions={(curriculumGride) => ({
+                label: curriculumGride.name,
+                value: curriculumGride._id
+              })}
+              placeholder="Select curriculum gride"
             />
           </Form.Item>
           <Form.Item name="externalCod" label="Ext. Cod:">

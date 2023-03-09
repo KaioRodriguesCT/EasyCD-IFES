@@ -8,14 +8,13 @@ import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
 
 //Lodash
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 
 //Actions
 import { actions as peopleActions } from '@redux/people';
 import { actions as courseActions } from '@redux/courses';
 
 //Components
-import CoordinatorSelect from '@src/components/Person/CoordinatorSelect';
+import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
 
 //Handlers
 import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
@@ -32,9 +31,7 @@ function CreateForm ({ closeModal }) {
 
   //Hooks
   useEffect(() => {
-    if(isNil(peopleSlim)){
-      dispatch(peopleActions.listSlimPeopleByRole({ role: 'teacher' }));
-    }
+    dispatch(peopleActions.listSlimPeopleByRole({ role: 'teacher' }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -70,9 +67,14 @@ function CreateForm ({ closeModal }) {
             name="coordinator"
             label="Coordinator:"
             rules={[{ required: true, message: 'Coordinator is required !' }]}>
-            <CoordinatorSelect
-              peopleSlim={peopleSlim}
+            <ComponentSelect
+              data={peopleSlim}
               onChange={handleSelectChange(newCourse, setNewCourse, 'coordinator')}
+              mapOptions={(coordinator) => ({
+                label: coordinator.name,
+                value: coordinator._id
+              })}
+              placeholder="Select coordinator"
             />
           </Form.Item>
           <Form.Item name="description" label="Description:">

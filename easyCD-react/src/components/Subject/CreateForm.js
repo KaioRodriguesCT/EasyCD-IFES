@@ -8,17 +8,20 @@ import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
 
 //Lodash
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 
 //Actions
 import { actions as curriculumGrideActions } from '@redux/curriculum-grides';
 import { actions as subjectActions } from '@redux/subjects';
 
 //Handlers
-import { handleInputChange, handleInputNumberChange, handleSelectChange } from '@src/shared/handlers';
+import {
+  handleInputChange,
+  handleInputNumberChange,
+  handleSelectChange
+} from '@src/shared/handlers';
 
 //Components
-import CurriculumGrideSelect from '../CurriculumGride/CurriculumGrideSelect';
+import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
 
 function CreateForm ({ closeModal }) {
   const dispatch = useDispatch();
@@ -32,9 +35,7 @@ function CreateForm ({ closeModal }) {
 
   //Hooks
   useEffect(() => {
-    if (isNil(curriculumGrides)) {
-      dispatch(curriculumGrideActions.listCurriculumGrides({}));
-    }
+    dispatch(curriculumGrideActions.listCurriculumGrides({}));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -80,7 +81,15 @@ function CreateForm ({ closeModal }) {
             name="curriculumGride"
             label="Curriculum Gride:"
             rules={[{ required: true, message: 'Curriculum Gride is required !' }]}>
-            <CurriculumGrideSelect curriculumGrides={curriculumGrides} onChange={handleSelectChange(newSubject, setNewSubject, 'curriculumGride')}/>
+            <ComponentSelect
+              data={curriculumGrides}
+              onChange={handleSelectChange(newSubject, setNewSubject, 'curriculumGride')}
+              mapOptions={(curriculumGride) => ({
+                label: curriculumGride.name,
+                value: curriculumGride._id
+              })}
+              placeholder="Select curriculum gride"
+            />
           </Form.Item>
           <Form.Item name="externalCod" label="Ext. Cod:">
             <Input
@@ -95,10 +104,14 @@ function CreateForm ({ closeModal }) {
           </Form.Item>
           <Space direction="horizontal" size="small">
             <Form.Item>
-              <Button type="primary" htmlType="submit" icon={<SaveOutlined/>}>Save</Button>
+              <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
+                Save
+              </Button>
             </Form.Item>
             <Form.Item>
-              <Button onClick={onCancel} icon={<CloseOutlined/>}>Cancel</Button>
+              <Button onClick={onCancel} icon={<CloseOutlined />}>
+                Cancel
+              </Button>
             </Form.Item>
           </Space>
         </Form>

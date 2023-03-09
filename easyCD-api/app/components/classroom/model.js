@@ -5,6 +5,10 @@ const { ObjectId } = mongoose.Types;
 exports = module.exports = function initModel(mongo) {
   const Classroom = new mongo.Schema(
     {
+      name: {
+        type: String,
+        index: true,
+      },
       subject: {
         type: ObjectId,
         ref: 'Subject',
@@ -30,10 +34,20 @@ exports = module.exports = function initModel(mongo) {
         ref: 'Enrollment',
       },
       classTimes: {
-        type: [Number], // Store day hours in seconds,
-      },
-      classDays: {
-        type: [Number], // Store weekdays number
+        type: [{
+          day: {
+            type: Number,
+            required: true,
+          }, // Week day
+          start: {
+            type: String,
+            required: true,
+          }, // HH:mm
+          end: {
+            type: String,
+            required: true,
+          }, // HH:mm
+        }],
       },
       teacher: {
         type: ObjectId,

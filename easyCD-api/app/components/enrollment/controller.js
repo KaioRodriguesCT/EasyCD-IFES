@@ -7,6 +7,7 @@ exports = module.exports = function initController(
     create,
     update,
     remove,
+    list,
   };
 
   async function create(req, res, next) {
@@ -26,7 +27,7 @@ exports = module.exports = function initController(
   async function update(req, res, next) {
     try {
       const { enrollmentId } = req.params;
-      const enrollment = req.body;
+      const { enrollment } = req.body;
       return await async.auto({
         updatedEnrollment: async () => EnrollmentService.update({
           ...enrollment,
@@ -53,6 +54,16 @@ exports = module.exports = function initController(
           message: 'Enrollment deleted successfully',
         })],
       });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function list(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+
+      return res.json({ enrollments: await EnrollmentService.findAll({ filters }) });
     } catch (e) {
       return next(e);
     }

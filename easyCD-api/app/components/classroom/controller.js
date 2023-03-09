@@ -7,6 +7,7 @@ exports = module.exports = function initController(
     create,
     update,
     remove,
+    list,
   };
 
   async function create(req, res, next) {
@@ -26,7 +27,7 @@ exports = module.exports = function initController(
   async function update(req, res, next) {
     try {
       const { classroomId } = req.params;
-      const classroom = req.body;
+      const { classroom } = req.body;
       return await async.auto({
         updatedClassroom: async () => ClassroomService.update({
           ...classroom,
@@ -53,6 +54,15 @@ exports = module.exports = function initController(
           message: 'Classroom deleted successfully',
         })],
       });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function list(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+      return res.json({ classrooms: await ClassroomService.findAll({ filters }) });
     } catch (e) {
       return next(e);
     }

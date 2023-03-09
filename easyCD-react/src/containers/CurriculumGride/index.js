@@ -76,7 +76,7 @@ function CurriculumGride () {
   );
 
   const getPageData = () => {
-    dispatch(courseActions.listCourses({}));
+    dispatch(courseActions.listCourses());
   };
 
   const columns = useMemo(
