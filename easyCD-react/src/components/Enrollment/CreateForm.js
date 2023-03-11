@@ -16,6 +16,7 @@ import { actions as enrollmentActions } from '@redux/enrollments';
 
 //Components
 import ComponentSelect from '@src/components/SharedComponents/ComponentSelect';
+import FormActionButtons from '../SharedComponents/FormActionButtons';
 
 //Handlers
 import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
@@ -93,14 +94,7 @@ function CreateForm ({ closeModal }){
               onChange={handleInputChange(newEnrollment, setNewEnrollment, 'observation')}
             />
           </Form.Item>
-          <Space direction="horizontal" size="small">
-            <Form.Item>
-              <Button type="primary" htmlType="submit" icon={<SaveOutlined/>}>Save</Button>
-            </Form.Item>
-            <Form.Item>
-              <Button onClick={onCancel} icon={<CloseOutlined/>}>Cancel</Button>
-            </Form.Item>
-          </Space>
+          {FormActionButtons({ onCancel })}
         </Form>
       </Card>
     );

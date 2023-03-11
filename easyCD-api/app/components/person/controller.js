@@ -1,7 +1,30 @@
+const async = require('async');
+
 exports = module.exports = function initController(
   PeopleService,
 ) {
-  return { list, listSlim, listSlimByRole };
+  return {
+    list, listSlim, listSlimByRole, update,
+  };
+
+  async function update(req, res, next) {
+    try {
+      const { personId } = req.params;
+      const { person } = req.body;
+      return await async.auto({
+        updatedPerson: async () => PeopleService.update({
+          ...person,
+          _id: personId,
+        }),
+        sendResponse: ['updatedPerson', async ({ updatedPerson }) => res.json({
+          message: 'Person updated successfully',
+          person: updatedPerson,
+        })],
+      });
+    } catch (e) {
+      return next(e);
+    }
+  }
 
   async function list(req, res, next) {
     try {

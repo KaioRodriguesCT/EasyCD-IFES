@@ -36,7 +36,7 @@ exports = module.exports = function initRepository(
 
   async function create(person) {
     const requiredFields = [
-      'name',
+      'firstname',
       'surname',
       'email',
       'phone',
@@ -47,7 +47,7 @@ exports = module.exports = function initRepository(
       }
     });
     // Updating the full name
-    person.fullName = `${person.name} ${person.surname}`;
+    person.name = `${person.firstname} ${person.surname}`;
     const newPerson = await PersonModel.create(person);
     return newPerson.toJSON();
   }
@@ -63,7 +63,7 @@ exports = module.exports = function initRepository(
         });
 
         // Updating the full name
-        oldPerson.fullName = `${oldPerson.name} ${oldPerson.surname}`;
+        oldPerson.name = `${oldPerson.firstname} ${oldPerson.surname}`;
         return oldPerson.save();
       }],
     });

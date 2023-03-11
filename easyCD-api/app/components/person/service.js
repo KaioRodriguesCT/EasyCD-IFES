@@ -67,7 +67,7 @@ exports = module.exports = function initService(
 
   async function create(person) {
     const initialFields = [
-      'name',
+      'firstname',
       'surname',
       'email',
       'phone',
@@ -96,7 +96,7 @@ exports = module.exports = function initService(
       },
       updatedPerson: ['oldPerson', async ({ oldPerson }) => {
         const updatableFields = {
-          name: { allowEmpty: false },
+          firstname: { allowEmpty: false },
           surname: { allowEmpty: false },
           email: { allowEmpty: false },
           phone: { allowEmpty: false },
@@ -109,20 +109,13 @@ exports = module.exports = function initService(
           complementaryActivities: { allowEmpty: true },
           solicitations: { allowEmpty: true },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = person[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldPerson[field] = currentValue;
+
+        await Utils.updateModelWithValidFields({
+          oldModel: oldPerson,
+          newModel: person,
+          updatableFields,
         });
+
         return PersonRepository.update(oldPerson);
       }],
     });

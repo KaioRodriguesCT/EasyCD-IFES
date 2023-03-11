@@ -41,7 +41,7 @@ exports = module.exports = function initService(
   }
 
   async function create(user) {
-    const { createdUser } = await async.auto({
+    const { createdUser, person: newPerson } = await async.auto({
       validateRole: async () => checkRoleFields({
         user,
         defaultErrorMessage: defaultErrorCreating,
@@ -70,7 +70,7 @@ exports = module.exports = function initService(
         return UserRepository.create(newUser);
       }],
     });
-    return _.omit(createdUser, 'password');
+    return { ..._.omit(createdUser, 'password'), person: newPerson };
   }
 
   async function update(user) {

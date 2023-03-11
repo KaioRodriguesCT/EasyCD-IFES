@@ -5,6 +5,11 @@ exports = module.exports = function initRouter(PeopleController, Policies) {
   const router = express.Router();
 
   // Routes
+  router.put(
+    '/:personId',
+    Policies.JWTAdmin,
+    PeopleController.update,
+  );
 
   // User authentication
   router.get('/', Policies.JWTLogged, PeopleController.list);
