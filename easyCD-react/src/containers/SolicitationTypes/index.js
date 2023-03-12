@@ -3,103 +3,102 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 //Antd
-import { ExclamationCircleFilled, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Button, Card, Modal, Space, Spin, Table } from 'antd';
+import { ExclamationCircleFilled, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 //Lodash
-import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import get from 'lodash/get';
 
 //Actions
-import { actions as subjectActions } from '@redux/subjects';
-import { actions as curriculumGrideActions } from '@redux/curriculum-grides';
+import { actions as stActions } from '@redux/solicitation-types';
 
 //Components
 import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
-import CreateForm from '@src/components/Subject/CreateForm';
-import UpdateForm from '@src/components/Subject/UpdateForm';
+import CreateForm from '@src/components/SolicitationType/CreateForm';
+import UpdateForm from '@src/components/SolicitationType/UpdateForm';
+import FieldsStructure from '@src/components/SolicitationType/Columns/FieldsStructure';
 
 //Columns
-import Name from '@src/components/Subject/Columns/Name';
-import Description from '@src/components/Subject/Columns/Description';
-import CurriculumGride from '@src/components/Subject/Columns/CurriculumGride';
-import QtyHours from '@src/components/Subject/Columns/QtyHours';
-import ExternalCod from '@src/components/Subject/Columns/ExternalCod';
+import Name from '@src/components/SolicitationType/Columns/Name';
+import BooleanColumn from '@src/components/SharedComponents/Columns/BooleanColumn';
+import Description from '@src/components/SolicitationType/Columns/Description';
 import Actions from '@src/components/SharedComponents/Columns/Actions';
 
 //Style
-import './index.css';
+import './index.less';
 
-// eslint-disable-next-line max-statements
-function Subjects () {
+function SolicitationTypes () {
   const dispatch = useDispatch();
 
   //Redux state
-  const subjects = useSelector((state) => state.subjects.subjects);
-  const isLoading = useSelector((state) => state.subjects.isLoading);
-  const curriculumGrides = useSelector((state) => state.curriculumGrides.curriculumGrides);
+  const solicitationTypes = useSelector((state) => state.solicitationTypes.solicitationTypes);
+  const isLoading = useSelector((state) => state.solicitationTypes.isLoading);
 
   //Local state
   const [isCreateModalVisible, setIsCreateModalVisible] = useState();
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState();
-  const [subjectBeingUpdated, setSubjectBeingUpdated] = useState();
+  const [solicitationTypeBeingUpdated, setSolicitationTypeBeingUpdated] = useState();
 
   const defaultFilters = {};
   const [filters, setFilters] = useState(defaultFilters);
 
   //Handlers
-  const onEditClick = (subject) => {
+  const onEditClick = (solicitationType) => {
     setIsUpdateModalVisible(true);
-    setSubjectBeingUpdated(subject);
+    setSolicitationTypeBeingUpdated(solicitationType);
   };
 
-  const onDeleteClick = (subject) => {
+  const onDeleteClick = useCallback((solicitationType) => {
     Modal.confirm({
-      title: `Are you sure that you want to delete the Subject: ${ get(subject, 'name') } ?`,
+      title: 'Are you sure that you want to delete this Solicitation type ?',
       content:
-        'Once you delete the Subject, all data related to that will be inactivate or lost on database.',
+        'Once you delete this type, all data related to that will be inactivate or lost on database.',
       icon: <ExclamationCircleFilled />,
       onOk () {
-        dispatch(subjectActions.deleteSubject(get(subject, '_id')));
+        dispatch(stActions.deleteSolicitationType(get(solicitationType, '_id')));
       }
     });
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   //Data
-  const getSubjects = useCallback(
-    () => dispatch(subjectActions.listSubjects({ filters })),
+  const getSolicitationTypes = useCallback(
+    () => dispatch(stActions.listSolicitationTypes({})),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [filters]
   );
 
-  const getPageData = () => {
-    dispatch(curriculumGrideActions.listCurriculumGrides());
-  };
-
-  const columns = useMemo(() => [
-    Name(),
-    CurriculumGride({ curriculumGrides }),
-    ExternalCod(),
-    QtyHours(),
-    Description(),
-    Actions({ onDeleteClick, onEditClick })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ], [curriculumGrides]);
+  const columns = useMemo(
+    () => [
+      Name(),
+      Description(),
+      FieldsStructure(),
+      BooleanColumn({
+        title: 'Req. Teacher Approval',
+        dataIndex: 'requireTeacherApproval'
+      }),
+      BooleanColumn({
+        title: 'Req. Coord. Approval',
+        dataIndex: 'requireCoordinatorApproval'
+      }),
+      BooleanColumn({
+        title: 'Allow File',
+        dataIndex: 'allowSubmitFile'
+      }),
+      Actions({ onEditClick, onDeleteClick })
+    ],
+    [onDeleteClick]
+  );
 
   //Hooks
   useEffect(() => {
     if (!isNil(filters)) {
-      getSubjects();
+      getSolicitationTypes();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
-
-  //Executes every time that this page is open
-  useEffect(() => {
-    getPageData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [filters]);
 
   //Renders
   const renderCreateModal = () => {
@@ -125,7 +124,7 @@ function Subjects () {
         destroyOnClose={true}>
         <UpdateForm
           closeModal={() => setIsUpdateModalVisible(false)}
-          subject={subjectBeingUpdated}
+          solicitationType={solicitationTypeBeingUpdated}
         />
       </Modal>
     );
@@ -143,7 +142,11 @@ function Subjects () {
               onClick={() => setIsCreateModalVisible(true)}
               type="primary"
             />
-            <Button icon={<ReloadOutlined />} onClick={() => getSubjects()} type="default" />
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={() => getSolicitationTypes()}
+              type="default"
+            />
           </Space>
         </Space>
       </div>
@@ -166,7 +169,7 @@ function Subjects () {
       <div>
         <Spin spinning={isLoading}>
           <Table
-            dataSource={subjects}
+            dataSource={solicitationTypes}
             columns={columns}
             pagination={false}
             bordered={true}
@@ -179,7 +182,7 @@ function Subjects () {
 
   return (
     <div className="container_home">
-      <ComponentHeader title="Subjects" />
+      <ComponentHeader title="Solicitation Types" />
       <div className="container_body">
         {renderTableHeader()}
         {renderTable()}
@@ -190,5 +193,4 @@ function Subjects () {
     </div>
   );
 }
-
-export default Subjects;
+export default SolicitationTypes;

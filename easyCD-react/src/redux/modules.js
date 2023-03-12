@@ -8,6 +8,7 @@ import { reducer as curriculumGrides } from '@redux/curriculum-grides';
 import { reducer as subjects } from '@redux/subjects';
 import { reducer as classrooms } from '@redux/classrooms';
 import { reducer as enrollments } from '@redux/enrollments';
+import { reducer as solicitationTypes } from '@redux/solicitation-types';
 
 
 export default {
@@ -19,5 +20,6 @@ export default {
   curriculumGrides,
   subjects,
   classrooms,
-  enrollments
+  enrollments,
+  solicitationTypes
 };

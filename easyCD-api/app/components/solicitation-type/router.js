@@ -30,7 +30,13 @@ exports = module.exports = function initRouter(
     SolicitationTypeController.remove,
   );
 
-  app.use('/api/solicitation-type', router);
+  router.get(
+    '/',
+    Policies.JWTAdmin,
+    SolicitationTypeController.list,
+  );
+
+  app.use('/api/solicitation-types', router);
 };
 exports['@singleton'] = true;
 exports['@require'] = [

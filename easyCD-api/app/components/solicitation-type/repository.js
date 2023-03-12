@@ -9,7 +9,12 @@ exports = module.exports = function initRepository(
     update,
     removeById,
     findById,
+    findAll,
   };
+
+  async function findAll({ filters }) {
+    return SolicitationTypeModel.find({ filters }).lean().exec();
+  }
 
   async function findById({ _id }) {
     return SolicitationTypeModel
@@ -22,9 +27,6 @@ exports = module.exports = function initRepository(
     const requiredFields = [
       'name',
       'description',
-      'requireTeacherApproval',
-      'requireCoordinatorApproval',
-      'allowSubmitFile',
       'fieldsStructure',
     ];
     _.forEach(requiredFields, (field) => {

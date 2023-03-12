@@ -7,6 +7,7 @@ exports = module.exports = function initController(
     create,
     update,
     remove,
+    list,
   };
 
   async function create(req, res, next) {
@@ -26,7 +27,7 @@ exports = module.exports = function initController(
   async function update(req, res, next) {
     try {
       const { solicitationTypeId } = req.params;
-      const solicitationType = req.body;
+      const { solicitationType } = req.body;
       return await async.auto({
         updatedSolicitationType: async () => SolicitationTypeService.update({
           ...solicitationType,
@@ -53,6 +54,16 @@ exports = module.exports = function initController(
           message: 'Solicitation Type deleted successfully',
         })],
       });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function list(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+
+      return res.json({ solicitationTypes: await SolicitationTypeService.findAll({ filters }) });
     } catch (e) {
       return next(e);
     }

@@ -34,7 +34,12 @@ exports = module.exports = function initService(
     isApproved,
     isReproved,
     findById,
+    findAll,
   };
+
+  async function findAll({ filters }) {
+    return SolicitationTypeRepository.findAll({ filters });
+  }
 
   async function findById({ _id }) {
     return SolicitationTypeRepository.findById({ _id });
@@ -91,19 +96,10 @@ exports = module.exports = function initService(
           allowSubmitFile: { allowEmpty: false },
           fieldsStructure: { allowEmpty: false },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = solicitationType[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldSolicitationType[field] = currentValue;
+        await Utils.updateModelWithValidFields({
+          oldModel: oldSolicitationType,
+          newModel: solicitationType,
+          updatableFields,
         });
         return SolicitationTypeRepository.update(oldSolicitationType);
       }],
