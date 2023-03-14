@@ -12,6 +12,8 @@ import { rootSaga as subjects } from '@redux/subjects';
 import { rootSaga as classrooms } from '@redux/classrooms';
 import { rootSaga as enrollments } from '@redux/enrollments';
 import { rootSaga as solicitationTypes } from '@redux/solicitation-types';
+import { rootSaga as solicitations } from '@redux/solicitations';
+
 
 export function* rootSaga (){
   const sagas = [
@@ -24,7 +26,8 @@ export function* rootSaga (){
     subjects,
     classrooms,
     enrollments,
-    solicitationTypes
+    solicitationTypes,
+    solicitations
   ].map(fork);
   yield all(sagas);
 }

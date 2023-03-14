@@ -9,6 +9,7 @@ import { reducer as subjects } from '@redux/subjects';
 import { reducer as classrooms } from '@redux/classrooms';
 import { reducer as enrollments } from '@redux/enrollments';
 import { reducer as solicitationTypes } from '@redux/solicitation-types';
+import { reducer as solicitations } from '@redux/solicitations';
 
 
 export default {
@@ -21,5 +22,6 @@ export default {
   subjects,
   classrooms,
   enrollments,
-  solicitationTypes
+  solicitationTypes,
+  solicitations
 };
