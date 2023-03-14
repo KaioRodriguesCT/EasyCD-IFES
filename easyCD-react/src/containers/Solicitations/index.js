@@ -22,7 +22,7 @@ import Student from '@src/components/Solicitation/Columns/Student';
 import BooleanColumn from '@src/components/SharedComponents/Columns/BooleanColumn';
 import TeacherNotes from '@src/components/Solicitation/Columns/TeacherNotes';
 import CoordinatorNotes from '@src/components/Solicitation/Columns/CoordinatorNotes';
-import Meta from '@src/components/Solicitation/Columns/Meta';
+//import Meta from '@src/components/Solicitation/Columns/Meta';
 
 //Components
 import ComponentFooter from '@src/components/ComponentFooter';
@@ -99,7 +99,7 @@ function Solicitations () {
         title: 'Processed',
         dataIndex: 'isProcessed'
       }),
-      Meta(),
+      //Meta(),
       Actions({ onDeleteClick, onEditClick })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
