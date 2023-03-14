@@ -11,13 +11,17 @@ import { createReducer } from '@shared/reducers';
 import ListPeople from './list-people';
 import ListSlimPeople from './list-slim-people';
 import ListSlimPeopleByRole from './list-slim-people-by-role';
+import PersonCreate from './person-create';
+import PersonUpdate from './person-update';
 
 //Modules
-const modules = [ListPeople, ListSlimPeople, ListSlimPeopleByRole];
+const modules = [ListPeople, ListSlimPeople, ListSlimPeopleByRole, PersonCreate,PersonUpdate];
 
 //Initial State
 export const initialState = {
   isLoading: false,
+  isCreating: false,
+  isUpdating: false,
   people: null,
   peopleSlim: null
 };

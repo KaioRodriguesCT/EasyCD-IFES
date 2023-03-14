@@ -15,14 +15,17 @@ exports = module.exports = function initModel(mongo) {
       requireTeacherApproval: {
         type: Boolean,
         required: true,
+        default: false,
       },
       requireCoordinatorApproval: {
         type: Boolean,
         required: true,
+        default: true,
       },
       allowSubmitFile: {
         type: Boolean,
         required: true,
+        default: false,
       },
       fieldsStructure: {
         type: [{

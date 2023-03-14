@@ -2,14 +2,18 @@ const _ = require('lodash');
 
 exports = module.exports = function initRepository(
   SolicitationModel,
-  Utils,
 ) {
   return {
     create,
     update,
     removeById,
     findById,
+    findAll,
   };
+
+  async function findAll({ filters }) {
+    return SolicitationModel.find(filters).lean().exec();
+  }
 
   async function findById({ _id }) {
     return SolicitationModel

@@ -68,7 +68,7 @@ function Subjects () {
 
   //Data
   const getSubjects = useCallback(
-    () => dispatch(subjectActions.listSubjects([filters])),
+    () => dispatch(subjectActions.listSubjects({ filters })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [filters]
   );

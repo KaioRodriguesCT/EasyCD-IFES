@@ -49,25 +49,14 @@ export function* sagaUserCreate (action) {
     //Get the data from the action
     //Password already encrypted here
     const {
-      user: { username, password, role, siape, registration, name, surname, email, phone, address }
+      user
     } = action;
     //Do a yield call into the api function
-    const { user, message } = yield call(apiUserCreate, {
-      username,
-      password,
-      role,
-      siape,
-      registration,
-      name,
-      surname,
-      email,
-      phone,
-      address
-    });
+    const { user: newUser, message } = yield call(apiUserCreate, user);
 
     yield put({
       type: constants.USER_CREATE.SUCCESS,
-      user,
+      user: newUser,
       message
     });
   } catch (e) {

@@ -5,21 +5,27 @@ import React from 'react';
 import { Button, Space } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
-function Actions ({ onEditClick, onDeleteClick }){
+function Actions ({ onEditClick, onDeleteClick, showDelete = true }) {
   return {
-    title:'Actions',
+    title: 'Actions',
     dataIndex: 'actions',
-    width:'10%',
-    render:(_, record) => {
+    width: '10%',
+    render: (_, record) => {
       return (
         <Space direction="horizontal">
-          <Button type="primary" icon={<EditOutlined/>} onClick={()=> onEditClick(record)}/>
-          <Button type="primary" danger icon={<DeleteOutlined/>} onClick={() => onDeleteClick(record)}/>
+          <Button type="primary" icon={<EditOutlined />} onClick={() => onEditClick(record)} />
+          {showDelete ? (
+            <Button
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => onDeleteClick(record)}
+            />
+          ) : null}
         </Space>
       );
     }
   };
-
 }
 
 export default Actions;

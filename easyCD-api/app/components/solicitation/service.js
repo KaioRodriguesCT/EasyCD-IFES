@@ -19,7 +19,12 @@ exports = module.exports = function initService(
     remove,
     validateStudent,
     validateSolicitationType,
+    findAll,
   };
+
+  async function findAll({ filters }) {
+    return SolicitationRepository.findAll({ filters });
+  }
 
   async function create(solicitation) {
     if (!solicitation) {
@@ -75,7 +80,11 @@ exports = module.exports = function initService(
         }
         return oldSolicitation;
       },
-      updatedSolicitation: ['oldSolicitation', async ({ oldSolicitation }) => {
+      validateMeta: ['oldSolicitation', async () => SolicitationTypeService.validateMeta({
+        meta: solicitation.meta,
+        solicitationTypeId: solicitation.solicitationType,
+      })],
+      updatedSolicitation: ['oldSolicitation', 'validateMeta', async ({ oldSolicitation }) => {
         const updatableFields = {
           status: { allowEmpty: false },
           teacherApproval: { allowEmpty: false },
@@ -83,21 +92,15 @@ exports = module.exports = function initService(
           coordinatorApproval: { allowEmpty: false },
           coordinatorNotes: { allowEmpty: true },
           isProcessed: { allowEmpty: false },
+          meta: { allowEmpty: false },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = solicitation[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldSolicitation[field] = currentValue;
+
+        await Utils.updateModelWithValidFields({
+          oldModel: oldSolicitation,
+          newModel: solicitation,
+          updatableFields,
         });
+
         return SolicitationRepository.update(oldSolicitation);
       }],
       processUpdatedSolicitation: ['updatedSolicitation', async ({ updatedSolicitation }) => SolicitationTypeService.processSolicitation({

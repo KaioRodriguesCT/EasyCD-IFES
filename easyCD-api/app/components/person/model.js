@@ -13,12 +13,13 @@ exports = module.exports = function initModel(mongo) {
         type: String,
         required: true,
       },
-      surname: {
+      firstname: {
         type: String,
         required: true,
       },
-      fullName: {
+      surname: {
         type: String,
+        required: true,
       },
       phone: {
         type: String,

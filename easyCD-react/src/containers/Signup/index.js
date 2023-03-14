@@ -78,11 +78,11 @@ function Signup () {
   };
 
   const renderNameInput = () => {
-    const fieldName = 'name';
+    const fieldName = 'firstname';
     return (
-      <Form.Item name={fieldName} rules={[{ required: true, message: 'Name is required' }]}>
+      <Form.Item name={fieldName} rules={[{ required: true, message: 'Firstname is required' }]}>
         <Input
-          placeholder="Name"
+          placeholder="Firstname"
           onChange={handleInputChange(newUser, setNewUser, fieldName)}
           allowClear
         />

@@ -7,6 +7,7 @@ exports = module.exports = function initController(
     create,
     update,
     remove,
+    list,
   };
 
   async function create(req, res, next) {
@@ -26,7 +27,7 @@ exports = module.exports = function initController(
   async function update(req, res, next) {
     try {
       const { solicitationId } = req.params;
-      const solicitation = req.body;
+      const { solicitation } = req.body;
       return await async.auto({
         updatedSolicitation: async () => SolicitationService.update({
           ...solicitation,
@@ -53,6 +54,15 @@ exports = module.exports = function initController(
           message: 'Solicitation delete successfully',
         })],
       });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function list(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+      return res.json({ solicitations: await SolicitationService.findAll({ filters }) });
     } catch (e) {
       return next(e);
     }
