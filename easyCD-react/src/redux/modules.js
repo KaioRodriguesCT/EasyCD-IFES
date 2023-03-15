@@ -11,7 +11,7 @@ import { reducer as enrollments } from '@redux/enrollments';
 import { reducer as solicitationTypes } from '@redux/solicitation-types';
 import { reducer as solicitations } from '@redux/solicitations';
 import { reducer as complementaryActivityTypes } from '@redux/complementary-activity-types';
-
+import { reducer as complementaryActivities } from '@redux/complementary-activities';
 
 export default {
   reducerExample,
@@ -25,5 +25,6 @@ export default {
   enrollments,
   solicitationTypes,
   solicitations,
-  complementaryActivityTypes
+  complementaryActivityTypes,
+  complementaryActivities
 };

@@ -10,7 +10,12 @@ exports = module.exports = function initRepository(
     update,
     removeById,
     findById,
+    findAll,
   };
+
+  async function findAll({ filters }) {
+    return ComplementaryActivityModel.find(filters).lean().exec();
+  }
 
   async function findById({ _id }) {
     return ComplementaryActivityModel

@@ -20,7 +20,12 @@ exports = module.exports = function initService(
     findById,
     validateStudent,
     validateComplementaryActivityType,
+    findAll,
   };
+
+  async function findAll({ filters }) {
+    return ComplementaryActivityRepository.findAll({ filters });
+  }
 
   async function findById({ _id }) {
     return ComplementaryActivityRepository.findById({ _id });

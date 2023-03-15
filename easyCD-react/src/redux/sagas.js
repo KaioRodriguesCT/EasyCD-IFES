@@ -14,6 +14,7 @@ import { rootSaga as enrollments } from '@redux/enrollments';
 import { rootSaga as solicitationTypes } from '@redux/solicitation-types';
 import { rootSaga as solicitations } from '@redux/solicitations';
 import { rootSaga as complementaryActivityTypes } from '@redux/complementary-activity-types';
+import { rootSaga as complementaryActivities } from '@redux/complementary-activities';
 
 
 export function* rootSaga (){
@@ -29,7 +30,8 @@ export function* rootSaga (){
     enrollments,
     solicitationTypes,
     solicitations,
-    complementaryActivityTypes
+    complementaryActivityTypes,
+    complementaryActivities
   ].map(fork);
   yield all(sagas);
 }

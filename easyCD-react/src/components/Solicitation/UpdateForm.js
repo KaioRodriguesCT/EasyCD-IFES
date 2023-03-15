@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 //Antd
-import { Card, Divider, Form } from 'antd';
+import { Card, Divider, Form, Space, Switch } from 'antd';
 
 //Actions
 import { actions as stActions } from '@redux/solicitation-types';
@@ -18,7 +18,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 //Handlers
-import { handleSelectChange } from '@src/shared/handlers';
+import { handleSelectChange, handleSwitchChange } from '@src/shared/handlers';
 
 //Components
 import ComponentSelect from '../SharedComponents/ComponentSelect';
@@ -69,6 +69,7 @@ function UpdateForm ({ closeModal, solicitation }) {
     actualSolicitation.meta = value;
     setNewSolicitation(actualSolicitation);
   };
+  const handleSwitch  = (field) => handleSwitchChange(newSolicitation, setNewSolicitation, field);
 
   //Renders
   const renderForm = () => {
@@ -102,6 +103,14 @@ function UpdateForm ({ closeModal, solicitation }) {
               onChange={handleSelectChangeLocal('status')}
             />
           </Form.Item>
+          <Space direction="horizontal" size="large">
+            <Form.Item name="teacherApproval" label="T. Approval:" valuePropName="checked">
+              <Switch onChange={handleSwitch('teacherApproval')}/>
+            </Form.Item>
+            <Form.Item name="coordinatorApproval" label="C. Approval:" valuePropName="checked">
+              <Switch onChange={handleSwitch('coordinatorApproval')}/>
+            </Form.Item>
+          </Space>
           <Divider>Solicitation Inputs</Divider>
           <Form.Item name="meta" label="Meta:" valuePropName="defaultValue">
             <MetaInput
