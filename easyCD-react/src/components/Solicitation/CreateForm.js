@@ -73,7 +73,7 @@ function CreateForm ({ closeModal }) {
     return (
       <Card title="Solicitation - Create Form">
         <Form form={form} layout="vertical" onFinish={onFormSubmit}>
-          <Form.Item name="solicitationType" label="Solicitation Type">
+          <Form.Item name="solicitationType" label="Solicitation Type:">
             <ComponentSelect
               data={solicitationTypes}
               onChange={handleSelectChangeLocal('solicitationType')}
@@ -84,7 +84,7 @@ function CreateForm ({ closeModal }) {
               placeholder="Select solicitation type"
             />
           </Form.Item>
-          <Form.Item name="student" label="Student">
+          <Form.Item name="student" label="Student:">
             <ComponentSelect
               data={students}
               onChange={handleSelectChangeLocal('student')}
@@ -96,7 +96,7 @@ function CreateForm ({ closeModal }) {
             />
           </Form.Item>
           <Divider>Solicitation Inputs</Divider>
-          <Form.Item name="meta" label="Meta">
+          <Form.Item name="meta" label="Meta:">
             <MetaInput
               onChange={handleMetaChange}
               solicitationType={find(solicitationTypes, {

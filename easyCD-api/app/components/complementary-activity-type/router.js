@@ -30,7 +30,13 @@ exports = module.exports = function initRouter(
     ComplementaryActivityTypeController.remove,
   );
 
-  app.use('/api/complementary-activity-type', router);
+  router.get(
+    '/',
+    Policies.JWTLogged,
+    ComplementaryActivityTypeController.list,
+  );
+
+  app.use('/api/complementary-activity-types', router);
 };
 exports['@singleton'] = true;
 exports['@require'] = [

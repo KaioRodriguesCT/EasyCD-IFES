@@ -7,6 +7,7 @@ exports = module.exports = function initController(
     create,
     update,
     remove,
+    list,
   };
 
   async function create(req, res, next) {
@@ -26,7 +27,7 @@ exports = module.exports = function initController(
   async function update(req, res, next) {
     try {
       const { complementaryActivityTypeId } = req.params;
-      const complementaryActivityType = req.body;
+      const { complementaryActivityType } = req.body;
       return await async.auto({
         updatedType: async () => ComplementaryActivityTypeService.update({
           ...complementaryActivityType,
@@ -52,6 +53,17 @@ exports = module.exports = function initController(
         sendResponse: ['deletedType', async () => res.json({
           message: 'Complementary Activity Type deleted successfully',
         })],
+      });
+    } catch (e) {
+      return next(e);
+    }
+  }
+  async function list(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+
+      return res.json({
+        complementaryActivityTypes: await ComplementaryActivityTypeService.findAll({ filters }),
       });
     } catch (e) {
       return next(e);

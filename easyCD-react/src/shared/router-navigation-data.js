@@ -1,5 +1,5 @@
 //Antd
-import { ContainerOutlined, ExperimentOutlined, FireOutlined, HddOutlined, IdcardOutlined, ReadOutlined, TagOutlined, TeamOutlined } from '@ant-design/icons';
+import { AuditOutlined, ContainerOutlined, ExperimentOutlined, FireOutlined, HddOutlined, IdcardOutlined, ReadOutlined, TagOutlined, TeamOutlined } from '@ant-design/icons';
 
 //Components
 import Courses from '@src/containers/Courses';
@@ -12,6 +12,7 @@ import Classrooms from '@src/containers/Classrooms';
 import Enrollments from '@src/containers/Enrollments';
 import SolicitationTypes from '@src/containers/SolicitationTypes';
 import Solicitations from '@src/containers/Solicitations';
+import ComplementaryActivityType from '@src/containers/ComplementaryActivityType';
 
 /*Expected object on array of routes:
   {
@@ -105,6 +106,14 @@ export const loggedRoutes = [
     label: 'Solicitations',
     element: <Solicitations />,
     icon: <FireOutlined />,
+    roles: ['admin']
+  },
+  {
+    path: '/complementary-activity-types',
+    key: 'complementary-activity-types',
+    label: 'CA Types',
+    element: <ComplementaryActivityType/>,
+    icon: <AuditOutlined />,
     roles: ['admin']
   }
 ];

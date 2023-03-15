@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const async = require('async');
-const mongoose = require('mongoose');
 
 const defaultErrorCreating = 'Error creating Complementary Activity Type';
 const defaultErrorUpdating = 'Error updating Complementary Activity Type';
@@ -15,7 +14,12 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
+    findAll,
   };
+
+  async function findAll({ filters }) {
+    return ComplementaryActivityTypeRepository.findAll({ filters });
+  }
 
   async function findById({ _id }) {
     return ComplementaryActivityTypeRepository.findById({ _id });
@@ -54,19 +58,10 @@ exports = module.exports = function initService(
           unit: { allowEmpty: false },
           axle: { allowEmpty: false },
         };
-        _.forOwn(updatableFields, (value, field) => {
-          const currentValue = type[field];
-          const allowEmpty = _.get(value, 'allowEmpty');
-          if (_.isUndefined(currentValue)) {
-            return;
-          }
-          if ((_.isNull(currentValue)
-          || (!mongoose.isValidObjectId(currentValue) && _.isEmpty(currentValue)))
-          && !allowEmpty
-          && !_.isBoolean((currentValue))) {
-            return;
-          }
-          oldType[field] = currentValue;
+        await Utils.updateModelWithValidFields({
+          oldModel: oldType,
+          newModel: type,
+          updatableFields,
         });
         return ComplementaryActivityTypeRepository.update(oldType);
       }],
