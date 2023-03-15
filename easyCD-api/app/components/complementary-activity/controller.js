@@ -7,6 +7,7 @@ exports = module.exports = function initController(
     create,
     update,
     remove,
+    list,
   };
 
   async function create(req, res, next) {
@@ -46,12 +47,24 @@ exports = module.exports = function initController(
     try {
       const { complementaryActivityId } = req.params;
       return await async.auto({
-        deletedActivity: async () => ComplementaryActivityService.removoe({
+        deletedActivity: async () => ComplementaryActivityService.remove({
           _id: complementaryActivityId,
         }),
         sendRespone: ['deletedActivity', async () => res.json({
           message: 'Complementary Activity deleted successfully',
         })],
+      });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function list(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+
+      return res.json({
+        complementaryActivities: await ComplementaryActivityService.findAll({ filters }),
       });
     } catch (e) {
       return next(e);
