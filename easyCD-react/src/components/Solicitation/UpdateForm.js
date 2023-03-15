@@ -75,7 +75,7 @@ function UpdateForm ({ closeModal, solicitation }) {
     return (
       <Card title="Solicitation - Update Form">
         <Form form={form} layout="vertical" onFinish={onFormSubmit} initialValues={solicitation}>
-          <Form.Item valuePropName="defaultValue" name="solicitationType" label="Solicitation Type">
+          <Form.Item valuePropName="defaultValue" name="solicitationType" label="Solicitation Type:">
             <ComponentSelect
               data={solicitationTypes}
               onChange={handleSelectChangeLocal('solicitationType')}
@@ -86,7 +86,7 @@ function UpdateForm ({ closeModal, solicitation }) {
               placeholder="Select solicitation type"
             />
           </Form.Item>
-          <Form.Item valuePropName="defaultValue" name="student" label="Student">
+          <Form.Item valuePropName="defaultValue" name="student" label="Student:">
             <ComponentSelect
               data={students}
               onChange={handleSelectChangeLocal('student')}
@@ -97,13 +97,13 @@ function UpdateForm ({ closeModal, solicitation }) {
               placeholder="Select student"
             />
           </Form.Item>
-          <Form.Item name="status" label="Status" valuePropName="defaultValue">
+          <Form.Item name="status" label="Status:" valuePropName="defaultValue">
             <StatusSelect
               onChange={handleSelectChangeLocal('status')}
             />
           </Form.Item>
           <Divider>Solicitation Inputs</Divider>
-          <Form.Item name="meta" label="Meta" valuePropName="defaultValue">
+          <Form.Item name="meta" label="Meta:" valuePropName="defaultValue">
             <MetaInput
               onChange={handleMetaChange}
               solicitationType={find(solicitationTypes, {

@@ -10,7 +10,15 @@ exports = module.exports = function initRepository(
     update,
     removeById,
     findById,
+    findAll,
   };
+
+  async function findAll({ filters }) {
+    return ComplementaryActivityTypeModel
+      .find(filters)
+      .lean()
+      .exec();
+  }
   async function findById({ _id }) {
     return ComplementaryActivityTypeModel.findById(_id).lean().exec();
   }
