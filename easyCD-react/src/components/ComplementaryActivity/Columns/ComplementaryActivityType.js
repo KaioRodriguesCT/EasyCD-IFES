@@ -5,7 +5,7 @@ import get from 'lodash/get';
 function ComplementaryActivityType ({ complementaryActivityTypes }) {
   return {
     title: 'Type',
-    dataIndex: 'complementarActivityType',
+    dataIndex: 'complementaryActivityType',
     render: (value) => {
       const complementaryActivityType = find(complementaryActivityTypes, { _id: value });
 

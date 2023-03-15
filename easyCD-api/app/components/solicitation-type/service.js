@@ -216,7 +216,9 @@ exports = module.exports = function initService(
     if (!meta) {
       Utils.throwError(`${defaultErrorMessage}. Meta not sent`, 400);
     }
-    const { complementaryActivityType: cActivityType, evidence, quantity } = meta;
+    const {
+      complementaryActivityType: cActivityType, evidence, quantity, course,
+    } = meta;
     if (_.isNil(cActivityType)
     || !mongoose.isValidObjectId(cActivityType)) {
       Utils.throwError(`${defaultErrorMessage}. Complementary Activity type not sent or not a valid ID`, 400);
@@ -226,8 +228,14 @@ exports = module.exports = function initService(
     if (!complementaryActivityType) {
       Utils.throwError(`${defaultErrorMessage}. Complementary Activity Type not found`, 404);
     }
-    if (_.isNil(evidence) || !_.isBuffer(evidence)) {
+    if (_.isNil(evidence)
+    // Commment because we don't know
+    // if this will be type used for the files || !_.isBuffer(evidence)
+    ) {
       Utils.throwError(`${defaultErrorMessage}. Evidence not sent or not a valid Buffer`, 400);
+    }
+    if (_.isNil(course) || !mongoose.isValidObjectId(course)) {
+      Utils.throwError(`${defaultErrorMessage}. Course not sent or not a valid ID`, 400);
     }
     if (_.isNil(quantity) || !_.isNumber(quantity)) {
       Utils.throwError(`${defaultErrorMessage}. Quantity not sent or not a valid number`, 400);

@@ -84,8 +84,8 @@ function ComplementaryActivity () {
       dataIndex:'quantity'
     }),
     Actions({ onDeleteClick, showEdit: false })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ], []);
+
+  ], [complementaryActivityTypes, courses, onDeleteClick, students]);
 
   //Hooks
   useEffect(() => {

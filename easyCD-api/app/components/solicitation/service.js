@@ -80,10 +80,10 @@ exports = module.exports = function initService(
         }
         return oldSolicitation;
       },
-      validateMeta: ['oldSolicitation', async () => SolicitationTypeService.validateMeta({
+      validateMeta: ['oldSolicitation', async () => (solicitation.meta ? SolicitationTypeService.validateMeta({
         meta: solicitation.meta,
         solicitationTypeId: solicitation.solicitationType,
-      })],
+      }) : null)],
       updatedSolicitation: ['oldSolicitation', 'validateMeta', async ({ oldSolicitation }) => {
         const updatableFields = {
           status: { allowEmpty: false },
