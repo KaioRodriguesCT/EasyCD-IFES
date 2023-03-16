@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
+const IoC = require('electrolyte');
 
 const defaultErrorCreating = 'Error creating course';
 const defaultErrorUpdating = 'Error updating course';
@@ -133,7 +134,11 @@ exports = module.exports = function initService(
         }
         return oldCourse;
       },
-      removeCourse: ['oldCourse', async ({ oldCourse: { _id } }) => CourseRepository.removeById({ _id })],
+      removeCurriculumGrides: ['oldCourse', async ({ oldCourse }) => {
+        const CurriculumGrideService = IoC.create('components/curriculum-gride/service');
+        return CurriculumGrideService.removeByCourse({ courseId: _.get(oldCourse, '_id') });
+      }],
+      removeCourse: ['removeCurriculumGrides', 'oldCourse', async ({ oldCourse: { _id } }) => CourseRepository.removeById({ _id })],
       updateCoordinator: ['oldCourse', 'removeCourse', async ({ oldCourse: { coordinator, _id } }) => PersonService.removeCourse({
         coordinator,
         courseId: _id,

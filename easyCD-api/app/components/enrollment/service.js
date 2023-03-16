@@ -21,6 +21,7 @@ exports = module.exports = function initService(
     validateStudent,
     findOneByClassroomAndStudent,
     findAll,
+    removeByClassroom,
   };
 
   async function create(enrollment) {
@@ -220,6 +221,13 @@ exports = module.exports = function initService(
 
   async function findAll({ filters }) {
     return EnrollmentRepository.findAll({ filters });
+  }
+
+  async function removeByClassroom({ classroomId }) {
+    const subjects = await EnrollmentRepository.findAll({
+      filters: { classroom: classroomId },
+    });
+    return async.eachSeries(subjects, remove);
   }
 };
 
