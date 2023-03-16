@@ -159,7 +159,7 @@ function Courses () {
 
   const renderCoursesTable = () => {
     return (
-      <div>
+      <div className="table_container">
         <Spin spinning={isLoading}>
           <Table dataSource={courses} columns={columns} pagination={false} bordered={true} size="large"/>
         </Spin>

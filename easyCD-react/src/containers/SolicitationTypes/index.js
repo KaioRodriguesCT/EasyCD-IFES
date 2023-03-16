@@ -166,7 +166,7 @@ function SolicitationTypes () {
 
   const renderTable = () => {
     return (
-      <div>
+      <div className="table_container">
         <Spin spinning={isLoading}>
           <Table
             dataSource={solicitationTypes}

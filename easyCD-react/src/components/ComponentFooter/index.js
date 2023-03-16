@@ -10,8 +10,7 @@ function ComponentFooter () {
   return (
     <div className="component_footer">
       <Space direction="vertical">
-        <span>@Copyright SynMcall</span>
-        <span>All rights reserved.</span>
+        <span>@Copyright SynMcall. All rights reserved.</span>
       </Space>
     </div>
   );

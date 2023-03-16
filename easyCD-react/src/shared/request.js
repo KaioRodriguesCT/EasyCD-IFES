@@ -92,7 +92,7 @@ const request = async (path, options) => {
 
       //Then try the request again
 
-      return request(path, options);
+      return await request(path, options);
     } catch (e) {
       throw createError(json);
     }

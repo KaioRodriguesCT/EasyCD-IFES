@@ -139,7 +139,7 @@ function People () {
 
   const renderTable = () => {
     return (
-      <div>
+      <div className="table_container">
         <Spin spinning={isLoading === true}>
           <Table
             columns={columns}
