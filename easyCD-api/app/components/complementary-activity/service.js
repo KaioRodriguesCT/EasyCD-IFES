@@ -21,6 +21,7 @@ exports = module.exports = function initService(
     validateStudent,
     validateComplementaryActivityType,
     findAll,
+    removeByType,
   };
 
   async function findAll({ filters }) {
@@ -179,6 +180,13 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Activity Type not found`, 404);
     }
     return complementaryActivityType;
+  }
+
+  async function removeByType({ typeId }) {
+    const activities = await ComplementaryActivityRepository.findAll({
+      filters: { complementaryActivityType: typeId },
+    });
+    return async.eachSeries(activities, remove);
   }
 };
 exports['@singleton'] = true;

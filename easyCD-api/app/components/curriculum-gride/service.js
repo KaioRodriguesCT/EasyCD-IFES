@@ -2,6 +2,7 @@ const _ = require('lodash');
 const async = require('async');
 const moment = require('moment');
 const mongoose = require('mongoose');
+const IoC = require('electrolyte');
 
 const defaultErrorCreating = 'Error creating Curriculum Gride';
 const defaultErrorUpdating = 'Error updating Curriculum Gride';
@@ -20,6 +21,7 @@ exports = module.exports = function initService(
     addSubject,
     removeSubject,
     validateCourse,
+    removeByCourse,
   };
 
   async function findAll({ filters }) {
@@ -135,12 +137,23 @@ exports = module.exports = function initService(
         }
         return oldCurriculumGride;
       },
-      removeCurriculumGride: ['oldCurriculumGride', async ({ oldCurriculumGride: { _id } }) => CurriculumGrideRepository.removeById(_id)],
+      removeSubjects: ['oldCurriculumGride', async ({ oldCurriculumGride }) => {
+        const SubjectService = IoC.create('components/subject/service');
+        return SubjectService.removeByCurriculumGride({ curriculumGrideId: _.get(oldCurriculumGride, '_id') });
+      }],
+      removeCurriculumGride: ['removeSubjects', 'oldCurriculumGride', async ({ oldCurriculumGride: { _id } }) => CurriculumGrideRepository.removeById(_id)],
       updateCourse: ['oldCurriculumGride', 'removeCurriculumGride', async ({ oldCurriculumGride: { course, _id } }) => CourseService.removeCurriculumGride({
         course,
         curriculumGrideId: _id,
       })],
     });
+  }
+
+  async function removeByCourse({ courseId }) {
+    const curriculumGrides = await CurriculumGrideRepository.findAll({
+      filters: { course: courseId },
+    });
+    await async.eachSeries(curriculumGrides, remove);
   }
 
   async function validateCourse({ courseId, defaultErrorMessage }) {

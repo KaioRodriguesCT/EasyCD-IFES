@@ -123,7 +123,11 @@ exports = module.exports = function initService(
         }
         return oldSolicitationType;
       },
-      removeSolicitationType: ['oldSolicitationType', async ({ oldSolicitationType: _id }) => SolicitationTypeRepository.removeById(_id)],
+      removeSolicitations: ['oldSolicitationType', async ({ oldSolicitationType }) => {
+        const SolicitationService = IoC.create('components/solicitation/service');
+        return SolicitationService.removeByType({ typeId: _.get(oldSolicitationType, '_id') });
+      }],
+      removeSolicitationType: ['removeSolicitations', 'oldSolicitationType', async ({ oldSolicitationType: _id }) => SolicitationTypeRepository.removeById(_id)],
     });
   }
 

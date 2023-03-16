@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
+const IoC = require('electrolyte');
 
 const defaultErrorCreating = 'Error creating Subject';
 const defaultErrorUpdating = 'Error updating Subject';
@@ -20,6 +21,7 @@ exports = module.exports = function initService(
     findById,
     findAll,
     validateCurriculumGride,
+    removeByCurriculumGride,
   };
 
   async function findAll({ filters }) {
@@ -134,7 +136,11 @@ exports = module.exports = function initService(
         }
         return oldSubject;
       },
-      removeSubject: ['oldSubject', async ({ oldSubject: { _id } }) => SubjectRepository.removeById(_id)],
+      removeClassrooms: ['oldSubject', async ({ oldSubject }) => {
+        const ClassroomService = IoC.create('components/classroom/service');
+        return ClassroomService.removeBySubject({ subjectId: _.get(oldSubject, '_id') });
+      }],
+      removeSubject: ['removeClassrooms', 'oldSubject', async ({ oldSubject: { _id } }) => SubjectRepository.removeById(_id)],
       updateCurriculumGride: ['oldSubject', 'removeSubject', async ({ oldSubject: { curriculumGride, _id } }) => CurriculumGrideService.removeSubject({
         curriculumGride,
         subjectId: _id,
@@ -218,6 +224,13 @@ exports = module.exports = function initService(
       }],
     });
     return updatedSubject;
+  }
+
+  async function removeByCurriculumGride({ curriculumGrideId }) {
+    const subjects = await SubjectRepository.findAll({
+      filtelrs: { curriculumGride: curriculumGrideId },
+    });
+    return async.eachSeries(subjects, remove);
   }
 };
 

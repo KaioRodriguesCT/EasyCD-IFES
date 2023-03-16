@@ -2,6 +2,7 @@ const _ = require('lodash');
 const async = require('async');
 const mongoose = require('mongoose');
 const moment = require('moment');
+const IoC = require('electrolyte');
 
 const defaultErrorCreating = 'Error creating Classroom';
 const defaultErrorUpdating = 'Error updating Classroom';
@@ -25,6 +26,7 @@ exports = module.exports = function initService(
     validateSubject,
     validateTeacher,
     getClassroomTeacherAndCoordinator,
+    removeBySubject,
   };
 
   async function findAll({ filters }) {
@@ -179,7 +181,11 @@ exports = module.exports = function initService(
         }
         return oldClassroom;
       },
-      removeClassroom: ['oldClassroom', async ({ oldClassroom: { _id } }) => ClassroomRepository.removeById(_id)],
+      removeEnrollments: ['oldClassroom', async ({ oldClassroom }) => {
+        const EnrollmentService = IoC.create('components/enrollment/service');
+        return EnrollmentService.removeByClassroom({ classroomId: _.get(oldClassroom, '_id') });
+      }],
+      removeClassroom: ['removeEnrollments', 'oldClassroom', async ({ oldClassroom: { _id } }) => ClassroomRepository.removeById(_id)],
       updateSubject: ['oldClassroom', 'removeClassroom', async ({ oldClassroom: { subject, _id } }) => SubjectService.removeClassroom({
         subject,
         classroomId: _id,
@@ -355,6 +361,13 @@ exports = module.exports = function initService(
     const classTimes = _.get(classroom, 'classTimes');
     const classDays = _.map(classTimes, (classTime) => moment().weekday(classTime.day).format('dddd'));
     return `${_.get(subject, 'name')} - ${_.join(classDays, ' - ')}`;
+  }
+
+  async function removeBySubject({ subjectId }) {
+    const classrooms = await ClassroomRepository.findAll({
+      filters: { subject: subjectId },
+    });
+    return async.eachSeries(classrooms, remove);
   }
 };
 exports['@singleton'] = true;
