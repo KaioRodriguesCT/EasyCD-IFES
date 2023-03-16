@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const async = require('async');
+const IoC = require('electrolyte');
 
 const defaultErrorCreating = 'Error creating Complementary Activity Type';
 const defaultErrorUpdating = 'Error updating Complementary Activity Type';
@@ -85,6 +86,10 @@ exports = module.exports = function initService(
         }
         return oldType;
       },
+      removeCA: ['oldType', async ({ oldType }) => {
+        const CAService = IoC.create('components/complementary-activity/service');
+        return CAService.removeByType({ typeId: _.get(oldType, '_id') });
+      }],
       removeType: ['oldType', async ({ oldType: { _id } }) => ComplementaryActivityTypeRepository.removeById(_id)],
     });
   }

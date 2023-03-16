@@ -20,6 +20,7 @@ exports = module.exports = function initService(
     validateStudent,
     validateSolicitationType,
     findAll,
+    removeByType,
   };
 
   async function findAll({ filters }) {
@@ -174,6 +175,14 @@ exports = module.exports = function initService(
       Utils.throwError(`${defaultErrorMessage}. Solicitation Type not found`, 404);
     }
     return solicitationType;
+  }
+
+  async function removeByType({ typeId }) {
+    const solicitations = await SolicitationRepository.findAll({
+      filters: { solicitationType: typeId },
+    });
+
+    return async.eachSeries(solicitations, remove);
   }
 };
 
