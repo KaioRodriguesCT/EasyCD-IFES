@@ -6,11 +6,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Card, Divider, Form, Space, Switch } from 'antd';
 
 //Actions
+import { actions as courseActions } from '@redux/courses';
+import { actions as classroomsActions } from '@redux/classrooms';
+import { actions as caTypeAction } from '@redux/complementary-activity-types';
 import { actions as stActions } from '@redux/solicitation-types';
 import { actions as peopleActions } from '@redux/people';
 import { actions as solicitationActions } from '@redux/solicitations';
 
-///Lodash
 //Lodash
 import clone from 'lodash/clone';
 import find from 'lodash/find';
@@ -32,6 +34,11 @@ function UpdateForm ({ closeModal, solicitation }) {
 
   //Redux state
   const solicitationTypes = useSelector((state) => state.solicitationTypes.solicitationTypes);
+  const classrooms = useSelector((state) => state.classrooms.classrooms);
+  const courses = useSelector((state) => state.courses.courses);
+  const caTypes = useSelector(
+    (state) => state.complementaryActivityTypes.complementaryActivityTypes
+  );
   const students = useSelector((state) => state.people.peopleSlim);
 
   //Local state
@@ -41,6 +48,9 @@ function UpdateForm ({ closeModal, solicitation }) {
   useEffect(() => {
     dispatch(stActions.listSolicitationTypes());
     dispatch(peopleActions.listSlimPeopleByRole({ role: 'student' }));
+    dispatch(courseActions.listCourses());
+    dispatch(classroomsActions.listClassrooms());
+    dispatch(caTypeAction.listCaTypes());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -69,14 +79,17 @@ function UpdateForm ({ closeModal, solicitation }) {
     actualSolicitation.meta = value;
     setNewSolicitation(actualSolicitation);
   };
-  const handleSwitch  = (field) => handleSwitchChange(newSolicitation, setNewSolicitation, field);
+  const handleSwitch = (field) => handleSwitchChange(newSolicitation, setNewSolicitation, field);
 
   //Renders
   const renderForm = () => {
     return (
       <Card title="Solicitation - Update Form">
         <Form form={form} layout="vertical" onFinish={onFormSubmit} initialValues={solicitation}>
-          <Form.Item valuePropName="defaultValue" name="solicitationType" label="Solicitation Type:">
+          <Form.Item
+            valuePropName="defaultValue"
+            name="solicitationType"
+            label="Solicitation Type:">
             <ComponentSelect
               data={solicitationTypes}
               onChange={handleSelectChangeLocal('solicitationType')}
@@ -99,16 +112,14 @@ function UpdateForm ({ closeModal, solicitation }) {
             />
           </Form.Item>
           <Form.Item name="status" label="Status:" valuePropName="defaultValue">
-            <StatusSelect
-              onChange={handleSelectChangeLocal('status')}
-            />
+            <StatusSelect onChange={handleSelectChangeLocal('status')} />
           </Form.Item>
           <Space direction="horizontal" size="large">
             <Form.Item name="teacherApproval" label="T. Approval:" valuePropName="checked">
-              <Switch onChange={handleSwitch('teacherApproval')}/>
+              <Switch onChange={handleSwitch('teacherApproval')} />
             </Form.Item>
             <Form.Item name="coordinatorApproval" label="C. Approval:" valuePropName="checked">
-              <Switch onChange={handleSwitch('coordinatorApproval')}/>
+              <Switch onChange={handleSwitch('coordinatorApproval')} />
             </Form.Item>
           </Space>
           <Divider>Solicitation Inputs</Divider>
@@ -118,6 +129,9 @@ function UpdateForm ({ closeModal, solicitation }) {
               solicitationType={find(solicitationTypes, {
                 _id: get(newSolicitation, 'solicitationType')
               })}
+              activityTypes={caTypes}
+              classrooms={classrooms}
+              courses={courses}
             />
           </Form.Item>
           {FormActionButtons({ onCancel })}

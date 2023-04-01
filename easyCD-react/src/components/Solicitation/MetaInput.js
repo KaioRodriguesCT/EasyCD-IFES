@@ -1,23 +1,26 @@
 //React
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 //Antd
-import {  UploadOutlined } from '@ant-design/icons';
-import { Button, Input, InputNumber, Space, Switch, Upload } from 'antd';
+import { Space } from 'antd';
 
 //Lodash
 import get from 'lodash/get';
-import map from 'lodash/map';
 import clone from 'lodash/clone';
 
 //Handlers
-import {
-  handleInputChange,
-  handleInputNumberChange,
-  handleSwitchChange
-} from '@src/shared/handlers';
+import EnrollmentChangeSolicitiationInputs from './EnrollmentChangeSolicitiationInputs';
+import EnrollmentSolicitationInputs from './EnrollmentSolicitationInputs';
+import ActivitySolicitationInputs from './ActivitySolicitationInputs';
 
-function MetaInput ({ solicitationType, defaultValue, onChange }) {
+function MetaInput ({
+  solicitationType,
+  defaultValue,
+  onChange,
+  courses,
+  classrooms,
+  activityTypes
+}) {
   const [meta, setMeta] = useState(defaultValue);
 
   //Hooks
@@ -27,75 +30,44 @@ function MetaInput ({ solicitationType, defaultValue, onChange }) {
   }, [meta]);
 
   //Handlers
-  const handleInputChangeLocal = (field) => handleInputChange(meta, setMeta, field);
-  const handleNumberChangeLocal = (field) => handleInputNumberChange(meta, setMeta, field);
-
-  const getInput = useCallback(
-    (field) => {
-      switch (field.type) {
-        case 'String':
-        case 'ObjectId':
-          return (
-            <Input
-              type="text"
-              defaultValue={get(meta, field.name)}
-              onChange={handleInputChangeLocal(field.name)}
-            />
-          );
-        case 'Number':
-          return (
-            <InputNumber
-              defaultValue={get(meta, field.name)}
-              onChange={handleNumberChangeLocal(field.name)}
-            />
-          );
-        case 'Boolean':
-          return (
-            <Switch
-              checked={get(meta, field.name)}
-              onChange={handleSwitchChange(meta, setMeta, field.name)}
-            />
-          );
-        case 'Buffer':
-          return (
-            <Upload
-              maxCount={1}
-              beforeUpload={(file) => {
-                const fReader = new FileReader();
-                fReader.readAsDataURL(file);
-                fReader.onload = () => {
-                  const actualMeta = clone(meta) || {};
-                  actualMeta[ field.name ] = fReader.result;
-                  setMeta(actualMeta);
-                };
-                return false;
-              }}
-            >
-              <Button icon={<UploadOutlined />}/>
-            </Upload>
-          );
-        default:
-          return null;
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [meta]
-  );
+  const handleMetaChange = (field) => (value) => {
+    const actualMeta = clone(meta) || {};
+    actualMeta[ field ] = value;
+    setMeta(actualMeta);
+  };
 
   //Renders
   const renderSolicitationTypeInputs = () => {
-    if (!solicitationType) {
-      return null;
+    const sTypeName = get(solicitationType, 'name');
+    switch (sTypeName) {
+      case 'Enrollment Change':
+        return (
+          <EnrollmentChangeSolicitiationInputs
+            classrooms={classrooms}
+            meta={meta}
+            handleMetaChange={handleMetaChange}
+          />
+        );
+      case 'Enrollment':
+        return (
+          <EnrollmentSolicitationInputs
+            classrooms={classrooms}
+            handleMetaChange={handleMetaChange}
+            meta={meta}
+          />
+        );
+      case 'Complementary Activity':
+        return (
+          <ActivitySolicitationInputs
+            activityTypes={activityTypes}
+            courses={courses}
+            meta={meta}
+            handleMetaChange={handleMetaChange}
+          />
+        );
+      default:
+        return null;
     }
-    return map(solicitationType.fieldsStructure, (field) => {
-      const input = getInput(field);
-      return (
-        <Space direction="horizontal">
-          {`${ field.label }:`} {input}
-        </Space>
-      );
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   return (

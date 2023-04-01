@@ -100,7 +100,7 @@ function Solicitations () {
         dataIndex: 'isProcessed'
       }),
       //Meta(),
-      Actions({ onDeleteClick, onEditClick })
+      Actions({ onDeleteClick, onEditClick, showEditFn: (record) => !record.isProcessed })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [peopleSlim, solicitationTypes]

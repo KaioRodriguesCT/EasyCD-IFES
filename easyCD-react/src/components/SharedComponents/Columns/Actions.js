@@ -5,15 +5,25 @@ import React from 'react';
 import { Button, Space } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
-function Actions ({ onEditClick, onDeleteClick, showDelete = true, showEdit = true }) {
+//Lodash
+import isFunction from 'lodash/isFunction';
+
+function Actions ({
+  onEditClick,
+  onDeleteClick,
+  showDelete = true,
+  showEdit = true,
+  showEditFn = null
+}) {
   return {
     title: 'Actions',
     dataIndex: 'actions',
     width: '10%',
     render: (_, record) => {
+      const showEditByFn = isFunction(showEditFn) ? showEditFn(record) : true;
       return (
         <Space direction="horizontal">
-          {showEdit ? (
+          {showEdit && showEditByFn ? (
             <Button type="primary" icon={<EditOutlined />} onClick={() => onEditClick(record)} />
           ) : null}
           {showDelete ? (

@@ -6,6 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Card, Divider, Form } from 'antd';
 
 //Actions
+import { actions as courseActions } from '@redux/courses';
+import { actions as classroomsActions } from '@redux/classrooms';
+import { actions as caTypeAction } from '@redux/complementary-activity-types';
 import { actions as stActions } from '@redux/solicitation-types';
 import { actions as peopleActions } from '@redux/people';
 import { actions as solicitationActions } from '@redux/solicitations';
@@ -30,6 +33,11 @@ function CreateForm ({ closeModal }) {
 
   //Redux state
   const solicitationTypes = useSelector((state) => state.solicitationTypes.solicitationTypes);
+  const classrooms = useSelector((state) => state.classrooms.classrooms);
+  const courses = useSelector((state) => state.courses.courses);
+  const caTypes = useSelector(
+    (state) => state.complementaryActivityTypes.complementaryActivityTypes
+  );
   const students = useSelector((state) => state.people.peopleSlim);
 
   //Local state
@@ -39,6 +47,10 @@ function CreateForm ({ closeModal }) {
   useEffect(() => {
     dispatch(stActions.listSolicitationTypes());
     dispatch(peopleActions.listSlimPeopleByRole({ role: 'student' }));
+    dispatch(courseActions.listCourses());
+    dispatch(classroomsActions.listClassrooms());
+    dispatch(caTypeAction.listCaTypes());
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -102,6 +114,9 @@ function CreateForm ({ closeModal }) {
               solicitationType={find(solicitationTypes, {
                 _id: get(newSolicitation, 'solicitationType')
               })}
+              activityTypes={caTypes}
+              classrooms={classrooms}
+              courses={courses}
             />
           </Form.Item>
           {FormActionButtons({ onCancel })}

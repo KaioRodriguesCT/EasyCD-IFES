@@ -241,7 +241,7 @@ exports = module.exports = function initService(
     if (_.isNil(course) || !mongoose.isValidObjectId(course)) {
       Utils.throwError(`${defaultErrorMessage}. Course not sent or not a valid ID`, 400);
     }
-    if (_.isNil(quantity) || !_.isNumber(quantity)) {
+    if (_.isNil(quantity)) {
       Utils.throwError(`${defaultErrorMessage}. Quantity not sent or not a valid number`, 400);
     }
     return true;
