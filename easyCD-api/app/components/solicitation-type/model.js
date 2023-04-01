@@ -33,6 +33,10 @@ exports = module.exports = function initModel(mongo) {
             type: String,
             required: true,
           },
+          label: {
+            type: String,
+            required: true,
+          },
           type: {
             type: String,
             required: true,

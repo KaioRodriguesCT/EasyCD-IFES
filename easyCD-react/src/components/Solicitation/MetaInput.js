@@ -2,11 +2,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 //Antd
-import { Input, InputNumber, Space, Switch } from 'antd';
+import {  UploadOutlined } from '@ant-design/icons';
+import { Button, Input, InputNumber, Space, Switch, Upload } from 'antd';
 
 //Lodash
 import get from 'lodash/get';
 import map from 'lodash/map';
+import clone from 'lodash/clone';
 
 //Handlers
 import {
@@ -56,10 +58,21 @@ function MetaInput ({ solicitationType, defaultValue, onChange }) {
           );
         case 'Buffer':
           return (
-            <Input.TextArea
-              defaultValue={get(meta, field.name)}
-              onChange={handleInputChangeLocal(field.name)}
-            />
+            <Upload
+              maxCount={1}
+              beforeUpload={(file) => {
+                const fReader = new FileReader();
+                fReader.readAsDataURL(file);
+                fReader.onload = () => {
+                  const actualMeta = clone(meta) || {};
+                  actualMeta[ field.name ] = fReader.result;
+                  setMeta(actualMeta);
+                };
+                return false;
+              }}
+            >
+              <Button icon={<UploadOutlined />}/>
+            </Upload>
           );
         default:
           return null;
@@ -78,7 +91,7 @@ function MetaInput ({ solicitationType, defaultValue, onChange }) {
       const input = getInput(field);
       return (
         <Space direction="horizontal">
-          {`${ field.name }:`} {input}
+          {`${ field.label }:`} {input}
         </Space>
       );
     });

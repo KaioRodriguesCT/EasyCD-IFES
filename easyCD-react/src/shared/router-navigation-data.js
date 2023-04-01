@@ -1,5 +1,5 @@
 //Antd
-import { AuditOutlined, ContainerOutlined, ExperimentOutlined, FileDoneOutlined, FireOutlined, HddOutlined, IdcardOutlined, ReadOutlined, TagOutlined, TeamOutlined } from '@ant-design/icons';
+import { AuditOutlined, ContainerOutlined, ExperimentOutlined, FileDoneOutlined, FireOutlined, HddOutlined, HomeOutlined, IdcardOutlined, ReadOutlined, TagOutlined, TeamOutlined } from '@ant-design/icons';
 
 //Components
 import Courses from '@src/containers/Courses';
@@ -14,6 +14,7 @@ import SolicitationTypes from '@src/containers/SolicitationTypes';
 import Solicitations from '@src/containers/Solicitations';
 import ComplementaryActivityType from '@src/containers/ComplementaryActivityType';
 import ComplementaryActivity from '@src/containers/ComplementaryActivity';
+import Home from '@src/containers/Home';
 
 /*Expected object on array of routes:
   {
@@ -45,6 +46,14 @@ export const unloggedRoutes = [
 
 //The logged routes will share the nav bar layout
 export const loggedRoutes = [
+  {
+    path: '/',
+    key: 'home',
+    label: 'Home',
+    element: <Home />,
+    icon: <HomeOutlined />,
+    roles: []
+  },
   {
     path: '/courses',
     key: 'courses-list',
