@@ -410,7 +410,7 @@ exports = module.exports = function initService(
             creatingActivity: async () => ComplementaryActivityService.create({ ...newComplementaryActivity, status: 'Accepted' }),
             updateSolicitation: ['creatingActivity', async () => {
               const SolicitationService = IoC.create('components/solicitation/service');
-              return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
+              return SolicitationService.update({ _id: solicitation._id, isProcessed: true, status: 'Deferred' });
             }],
           });
         }
@@ -419,7 +419,7 @@ exports = module.exports = function initService(
             creatingActivity: async () => ComplementaryActivityService.create({ ...newComplementaryActivity, status: 'Rejected' }),
             updateSolicitation: ['creatingActivity', async () => {
               const SolicitationService = IoC.create('components/solicitation/service');
-              return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
+              return SolicitationService.update({ _id: solicitation._id, isProcessed: true, status: 'Undeferred' });
             }],
           });
         }
