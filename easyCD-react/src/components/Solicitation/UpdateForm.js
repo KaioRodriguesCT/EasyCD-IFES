@@ -80,8 +80,6 @@ function UpdateForm ({ closeModal, solicitation }) {
     setNewSolicitation(actualSolicitation);
   };
 
-  console.log(newSolicitation);
-
   //Renders
   const renderForm = () => {
     return (

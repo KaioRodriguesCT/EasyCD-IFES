@@ -47,6 +47,7 @@ function ActivitySolicitationInputs ({ activityTypes, courses, handleMetaChange,
         <Space direction="horizontal" size="large">
           Evidence:
           <Upload
+            accept="image/*,.pdf, .csv, .doc, .docx"
             maxCount={1}
             beforeUpload={(file) => {
               const fReader = new FileReader();
