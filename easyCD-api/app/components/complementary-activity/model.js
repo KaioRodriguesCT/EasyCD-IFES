@@ -33,7 +33,7 @@ exports = module.exports = function initModel(mongo) {
         type: String,
       },
       evidence: {
-        type: Buffer,
+        type: String,
         required: true,
       },
       quantity: {

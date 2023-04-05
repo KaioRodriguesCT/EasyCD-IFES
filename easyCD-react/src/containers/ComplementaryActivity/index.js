@@ -27,6 +27,7 @@ import Course from '@src/components/ComplementaryActivity/Columns/Course';
 import IntegerColumn from '@src/components/SharedComponents/Columns/IntegerColumn';
 import Status from '@src/components/ComplementaryActivity/Columns/Status';
 import Actions from '@src/components/SharedComponents/Columns/Actions';
+import Evidence from '@src/components/ComplementaryActivity/Columns/Evidence';
 
 // eslint-disable-next-line max-statements
 function ComplementaryActivity () {
@@ -83,6 +84,7 @@ function ComplementaryActivity () {
       title:'Qty',
       dataIndex:'quantity'
     }),
+    Evidence(),
     Actions({ onDeleteClick, showEdit: false })
 
   ], [complementaryActivityTypes, courses, onDeleteClick, students]);
