@@ -4,13 +4,13 @@ import get from 'lodash/get';
 
 const handleInputChange = (state, setState, field) => (value) => {
   const newState = clone(state) || {};
-  newState[ field ] = get(value, 'target.value') || null;
+  newState[ field ] = get(value, 'target.value');
   setState(newState);
 };
 
 const handleInputNumberChange = (state, setState, field) => (value) => {
   const newState = clone(state) || {};
-  newState[ field ] = value || null;
+  newState[ field ] = value;
   setState(newState);
 };
 

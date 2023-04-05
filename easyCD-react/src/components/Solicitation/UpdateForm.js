@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 //Antd
-import { Card, Divider, Form, Space, Switch } from 'antd';
+import { Card, Divider, Form, Radio, Space } from 'antd';
 
 //Actions
 import { actions as courseActions } from '@redux/courses';
@@ -20,7 +20,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 //Handlers
-import { handleSelectChange, handleSwitchChange } from '@src/shared/handlers';
+import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
 
 //Components
 import ComponentSelect from '../SharedComponents/ComponentSelect';
@@ -79,7 +79,8 @@ function UpdateForm ({ closeModal, solicitation }) {
     actualSolicitation.meta = value;
     setNewSolicitation(actualSolicitation);
   };
-  const handleSwitch = (field) => handleSwitchChange(newSolicitation, setNewSolicitation, field);
+
+  console.log(newSolicitation);
 
   //Renders
   const renderForm = () => {
@@ -89,7 +90,8 @@ function UpdateForm ({ closeModal, solicitation }) {
           <Form.Item
             valuePropName="defaultValue"
             name="solicitationType"
-            label="Solicitation Type:">
+            label="Solicitation Type:"
+          >
             <ComponentSelect
               data={solicitationTypes}
               onChange={handleSelectChangeLocal('solicitationType')}
@@ -115,11 +117,25 @@ function UpdateForm ({ closeModal, solicitation }) {
             <StatusSelect onChange={handleSelectChangeLocal('status')} />
           </Form.Item>
           <Space direction="horizontal" size="large">
-            <Form.Item name="teacherApproval" label="T. Approval:" valuePropName="checked">
-              <Switch onChange={handleSwitch('teacherApproval')} />
+            <Form.Item name="teacherApproval" label="T. Approval:">
+              <Radio.Group
+                onChange={handleInputChange(newSolicitation, setNewSolicitation, 'teacherApproval')}
+              >
+                <Radio value={true}>Approved</Radio>
+                <Radio value={false}>Rejected</Radio>
+              </Radio.Group>
             </Form.Item>
-            <Form.Item name="coordinatorApproval" label="C. Approval:" valuePropName="checked">
-              <Switch onChange={handleSwitch('coordinatorApproval')} />
+            <Form.Item name="coordinatorApproval" label="C. Approval:">
+              <Radio.Group
+                onChange={handleInputChange(
+                  newSolicitation,
+                  setNewSolicitation,
+                  'coordinatorApproval'
+                )}
+              >
+                <Radio value={true}>Approved</Radio>
+                <Radio value={false}>Rejected</Radio>
+              </Radio.Group>
             </Form.Item>
           </Space>
           <Divider>Solicitation Inputs</Divider>

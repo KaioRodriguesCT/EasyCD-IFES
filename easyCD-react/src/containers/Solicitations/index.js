@@ -30,6 +30,8 @@ import ComponentHeader from '@src/components/ComponentHeader';
 import CreateForm from '@src/components/Solicitation/CreateForm';
 import Actions from '@src/components/SharedComponents/Columns/Actions';
 import UpdateForm from '@src/components/Solicitation/UpdateForm';
+import TeacherApproval from '@src/components/Solicitation/Columns/TeacherApproval';
+import CoordinatorApproval from '@src/components/Solicitation/Columns/CoordinatorApproval';
 
 // eslint-disable-next-line max-statements
 function Solicitations () {
@@ -85,15 +87,9 @@ function Solicitations () {
       SolicitationType({ solicitationTypes }),
       Status(),
       Student({ students: peopleSlim }),
-      BooleanColumn({
-        title: 'T. Approval',
-        dataIndex: 'teacherApproval'
-      }),
+      TeacherApproval(),
       TeacherNotes(),
-      BooleanColumn({
-        title: 'C. Approval',
-        dataIndex: 'coordinatorApproval'
-      }),
+      CoordinatorApproval(),
       CoordinatorNotes(),
       BooleanColumn({
         title: 'Processed',
@@ -127,7 +123,8 @@ function Solicitations () {
         onCancel={() => setIsCreateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
+        destroyOnClose={true}
+      >
         <CreateForm closeModal={() => setIsCreateModalVisible(false)} />
       </Modal>
     );
@@ -140,7 +137,8 @@ function Solicitations () {
         onCancel={() => setIsUpdateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
+        destroyOnClose={true}
+      >
         <UpdateForm
           closeModal={() => setIsUpdateModalVisible(false)}
           solicitation={solicitationBeingUpdated}
