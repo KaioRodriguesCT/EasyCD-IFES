@@ -3,6 +3,7 @@ import qs from 'qs';
 
 // Lodash
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import isString from 'lodash/isString';
 import isObject from 'lodash/isObject';
 
@@ -30,7 +31,7 @@ function getHeaders (options) {
 
   //If user logged in, use access token
   const authentication = getAuthentication();
-  if(authentication){
+  if (authentication) {
     headers[ 'Authentication' ] = `JWT ${ authentication }`;
   }
 
@@ -58,7 +59,7 @@ function getPath (path, options) {
     encode: options.encode || false,
     arrayFormat: 'comma'
   });
-  return path + queryString ;
+  return path + queryString;
 }
 
 // All get request need to have query prop
@@ -84,9 +85,9 @@ const request = async (path, options) => {
       }
 
       //Try re-authenticate the user
-      const { user } = await refreshSession({ refreshToken });
-      if(!user){
-        return store.dispatch({ type:authConstants.USER_LOGOUT.REQUEST });
+      const { user } = await debouceRefreshSession({ refreshToken });
+      if (!user) {
+        return store.dispatch({ type: authConstants.USER_LOGOUT.REQUEST });
       }
       updateUserInState(user);
 
@@ -145,6 +146,11 @@ const refreshSession = async ({ refreshToken }) => {
 
   return jsonBody(refreshedUer);
 };
+
+const debouceRefreshSession = debounce(refreshSession, 1000, {
+  leading: true,
+  trailing: false
+});
 
 const updateUserInState = (user) => {
   return store.dispatch({

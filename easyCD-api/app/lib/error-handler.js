@@ -46,6 +46,10 @@ exports = module.exports = function errorHandlerMiddleware() {
   }
 
   function getErrorMessage(error) {
+    if (error.message) {
+      return error.message;
+    }
+
     if (error.stack) {
       return error.stack;
     }

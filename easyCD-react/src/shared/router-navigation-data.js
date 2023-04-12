@@ -1,5 +1,18 @@
 //Antd
-import { AuditOutlined, ContainerOutlined, ExperimentOutlined, FileDoneOutlined, FireOutlined, HddOutlined, HomeOutlined, IdcardOutlined, ReadOutlined, TagOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+  AuditOutlined,
+  ContainerOutlined,
+  ExperimentOutlined,
+  FileDoneOutlined,
+  FireOutlined,
+  HddOutlined,
+  HomeOutlined,
+  IdcardOutlined,
+  ReadOutlined,
+  TagOutlined,
+  TeamOutlined,
+  UserOutlined
+} from '@ant-design/icons';
 
 //Components
 import Courses from '@src/containers/Courses';
@@ -52,7 +65,15 @@ export const loggedRoutes = [
     label: 'Home',
     element: <Home />,
     icon: <HomeOutlined />,
-    roles: []
+    roles: ['student', 'admin', 'teacher']
+  },
+  {
+    path: '/profile',
+    key: 'profile',
+    label: 'Profile',
+    element: null,
+    icon: <UserOutlined />,
+    roles: ['student', 'admin', 'teacher']
   },
   {
     path: '/courses',
@@ -122,7 +143,7 @@ export const loggedRoutes = [
     path: '/complementary-activity-types',
     key: 'complementary-activity-types',
     label: 'CA Types',
-    element: <ComplementaryActivityType/>,
+    element: <ComplementaryActivityType />,
     icon: <AuditOutlined />,
     roles: ['admin']
   },
@@ -130,8 +151,58 @@ export const loggedRoutes = [
     path: '/complementary-activities',
     key: 'complementary-activities',
     label: 'C. Activities',
-    element: <ComplementaryActivity/>,
+    element: <ComplementaryActivity />,
     icon: <FileDoneOutlined />,
     roles: ['admin']
+  },
+  //Students menu items
+  {
+    path: '/student/enrollments',
+    key: 'student-enrollments',
+    label: 'Enrollments',
+    element: null,
+    icon: <IdcardOutlined/>,
+    roles: ['student']
+  },
+  {
+    path: '/student/complementary-activities',
+    key: 'student-complementary-activities',
+    label: 'C. Activities',
+    element: null,
+    icon: <FileDoneOutlined/>,
+    roles: ['student']
+  },
+  {
+    path: '/student/solicitations',
+    key: 'student-solicitations',
+    label: 'Solicitations',
+    element: null,
+    icon: <FireOutlined/>,
+    roles: ['student']
+  },
+  //Teacher menu items
+  {
+    path: '/teacher/classrooms',
+    key: 'teacher-classrooms',
+    label: 'Classrooms',
+    element: null,
+    icon: <ContainerOutlined/>,
+    roles: ['teacher']
+  },
+  {
+    path: '/teacher/courses',
+    key: 'teacher-courses',
+    label: 'Courses',
+    element: null,
+    icon: <ExperimentOutlined/>,
+    roles: ['teacher']
+  },
+  {
+    path: '/teacher/solictations',
+    key: 'teacher-solictations',
+    label: 'Solicitations',
+    element: null,
+    icon: <FireOutlined/>,
+    roles: ['teacher']
   }
 ];

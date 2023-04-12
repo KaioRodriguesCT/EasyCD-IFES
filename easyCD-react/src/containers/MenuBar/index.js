@@ -52,7 +52,7 @@ function MenuBar ({ routerNavigationData }) {
   const buildMenuItem = useCallback(
     ({ key, roles, icon, label, noAuth }) => {
       const allowedToSeeMenuItem =
-        !noAuth && (includes(roles, get(user, 'role')) || isEqual(get(user, 'role'), 'admin'));
+        !noAuth && (includes(roles, get(user, 'role')) );
       if (allowedToSeeMenuItem) {
         return {
           key,
