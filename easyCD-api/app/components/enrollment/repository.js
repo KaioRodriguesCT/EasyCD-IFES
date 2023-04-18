@@ -11,6 +11,7 @@ exports = module.exports = function initRepository(
     findById,
     findOne,
     findAll,
+    aggregate,
   };
 
   async function findAll({ filters }) {
@@ -67,6 +68,10 @@ exports = module.exports = function initRepository(
       .findById(enrollmentId)
       .exec();
     return enrollment.delete();
+  }
+
+  async function aggregate(pipeline) {
+    return EnrollmentModel.aggregate(pipeline);
   }
 };
 

@@ -31,6 +31,12 @@ exports = module.exports = function initRouter(
   );
 
   router.get(
+    '/student-enrollments',
+    Policies.JWTLogged,
+    EnrollmentController.getStudentEnrollments,
+  );
+
+  router.get(
     '/',
     Policies.JWTTeacher,
     EnrollmentController.list,

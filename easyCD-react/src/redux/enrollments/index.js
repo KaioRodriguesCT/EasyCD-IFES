@@ -12,6 +12,7 @@ import EnrollmentCreate from './enrollment-create';
 import EnrollmentDelete from './enrollment-delete';
 import EnrollmentUpdate from './enrollment-update';
 import ListEnrollments from './list-enrollments';
+import GetStudentEnrollments from './get-student-enrollments';
 
 
 //Modules
@@ -19,7 +20,8 @@ const modules = [
   ListEnrollments,
   EnrollmentCreate,
   EnrollmentDelete,
-  EnrollmentUpdate
+  EnrollmentUpdate,
+  GetStudentEnrollments
 ];
 
 //Initial State

@@ -1,8 +1,11 @@
-function Semester (){
+import get from 'lodash/get';
+
+function Semester ({ dataIndex = 'semester' } = { dataIndex: 'semester' }){
   return {
     title:'Semester',
-    dataIndex: 'semester',
-    key:'semester'
+    dataIndex,
+    key:'semester',
+    render: (_, record) => get(record, dataIndex)
   };
 }
 export default Semester;

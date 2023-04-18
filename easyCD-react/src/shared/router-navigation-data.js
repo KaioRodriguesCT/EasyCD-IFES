@@ -29,6 +29,7 @@ import ComplementaryActivityType from '@src/containers/ComplementaryActivityType
 import ComplementaryActivity from '@src/containers/ComplementaryActivity';
 import Home from '@src/containers/Home';
 import Profile from '@src/containers/Profile';
+import StudentEnrollments from '@src/containers/Enrollments/StudentEnrollments';
 
 /*Expected object on array of routes:
   {
@@ -161,7 +162,7 @@ export const loggedRoutes = [
     path: '/student/enrollments',
     key: 'student-enrollments',
     label: 'Enrollments',
-    element: null,
+    element: <StudentEnrollments/>,
     icon: <IdcardOutlined/>,
     roles: ['student']
   },

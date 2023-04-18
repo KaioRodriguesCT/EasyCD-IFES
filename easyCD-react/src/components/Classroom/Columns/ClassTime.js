@@ -10,13 +10,13 @@ import map from 'lodash/map';
 
 import moment from 'moment';
 
-function ClassTimes (){
+function ClassTimes ({ dataIndex = 'classTimes' } = { dataIndex: 'classTimes' }){
   return {
     title:'Class Times',
-    dataIndex: 'classTimes',
+    dataIndex,
     key:'classTimes',
     render: (_, record) => {
-      const classTimes = get(record,'classTimes');
+      const classTimes = get(record, dataIndex);
       return (
         <>
           {map(classTimes, (classTime) => {

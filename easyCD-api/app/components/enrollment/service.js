@@ -6,6 +6,8 @@ const defaultErrorCreating = 'Error creating Enrollment';
 const defaultErrorUpdating = 'Error updating Enrollment';
 const defaultErrorRemoving = 'Error removing Enrollment';
 
+const { ObjectId } = mongoose.Types;
+
 exports = module.exports = function initService(
   EnrollmentRepository,
   PersonService,
@@ -22,6 +24,7 @@ exports = module.exports = function initService(
     findOneByClassroomAndStudent,
     findAll,
     removeByClassroom,
+    getStudentEnrollments,
   };
 
   async function create(enrollment) {
@@ -228,6 +231,102 @@ exports = module.exports = function initService(
       filters: { classroom: classroomId },
     });
     return async.eachSeries(subjects, remove);
+  }
+
+  async function getStudentEnrollments({ filters }) {
+    const pipeline = [
+      {
+        $match: {
+          student: new ObjectId(filters?.student),
+        },
+      },
+      {
+        $lookup: {
+          from: 'classrooms',
+          localField: 'classroom',
+          foreignField: '_id',
+          as: 'classroom',
+        },
+      },
+      {
+        $unwind: {
+          path: '$classroom',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'subjects',
+          localField: 'classroom.subject',
+          foreignField: '_id',
+          as: 'subject',
+        },
+      },
+      {
+        $unwind: {
+          path: '$subject',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'curriculumgrides',
+          localField: 'subject.curriculumGride',
+          foreignField: '_id',
+          as: 'curriculumGride',
+        },
+      },
+      {
+        $unwind: {
+          path: '$curriculumGride',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'curriculumGride.course',
+          foreignField: '_id',
+          as: 'course',
+        },
+      },
+      {
+        $unwind: {
+          path: '$course',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'classroom.teacher',
+          foreignField: '_id',
+          as: 'teacher',
+        },
+      },
+      {
+        $unwind: {
+          path: '$teacher',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'course.coordinator',
+          foreignField: '_id',
+          as: 'coordinator',
+        },
+      },
+      {
+        $unwind: {
+          path: '$coordinator',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+
+    return EnrollmentRepository.aggregate(pipeline);
   }
 };
 

@@ -173,7 +173,7 @@ function Profile () {
               ) : null}
               <Tooltip title="For update passowrd, confirm the previous password and the new one">
                 <Form.Item label="Old password" name="password">
-                  <Input
+                  <Input.Password
                     placeholder="Insert here your actual password"
                     onChange={handleInputChangeL('password', 'user')}
                   />
