@@ -29,7 +29,7 @@ exports = module.exports = function initController(
   async function update(req, res, next) {
     try {
       const { userId } = req.params;
-      const user = req.body;
+      const { user } = req.body;
       return await async.auto({
         updatedUser: async () => UserService.update({
           ...user,

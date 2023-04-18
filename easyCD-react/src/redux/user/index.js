@@ -10,9 +10,10 @@ import { createReducer } from '@shared/reducers';
 
 import UserCreate from './user-create';
 import ChangeField from './change-field';
+import UpdateUserAndPerson from './update-user-and-person';
 
 //Modules
-const modules = [UserCreate, ChangeField];
+const modules = [UserCreate, ChangeField, UpdateUserAndPerson];
 
 //Initial State
 export const initialState = {

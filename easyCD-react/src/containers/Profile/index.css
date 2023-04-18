@@ -1,0 +1,19 @@
+.ant-col .ant-form-item-label {
+  min-width: 100px;
+  text-align: left;
+}
+
+.ant-form-item .ant-form-item-label > label::after {
+  position: unset !important;
+}
+
+.ant-col {
+  position: unset !important;
+}
+
+.ant-form-item-label {
+  position: unset !important;
+}
+.ant-form-item .ant-form-item-label > label {
+  position: unset !important;
+}

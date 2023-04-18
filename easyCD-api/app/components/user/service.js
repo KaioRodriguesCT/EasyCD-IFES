@@ -83,7 +83,7 @@ exports = module.exports = function initService(
     const { updatedUser } = await async.auto({
       oldUser: async () => {
         const oldUser = await UserRepository
-          .findById(user._id);
+          .findById({ _id: user._id });
         if (!oldUser) {
           Utils.throwError(`${defaultErrorUpdating}. User not found`, 404);
         }
@@ -97,10 +97,10 @@ exports = module.exports = function initService(
         user,
         defaultErrorMessage: defaultErrorUpdating,
       }) : null)],
+      updatePerson: ['validateRole', 'validateUsername', 'oldUser', async () => (user.person ? PersonService.update(user.person) : null)],
       updatedUser: ['validateRole', 'validateUsername', 'oldUser', async ({ oldUser }) => {
         const updatableFields = {
           username: { allowEmpty: false },
-          password: { allowEmpty: false },
           role: { allowEmpty: false },
           siape: { allowEmpty: false },
           registration: { allowEmpty: false },
@@ -121,7 +121,20 @@ exports = module.exports = function initService(
           }
           oldUser[field] = currentValue;
         });
-        return UserRepository.update(oldUser);
+
+        if (user.newPassword) {
+          if (await bcryptjs.compare(user.password, oldUser.password)) {
+            oldUser.password = await bcryptjs.hash(_.get(user, 'newPassword'), 10);
+          } else {
+            Utils.throwError('Old password does not match, not allwoed to change the password');
+          }
+        }
+        const newUser = await UserRepository.update(oldUser);
+
+        return {
+          ...newUser,
+          person: await PersonService.findById({ _id: newUser.person }),
+        };
       }],
     });
     return updatedUser;
@@ -176,6 +189,7 @@ exports = module.exports = function initService(
         const accessToken = buildAccessToken(userFound);
         const refreshToken = buildRefreshToken(userFound);
         const updatedUser = await update({ _id, accessToken, refreshToken });
+        updatedUser.person = await PersonService.findById({ _id: updatedUser.person });
         return _.omit(updatedUser, 'password');
       }],
     });
@@ -221,16 +235,16 @@ exports = module.exports = function initService(
 
   // Internal Functions
   async function validateUsername({ user, defaultErrorMessage }) {
-    const { username } = user;
-    const exists = await existsUserWithUsername({ username });
+    const { username, _id } = user;
+    const exists = await existsUserWithUsername({ username, _id });
     if (exists) {
       Utils.throwError(`${defaultErrorMessage}. Username is already being used`, 400);
     }
     return true;
   }
 
-  async function existsUserWithUsername({ username }) {
-    return UserRepository.exists({ filters: { username } });
+  async function existsUserWithUsername({ username, _id }) {
+    return UserRepository.exists({ filters: { username, _id: { $ne: _id } } });
   }
 
   function checkRoleFields({ user, defaultErrorMessage }) {

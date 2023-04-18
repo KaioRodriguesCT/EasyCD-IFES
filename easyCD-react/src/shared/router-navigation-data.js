@@ -28,6 +28,7 @@ import Solicitations from '@src/containers/Solicitations';
 import ComplementaryActivityType from '@src/containers/ComplementaryActivityType';
 import ComplementaryActivity from '@src/containers/ComplementaryActivity';
 import Home from '@src/containers/Home';
+import Profile from '@src/containers/Profile';
 
 /*Expected object on array of routes:
   {
@@ -71,7 +72,7 @@ export const loggedRoutes = [
     path: '/profile',
     key: 'profile',
     label: 'Profile',
-    element: null,
+    element: <Profile/>,
     icon: <UserOutlined />,
     roles: ['student', 'admin', 'teacher']
   },
