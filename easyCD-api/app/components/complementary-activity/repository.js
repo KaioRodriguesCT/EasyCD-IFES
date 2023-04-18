@@ -11,6 +11,7 @@ exports = module.exports = function initRepository(
     removeById,
     findById,
     findAll,
+    aggregate,
   };
 
   async function findAll({ filters }) {
@@ -62,6 +63,10 @@ exports = module.exports = function initRepository(
       .findById(complementaryActivityId)
       .exec();
     return activity.delete();
+  }
+
+  async function aggregate(pipeline) {
+    return ComplementaryActivityModel.aggregate(pipeline);
   }
 };
 

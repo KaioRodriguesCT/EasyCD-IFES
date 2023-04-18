@@ -6,6 +6,8 @@ const defaultErrorCreating = 'Error creating Complementary Activity';
 const defaultErrorUpdating = 'Error updating Complementary Activity';
 const defaultErrorRemoving = 'Error removing Complementary Activity';
 
+const { ObjectId } = mongoose.Types;
+
 exports = module.exports = function initService(
   ComplementaryActivityRepository,
   ComplementaryActivityTypeService,
@@ -22,6 +24,7 @@ exports = module.exports = function initService(
     validateComplementaryActivityType,
     findAll,
     removeByType,
+    getStudentCActivities,
   };
 
   async function findAll({ filters }) {
@@ -187,6 +190,46 @@ exports = module.exports = function initService(
       filters: { complementaryActivityType: typeId },
     });
     return async.eachSeries(activities, remove);
+  }
+
+  async function getStudentCActivities({ filters }) {
+    const pipeline = [
+      {
+        $match: {
+          student: new ObjectId(filters?.student),
+        },
+      },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'course',
+          foreignField: '_id',
+          as: 'course',
+        },
+      },
+      {
+        $unwind: {
+          path: '$course',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'complementaryactivitytypes',
+          localField: 'complementaryActivityType',
+          foreignField: '_id',
+          as: 'type',
+        },
+      },
+      {
+        $unwind: {
+          path: '$type',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+
+    return ComplementaryActivityRepository.aggregate(pipeline);
   }
 };
 exports['@singleton'] = true;

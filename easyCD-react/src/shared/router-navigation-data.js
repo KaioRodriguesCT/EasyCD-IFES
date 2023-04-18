@@ -30,6 +30,7 @@ import ComplementaryActivity from '@src/containers/ComplementaryActivity';
 import Home from '@src/containers/Home';
 import Profile from '@src/containers/Profile';
 import StudentEnrollments from '@src/containers/Enrollments/StudentEnrollments';
+import StudentComplementaryActivity from '@src/containers/ComplementaryActivity/StudentComplementaryActivity';
 
 /*Expected object on array of routes:
   {
@@ -170,7 +171,7 @@ export const loggedRoutes = [
     path: '/student/complementary-activities',
     key: 'student-complementary-activities',
     label: 'C. Activities',
-    element: null,
+    element: <StudentComplementaryActivity/>,
     icon: <FileDoneOutlined/>,
     roles: ['student']
   },

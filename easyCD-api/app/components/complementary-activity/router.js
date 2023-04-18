@@ -31,6 +31,12 @@ exports = module.exports = function initRouter(
   );
 
   router.get(
+    '/student-activities/',
+    Policies.JWTLogged,
+    ComplementaryActivityController.getStudentCActivities,
+  );
+
+  router.get(
     '/',
     Policies.JWTAdmin,
     ComplementaryActivityController.list,

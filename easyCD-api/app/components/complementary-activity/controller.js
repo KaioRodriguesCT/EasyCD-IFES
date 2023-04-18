@@ -8,6 +8,7 @@ exports = module.exports = function initController(
     update,
     remove,
     list,
+    getStudentCActivities,
   };
 
   async function create(req, res, next) {
@@ -66,6 +67,18 @@ exports = module.exports = function initController(
       return res.json({
         complementaryActivities: await ComplementaryActivityService.findAll({ filters }),
       });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function getStudentCActivities(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+      const complementaryActivities = await ComplementaryActivityService.getStudentCActivities({
+        filters,
+      });
+      return res.json({ complementaryActivities });
     } catch (e) {
       return next(e);
     }

@@ -10,9 +10,14 @@ import { createReducer } from '@shared/reducers';
 
 import ComplementaryActivityDelete from './complementary-activity.delete';
 import ListComplementaryActivities from './list-complementary-activities';
+import GetStudentComplementaryActivites from './get-student-complementary-activites';
 
 //Modules
-const modules = [ListComplementaryActivities, ComplementaryActivityDelete];
+const modules = [
+  ListComplementaryActivities,
+  ComplementaryActivityDelete,
+  GetStudentComplementaryActivites
+];
 
 //Initial State
 export const initialState = {

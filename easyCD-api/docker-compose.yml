@@ -6,7 +6,7 @@ services:
     image: mongo:latest
     restart: always
     logging:
-      driver: none
+      driver: "none"
     volumes:
       - mongo_db:/data/db
     ports:
