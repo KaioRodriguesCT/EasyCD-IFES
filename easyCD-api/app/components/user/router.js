@@ -18,7 +18,7 @@ exports = module.exports = function initRouter(UserController, Policies) {
   // Update an user
   router.put(
     '/:userId',
-    Policies.JWTAdmin,
+    Policies.JWTLogged,
     UserController.update,
   );
 
