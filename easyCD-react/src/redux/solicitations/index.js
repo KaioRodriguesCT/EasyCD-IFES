@@ -12,10 +12,16 @@ import SolicitationCreate from './solicitation-create';
 import SolicitationUpdate from './solicitation-update';
 import SolicitationDelete from './solicitation-delete';
 import ListSolicitations from './list-solicitations';
-
+import GetStudentSolicitations from './get-student-solicitations';
 
 //Modules
-const modules = [ListSolicitations, SolicitationCreate, SolicitationDelete, SolicitationUpdate];
+const modules = [
+  ListSolicitations,
+  SolicitationCreate,
+  SolicitationDelete,
+  SolicitationUpdate,
+  GetStudentSolicitations
+];
 
 //Initial State
 export const initialState = {

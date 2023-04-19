@@ -405,6 +405,11 @@ exports = module.exports = function initService(
           course: meta.course,
         };
 
+        if (solicitation?.status === 'Canceled') {
+          const SolicitationService = IoC.create('components/solicitation/service');
+          return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
+        }
+
         if (isApproved({ solicitation, solicitationType }) && !isProcessed) {
           return async.auto({
             creatingActivity: async () => ComplementaryActivityService.create({ ...newComplementaryActivity, status: 'Accepted' }),

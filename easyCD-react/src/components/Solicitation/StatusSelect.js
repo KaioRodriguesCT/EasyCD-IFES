@@ -4,11 +4,15 @@ import React from 'react';
 //Antd
 import { Select } from 'antd';
 
-function StatusSelect ({ defaultValue, onChange }) {
-  const options = ['Deferred', 'Undeferred', 'Pending', 'Canceled'].map((elem) => ({
-    label: elem,
-    value: elem
-  }));
+function StatusSelect ({ defaultValue, onChange, showRestrict }) {
+  const nonRestrictStts = ['Pending', 'Canceled'];
+  const restrictStts = ['Deferred', 'Undeferred'];
+  const options = (showRestrict ? nonRestrictStts.concat(restrictStts) : nonRestrictStts).map(
+    (elem) => ({
+      label: elem,
+      value: elem
+    })
+  );
   return (
     <Select
       options={options}

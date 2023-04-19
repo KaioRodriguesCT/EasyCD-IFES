@@ -32,7 +32,7 @@ exports = module.exports = function initRouter(
 
   router.get(
     '/',
-    Policies.JWTTeacher,
+    Policies.JWTLogged,
     ClassroomController.list,
   );
 

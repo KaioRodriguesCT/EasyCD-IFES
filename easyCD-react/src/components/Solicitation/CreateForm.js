@@ -27,7 +27,7 @@ import MetaInput from './MetaInput';
 //Handlers
 import { handleSelectChange } from '@src/shared/handlers';
 
-function CreateForm ({ closeModal }) {
+function CreateForm ({ closeModal, student }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
@@ -43,6 +43,15 @@ function CreateForm ({ closeModal }) {
   //Local state
   const [newSolicitation, setNewSolicitation] = useState();
 
+  useEffect(() => {
+    if (student) {
+      const actualSolicitation = clone(newSolicitation) || {};
+      actualSolicitation.student = get(student, 'person._id');
+      setNewSolicitation(actualSolicitation);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [student]);
+
   //Hooks
   useEffect(() => {
     dispatch(stActions.listSolicitationTypes());
@@ -50,7 +59,6 @@ function CreateForm ({ closeModal }) {
     dispatch(courseActions.listCourses());
     dispatch(classroomsActions.listClassrooms());
     dispatch(caTypeAction.listCaTypes());
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -96,17 +104,19 @@ function CreateForm ({ closeModal }) {
               placeholder="Select solicitation type"
             />
           </Form.Item>
-          <Form.Item name="student" label="Student:">
-            <ComponentSelect
-              data={students}
-              onChange={handleSelectChangeLocal('student')}
-              mapOptions={(elem) => ({
-                label: elem.name,
-                value: elem._id
-              })}
-              placeholder="Select student"
-            />
-          </Form.Item>
+          {student ? null : (
+            <Form.Item name="student" label="Student:">
+              <ComponentSelect
+                data={students}
+                onChange={handleSelectChangeLocal('student')}
+                mapOptions={(elem) => ({
+                  label: elem.name,
+                  value: elem._id
+                })}
+                placeholder="Select student"
+              />
+            </Form.Item>
+          )}
           <Divider>Solicitation Inputs</Divider>
           <Form.Item name="meta" label="Meta:">
             <MetaInput

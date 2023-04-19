@@ -6,6 +6,7 @@ const defaultErrorCreating = 'Error creating Solicitation';
 const defaultErrorUpdating = 'Error updating Solicitation';
 const defaultErrorRemoving = 'Error removing Solicitation';
 
+const { ObjectId } = mongoose.Types;
 exports = module.exports = function initService(
   SolicitationRepository,
   SolicitationTypeService,
@@ -21,6 +22,7 @@ exports = module.exports = function initService(
     validateSolicitationType,
     findAll,
     removeByType,
+    getStudentSolicitations,
   };
 
   async function findAll({ filters }) {
@@ -183,6 +185,32 @@ exports = module.exports = function initService(
     });
 
     return async.eachSeries(solicitations, remove);
+  }
+
+  async function getStudentSolicitations({ filters }) {
+    const pipeline = [
+      {
+        $match: {
+          student: new ObjectId(filters?.student),
+        },
+      },
+      {
+        $lookup: {
+          from: 'solicitationtypes',
+          localField: 'solicitationType',
+          foreignField: '_id',
+          as: 'type',
+        },
+      },
+      {
+        $unwind: {
+          path: '$type',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+
+    return SolicitationRepository.aggregate(pipeline);
   }
 };
 

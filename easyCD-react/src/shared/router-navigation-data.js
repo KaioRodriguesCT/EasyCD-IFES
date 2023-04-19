@@ -31,6 +31,7 @@ import Home from '@src/containers/Home';
 import Profile from '@src/containers/Profile';
 import StudentEnrollments from '@src/containers/Enrollments/StudentEnrollments';
 import StudentComplementaryActivity from '@src/containers/ComplementaryActivity/StudentComplementaryActivity';
+import StudentSolicitations from '@src/containers/Solicitations/StudentSolicitations';
 
 /*Expected object on array of routes:
   {
@@ -179,7 +180,7 @@ export const loggedRoutes = [
     path: '/student/solicitations',
     key: 'student-solicitations',
     label: 'Solicitations',
-    element: null,
+    element: <StudentSolicitations/>,
     icon: <FireOutlined/>,
     roles: ['student']
   },

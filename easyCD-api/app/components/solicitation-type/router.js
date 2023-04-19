@@ -32,7 +32,7 @@ exports = module.exports = function initRouter(
 
   router.get(
     '/',
-    Policies.JWTAdmin,
+    Policies.JWTLogged,
     SolicitationTypeController.list,
   );
 

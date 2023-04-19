@@ -18,6 +18,7 @@ import clone from 'lodash/clone';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 
 //Handlers
 import { handleInputChange, handleSelectChange } from '@src/shared/handlers';
@@ -28,7 +29,7 @@ import MetaInput from './MetaInput';
 import FormActionButtons from '../SharedComponents/FormActionButtons';
 import StatusSelect from './StatusSelect';
 
-function UpdateForm ({ closeModal, solicitation }) {
+function UpdateForm ({ closeModal, solicitation, student }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
@@ -100,42 +101,46 @@ function UpdateForm ({ closeModal, solicitation }) {
               placeholder="Select solicitation type"
             />
           </Form.Item>
-          <Form.Item valuePropName="defaultValue" name="student" label="Student:">
-            <ComponentSelect
-              data={students}
-              onChange={handleSelectChangeLocal('student')}
-              mapOptions={(elem) => ({
-                label: elem.name,
-                value: elem._id
-              })}
-              placeholder="Select student"
-            />
-          </Form.Item>
+          {student ? null
+            : <Form.Item valuePropName="defaultValue" name="student" label="Student:">
+              <ComponentSelect
+                data={students}
+                onChange={handleSelectChangeLocal('student')}
+                mapOptions={(elem) => ({
+                  label: elem.name,
+                  value: elem._id
+                })}
+                placeholder="Select student"
+              />
+            </Form.Item>
+          }
           <Form.Item name="status" label="Status:" valuePropName="defaultValue">
-            <StatusSelect onChange={handleSelectChangeLocal('status')} />
+            <StatusSelect showRestrict={isNil(student)}onChange={handleSelectChangeLocal('status')} />
           </Form.Item>
-          <Space direction="horizontal" size="large">
-            <Form.Item name="teacherApproval" label="T. Approval:">
-              <Radio.Group
-                onChange={handleInputChange(newSolicitation, setNewSolicitation, 'teacherApproval')}
-              >
-                <Radio value={true}>Approved</Radio>
-                <Radio value={false}>Rejected</Radio>
-              </Radio.Group>
-            </Form.Item>
-            <Form.Item name="coordinatorApproval" label="C. Approval:">
-              <Radio.Group
-                onChange={handleInputChange(
-                  newSolicitation,
-                  setNewSolicitation,
-                  'coordinatorApproval'
-                )}
-              >
-                <Radio value={true}>Approved</Radio>
-                <Radio value={false}>Rejected</Radio>
-              </Radio.Group>
-            </Form.Item>
-          </Space>
+          {student ? null
+            : <Space direction="horizontal" size="large">
+              <Form.Item name="teacherApproval" label="T. Approval:">
+                <Radio.Group
+                  onChange={handleInputChange(newSolicitation, setNewSolicitation, 'teacherApproval')}
+                >
+                  <Radio value={true}>Approved</Radio>
+                  <Radio value={false}>Rejected</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item name="coordinatorApproval" label="C. Approval:">
+                <Radio.Group
+                  onChange={handleInputChange(
+                    newSolicitation,
+                    setNewSolicitation,
+                    'coordinatorApproval'
+                  )}
+                >
+                  <Radio value={true}>Approved</Radio>
+                  <Radio value={false}>Rejected</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </Space>
+          }
           <Divider>Solicitation Inputs</Divider>
           <Form.Item name="meta" label="Meta:" valuePropName="defaultValue">
             <MetaInput
