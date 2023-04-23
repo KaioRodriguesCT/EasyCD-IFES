@@ -36,6 +36,12 @@ exports = module.exports = function initRouter(
     CourseController.list,
   );
 
+  router.get(
+    '/coordinator-courses',
+    Policies.JWTTeacher,
+    CourseController.getCoordinatorCourses,
+  );
+
   app.use('/api/courses', router);
 };
 exports['@singleton'] = true;

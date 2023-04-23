@@ -11,6 +11,7 @@ exports = module.exports = function initRepository(
     create,
     update,
     removeById,
+    aggregate,
   };
 
   async function findAll({ filters, select }) {
@@ -63,6 +64,10 @@ exports = module.exports = function initRepository(
       .findById(courseId)
       .exec();
     return course.delete();
+  }
+
+  async function aggregate(pipeline) {
+    return CourseModel.aggregate(pipeline);
   }
 };
 exports['@singleton'] = true;

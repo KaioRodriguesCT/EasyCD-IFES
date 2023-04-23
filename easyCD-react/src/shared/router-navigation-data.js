@@ -33,6 +33,7 @@ import StudentEnrollments from '@src/containers/Enrollments/StudentEnrollments';
 import StudentComplementaryActivity from '@src/containers/ComplementaryActivity/StudentComplementaryActivity';
 import StudentSolicitations from '@src/containers/Solicitations/StudentSolicitations';
 import TeacherClassrooms from '@src/containers/Classrooms/TeacherClassrooms';
+import CoordinatorCourses from '@src/containers/Courses/CoordinatorCourses';
 
 /*Expected object on array of routes:
   {
@@ -198,7 +199,7 @@ export const loggedRoutes = [
     path: '/teacher/courses',
     key: 'teacher-courses',
     label: 'Courses',
-    element: null,
+    element: <CoordinatorCourses/>,
     icon: <ExperimentOutlined/>,
     roles: ['teacher']
   },

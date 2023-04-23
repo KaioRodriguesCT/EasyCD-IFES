@@ -12,9 +12,10 @@ import CourseCreate from './course-create';
 import CourseDelete from './course-delete';
 import CourseUpdate from './course-update';
 import ListCourses from './list-courses';
+import GetCoordinatorCourses from './get-coordinator-courses';
 
 //Modules
-const modules = [CourseCreate, ListCourses, CourseDelete, CourseUpdate];
+const modules = [CourseCreate, ListCourses, CourseDelete, CourseUpdate, GetCoordinatorCourses];
 
 //Initial State
 export const initialState = {

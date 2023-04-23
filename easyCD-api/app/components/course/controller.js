@@ -6,6 +6,7 @@ exports = module.exports = function initController(CourseService) {
     create,
     update,
     remove,
+    getCoordinatorCourses,
   };
 
   async function list(req, res, next) {
@@ -56,6 +57,15 @@ exports = module.exports = function initController(CourseService) {
           message: 'Course deleted successfully',
         })],
       });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function getCoordinatorCourses(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+      return res.json({ courses: await CourseService.getCoordinatorCourses({ filters }) });
     } catch (e) {
       return next(e);
     }

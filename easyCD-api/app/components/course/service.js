@@ -7,6 +7,8 @@ const defaultErrorCreating = 'Error creating course';
 const defaultErrorUpdating = 'Error updating course';
 const defaultErrorRemoving = 'Error removing course';
 
+const { ObjectId } = mongoose.Types;
+
 exports = module.exports = function initService(
   CourseRepository,
   PersonService,
@@ -22,6 +24,7 @@ exports = module.exports = function initService(
     validateCoordinator,
     addCurriculumGride,
     removeCurriculumGride,
+    getCoordinatorCourses,
   };
 
   async function findAll({ filters }) {
@@ -236,6 +239,18 @@ exports = module.exports = function initService(
       }],
     });
     return updatedCourse;
+  }
+
+  async function getCoordinatorCourses({ filters }) {
+    const pipeline = [
+      {
+        $match: {
+          coordinator: new ObjectId(filters?.coordinator),
+        },
+      },
+    ];
+
+    return CourseRepository.aggregate(pipeline);
   }
 };
 exports['@singleton'] = true;
