@@ -36,6 +36,12 @@ exports = module.exports = function initRouter(
     ClassroomController.list,
   );
 
+  router.get(
+    '/teacher-classrooms',
+    Policies.JWTTeacher,
+    ClassroomController.getTeacherClassrooms,
+  );
+
   app.use('/api/classrooms', router);
 };
 exports['@singleton'] = true;

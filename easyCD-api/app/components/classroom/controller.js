@@ -8,6 +8,7 @@ exports = module.exports = function initController(
     update,
     remove,
     list,
+    getTeacherClassrooms,
   };
 
   async function create(req, res, next) {
@@ -63,6 +64,15 @@ exports = module.exports = function initController(
     try {
       const { query: { filters } } = req;
       return res.json({ classrooms: await ClassroomService.findAll({ filters }) });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function getTeacherClassrooms(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+      return res.json({ classrooms: await ClassroomService.getTeacherClassrooms({ filters }) });
     } catch (e) {
       return next(e);
     }

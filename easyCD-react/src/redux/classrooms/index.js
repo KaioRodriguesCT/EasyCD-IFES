@@ -12,9 +12,16 @@ import ClassroomCreate from './classroom-create';
 import ClassroomDelete from './classroom-delete';
 import ClassroomUpdate from './classroom-update';
 import ListClassrooms from './list-classrooms';
+import GetTeacherClassrooms from './get-teacher-classrooms';
 
 //Modules
-const modules = [ClassroomCreate, ClassroomDelete, ClassroomUpdate, ListClassrooms];
+const modules = [
+  ClassroomCreate,
+  ClassroomDelete,
+  ClassroomUpdate,
+  ListClassrooms,
+  GetTeacherClassrooms
+];
 
 //Initial State
 export const initialState = {

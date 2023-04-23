@@ -8,6 +8,8 @@ const defaultErrorCreating = 'Error creating Classroom';
 const defaultErrorUpdating = 'Error updating Classroom';
 const defaultErrorRemoving = 'Error removing Classroom';
 
+const { ObjectId } = mongoose.Types;
+
 exports = module.exports = function initService(
   ClassroomRepository,
   SubjectService,
@@ -27,6 +29,7 @@ exports = module.exports = function initService(
     validateTeacher,
     getClassroomTeacherAndCoordinator,
     removeBySubject,
+    getTeacherClassrooms,
   };
 
   async function findAll({ filters }) {
@@ -368,6 +371,60 @@ exports = module.exports = function initService(
       filters: { subject: subjectId },
     });
     return async.eachSeries(classrooms, remove);
+  }
+
+  async function getTeacherClassrooms({ filters }) {
+    const pipeline = [
+      {
+        $match: {
+          teacher: new ObjectId(filters?.teacher),
+        },
+      },
+      {
+        $lookup: {
+          from: 'subjects',
+          localField: 'subject',
+          foreignField: '_id',
+          as: 'subject',
+        },
+      },
+      {
+        $unwind: {
+          path: '$subject',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'curriculumgrides',
+          localField: 'subject.curriculumGride',
+          foreignField: '_id',
+          as: 'curriculumGride',
+        },
+      },
+      {
+        $unwind: {
+          path: '$curriculumGride',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'curriculumGride.course',
+          foreignField: '_id',
+          as: 'course',
+        },
+      },
+      {
+        $unwind: {
+          path: '$course',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+
+    return ClassroomRepository.aggregate(pipeline);
   }
 };
 exports['@singleton'] = true;
