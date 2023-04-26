@@ -13,6 +13,7 @@ import SolicitationUpdate from './solicitation-update';
 import SolicitationDelete from './solicitation-delete';
 import ListSolicitations from './list-solicitations';
 import GetStudentSolicitations from './get-student-solicitations';
+import GetTeacherSolicitations from './get-teacher-solicitations ';
 
 //Modules
 const modules = [
@@ -20,7 +21,8 @@ const modules = [
   SolicitationCreate,
   SolicitationDelete,
   SolicitationUpdate,
-  GetStudentSolicitations
+  GetStudentSolicitations,
+  GetTeacherSolicitations
 ];
 
 //Initial State
@@ -29,7 +31,9 @@ export const initialState = {
   isCreating: false,
   isUpdating: false,
   isDeleting: false,
-  solicitations: null
+  solicitations: null,
+  studentSolicitations: null,
+  teacherSolicitations: null
 };
 
 //Handlers

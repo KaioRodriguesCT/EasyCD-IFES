@@ -33,7 +33,56 @@ exports = module.exports = function initService(
   };
 
   async function findAll({ filters }) {
-    return ClassroomRepository.findAll({ filters });
+    const pipeline = [
+      {
+        $match: {
+          deleted: { $ne: true },
+        },
+      },
+      {
+        $lookup: {
+          from: 'subjects',
+          localField: 'subject',
+          foreignField: '_id',
+          as: 'subject',
+        },
+      },
+      {
+        $unwind: {
+          path: '$subject',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'curriculumgrides',
+          localField: 'subject.curriculumGride',
+          foreignField: '_id',
+          as: 'curriculumGride',
+        },
+      },
+      {
+        $unwind: {
+          path: '$curriculumGride',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'curriculumGride.course',
+          foreignField: '_id',
+          as: 'course',
+        },
+      },
+      {
+        $unwind: {
+          path: '$course',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+    return ClassroomRepository.aggregate(pipeline);
   }
 
   async function findById({ _id }) {
@@ -378,6 +427,7 @@ exports = module.exports = function initService(
       {
         $match: {
           teacher: new ObjectId(filters?.teacher),
+          deleted: { $ne: true },
         },
       },
       {

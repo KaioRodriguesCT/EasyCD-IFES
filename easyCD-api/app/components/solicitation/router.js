@@ -37,6 +37,12 @@ exports = module.exports = function initRouter(
   );
 
   router.get(
+    '/teacher-solicitations',
+    Policies.JWTLogged,
+    SolicitationController.getTeacherSolicitations,
+  );
+
+  router.get(
     '/',
     Policies.JWTAdmin,
     SolicitationController.list,

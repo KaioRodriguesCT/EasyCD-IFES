@@ -1,5 +1,5 @@
 //React
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 //Antd
 import { Space } from 'antd';
@@ -7,6 +7,7 @@ import { Space } from 'antd';
 //Lodash
 import get from 'lodash/get';
 import clone from 'lodash/clone';
+import filter from 'lodash/filter';
 
 //Handlers
 import EnrollmentChangeSolicitiationInputs from './EnrollmentChangeSolicitiationInputs';
@@ -36,6 +37,11 @@ function MetaInput ({
     setMeta(actualMeta);
   };
 
+  const filteredClassrooms = useMemo(
+    () => filter(classrooms, (classroom) => classroom?.course?._id === meta?.course),
+    [classrooms, meta?.course]
+  );
+
   //Renders
   const renderSolicitationTypeInputs = () => {
     const sTypeName = get(solicitationType, 'name');
@@ -43,7 +49,8 @@ function MetaInput ({
       case 'Enrollment Change':
         return (
           <EnrollmentChangeSolicitiationInputs
-            classrooms={classrooms}
+            courses={courses}
+            classrooms={filteredClassrooms}
             meta={meta}
             handleMetaChange={handleMetaChange}
           />
@@ -51,7 +58,8 @@ function MetaInput ({
       case 'Enrollment':
         return (
           <EnrollmentSolicitationInputs
-            classrooms={classrooms}
+            courses={courses}
+            classrooms={filteredClassrooms}
             handleMetaChange={handleMetaChange}
             meta={meta}
           />

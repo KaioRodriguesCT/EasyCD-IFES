@@ -9,6 +9,7 @@ exports = module.exports = function initController(
     remove,
     list,
     getStudentSolicitations,
+    getTeacherSolicitations,
   };
 
   async function create(req, res, next) {
@@ -73,6 +74,16 @@ exports = module.exports = function initController(
     try {
       const { query: { filters } } = req;
       const solicitations = await SolicitationService.getStudentSolicitations({ filters });
+      return res.json({ solicitations });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  async function getTeacherSolicitations(req, res, next) {
+    try {
+      const { query: { filters } } = req;
+      const solicitations = await SolicitationService.getTeacherSolicitations({ filters });
       return res.json({ solicitations });
     } catch (e) {
       return next(e);

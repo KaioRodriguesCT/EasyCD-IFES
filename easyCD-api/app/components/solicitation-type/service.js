@@ -175,13 +175,20 @@ exports = module.exports = function initService(
     if (!meta) {
       Utils.throwError(`${defaultErrorMessage}. Meta not sent`, 400);
     }
-    const { classroom: classroomId } = meta;
+    const { classroom: classroomId, course: courseId } = meta;
     if (_.isNil(classroomId) || !mongoose.isValidObjectId(classroomId)) {
       Utils.throwError(`${defaultErrorMessage}. Classroom not sent or not a valid ID`, 400);
     }
     const classroom = await ClassroomService.findById({ _id: classroomId });
     if (!classroom) {
       Utils.throwError(`${defaultErrorMessage}. Classroom not found`, 404);
+    }
+    if (_.isNil(courseId) || !mongoose.isValidObjectId(courseId)) {
+      Utils.throwError(`${defaultErrorMessage}. Course not sent or not a valid ID`, 400);
+    }
+    const course = await CourseService.findById({ _id: courseId });
+    if (!course) {
+      Utils.throwError(`${defaultErrorMessage}. Course not found`, 404);
     }
     return true;
   }
@@ -191,7 +198,7 @@ exports = module.exports = function initService(
     if (!meta) {
       Utils.throwError(`${defaultErrorMessage}. Meta not sent`, 400);
     }
-    const { classroomToEnroll, classroomToUnenroll } = meta;
+    const { classroomToEnroll, classroomToUnenroll, course: courseId } = meta;
     await async.auto({
       validateEnroll: async () => {
         if (_.isNil(classroomToEnroll) || !mongoose.isValidObjectId(classroomToEnroll)) {
@@ -212,6 +219,13 @@ exports = module.exports = function initService(
         }
       },
     });
+    if (_.isNil(courseId) || !mongoose.isValidObjectId(courseId)) {
+      Utils.throwError(`${defaultErrorMessage}. Course not sent or not a valid ID`, 400);
+    }
+    const course = await CourseService.findById({ _id: courseId });
+    if (!course) {
+      Utils.throwError(`${defaultErrorMessage}. Course not found`, 404);
+    }
     return true;
   }
 
@@ -279,12 +293,17 @@ exports = module.exports = function initService(
     const { meta, isProcessed } = solicitation;
     const classroom = await ClassroomService
       .findById({ _id: meta.classroom });
-    const teacherAndCoordinator = await ClassroomService.getClassroomTeacherAndCoordinator({
-      classroom: _.get(classroom, '_id'),
-    });
-    if (!teacherAndCoordinator) {
-      Utils.throwError(`${defaultErrorMessage}. Teacher and Coordinator not found for classroom`, 400);
+    const course = await CourseService.findById({ _id: meta.course });
+
+    if (!course || !classroom) {
+      Utils.throwError('Error on trying find course or classroom');
     }
+
+    const teacherAndCoordinator = {
+      teacher: classroom.teacher,
+      coordinator: course.coordinator,
+    };
+
     switch (state) {
       case 'deleted':
       case 'created':
@@ -306,7 +325,7 @@ exports = module.exports = function initService(
             createdEnrollment: async () => EnrollmentService.create(newEnrollment),
             updatedSolicitation: ['createdEnrollment', async () => {
               const SolicitationService = IoC.create('components/solicitation/service');
-              return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
+              return SolicitationService.update({ _id: solicitation._id, isProcessed: true, status: 'Deferred' });
             }],
           });
         }
@@ -324,12 +343,17 @@ exports = module.exports = function initService(
     const { meta, isProcessed } = solicitation;
     // Get the classrooms.
     const classroomToEnroll = await ClassroomService.findById({ _id: meta.classroomToEnroll });
-    const teacherAndCoordinator = await ClassroomService.getClassroomTeacherAndCoordinator({
-      classroom: _.get(classroomToEnroll, '_id'),
-    });
-    if (!teacherAndCoordinator) {
-      Utils.throwError(`${defaultErrorMessage}. Teacher and Coordinator not found for classroom`, 404);
+    const course = await CourseService.findById({ _id: meta.course });
+
+    if (!course || !classroomToEnroll) {
+      Utils.throwError('Error on trying find course or classroom to enroll');
     }
+
+    const teacherAndCoordinator = {
+      teacher: classroomToEnroll.teacher,
+      coordinator: course.coordinator,
+    };
+
     switch (state) {
       case 'deleted':
       case 'created':
@@ -361,7 +385,7 @@ exports = module.exports = function initService(
             },
             updateSolicitation: ['creating', async () => {
               const SolicitationService = IoC.create('components/solicitation/service');
-              return SolicitationService.update({ _id: solicitation._id, isProcessed: true });
+              return SolicitationService.update({ _id: solicitation._id, isProcessed: true, status: 'Deferred' });
             }],
           });
         }
@@ -469,7 +493,7 @@ exports = module.exports = function initService(
         });
         return updatedTeacher;
       },
-      processingCoordinator: async () => {
+      processingCoordinator: ['processingTeacher', async () => {
         if (!solicitationType.requireCoordinatorApproval || !coordinator) {
           return null;
         }
@@ -494,7 +518,7 @@ exports = module.exports = function initService(
           sendEmail: async () => {},
         });
         return updatedCoordinator;
-      },
+      }],
     });
   }
 

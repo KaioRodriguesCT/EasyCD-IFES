@@ -246,6 +246,7 @@ exports = module.exports = function initService(
       {
         $match: {
           coordinator: new ObjectId(filters?.coordinator),
+          deleted: { $ne: true },
         },
       },
     ];

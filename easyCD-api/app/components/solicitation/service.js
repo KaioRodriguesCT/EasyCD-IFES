@@ -23,6 +23,7 @@ exports = module.exports = function initService(
     findAll,
     removeByType,
     getStudentSolicitations,
+    getTeacherSolicitations,
   };
 
   async function findAll({ filters }) {
@@ -192,6 +193,7 @@ exports = module.exports = function initService(
       {
         $match: {
           student: new ObjectId(filters?.student),
+          deleted: { $ne: true },
         },
       },
       {
@@ -211,6 +213,125 @@ exports = module.exports = function initService(
     ];
 
     return SolicitationRepository.aggregate(pipeline);
+  }
+
+  async function getTeacherSolicitations({ filters }) {
+    const match = {};
+    if (filters?.coordinator) {
+      match.coordinator = new ObjectId(filters?.coordinator);
+    } else {
+      match.teacher = new ObjectId(filters?.coordinator);
+    }
+    const pipeline = [
+      {
+        $match: {
+          deleted: { $ne: true },
+        },
+      },
+      {
+        $lookup: {
+          from: 'solicitationtypes',
+          localField: 'solicitationType',
+          foreignField: '_id',
+          as: 'type',
+        },
+      },
+      {
+        $unwind: {
+          path: '$type',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'student',
+          foreignField: '_id',
+          as: 'student',
+        },
+      },
+      {
+        $unwind: {
+          path: '$student',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+
+    if (filters?.coordinator) {
+      const coordinatorPipeline = [
+        {
+          $lookup: {
+            from: 'courses',
+            let: {
+              course: { $toObjectId: '$meta.course' },
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', '$$course'],
+                  },
+                },
+              },
+            ],
+            as: 'course',
+          },
+        },
+        {
+          $unwind: {
+            path: '$course',
+          },
+        },
+        {
+          $match: {
+            'course.coordinator': new ObjectId(filters.coordinator),
+          },
+        },
+        {
+          $sort: {
+            'type.name': 1,
+          },
+        },
+      ];
+
+      return SolicitationRepository.aggregate([...pipeline, ...coordinatorPipeline]);
+    }
+
+    const teacherPipeline = [
+      {
+        $lookup: {
+          from: 'classrooms',
+          let: {
+            classroom: { $toObjectId: '$meta.classroom' },
+            classroomToEnroll: { $toObjectId: '$meta.classroomToEnroll' },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', ['$$classroom', '$$classroomToEnroll']],
+                },
+              },
+            },
+          ],
+          as: 'classroom',
+        },
+      },
+      {
+        $unwind: {
+          path: '$classroom',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          'classroom.teacher': new ObjectId(filters?.teacher),
+        },
+      },
+    ];
+
+    return SolicitationRepository.aggregate([...pipeline, ...teacherPipeline]);
   }
 };
 

@@ -34,6 +34,7 @@ import StudentComplementaryActivity from '@src/containers/ComplementaryActivity/
 import StudentSolicitations from '@src/containers/Solicitations/StudentSolicitations';
 import TeacherClassrooms from '@src/containers/Classrooms/TeacherClassrooms';
 import CoordinatorCourses from '@src/containers/Courses/CoordinatorCourses';
+import TeacherSolicitations from '@src/containers/Solicitations/TeacherSolicitations';
 
 /*Expected object on array of routes:
   {
@@ -206,8 +207,16 @@ export const loggedRoutes = [
   {
     path: '/teacher/solictations',
     key: 'teacher-solictations',
-    label: 'Solicitations',
-    element: null,
+    label: 'T. Solicitations',
+    element: <TeacherSolicitations isCoordinator={false}/>,
+    icon: <FireOutlined/>,
+    roles: ['teacher']
+  },
+  {
+    path: '/coordinator/solictations',
+    key: 'coord-solictations',
+    label: 'C. Solicitations',
+    element: <TeacherSolicitations isCoordinator={true}/>,
     icon: <FireOutlined/>,
     roles: ['teacher']
   }

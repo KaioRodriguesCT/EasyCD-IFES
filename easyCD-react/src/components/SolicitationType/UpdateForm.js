@@ -80,7 +80,7 @@ function UpdateForm ({ solicitationType, closeModal }) {
             <Form.Item valuePropName="checked" name="requireTeacherApproval" label="Req. Teacher Approval">
               <Switch onChange={handleSwitchChangeLocal('requireTeacherApproval')} />
             </Form.Item>
-            <Form.Item valuePropName="checked" name="requireCoordinatorApproval" label="Req. Teacher Approval">
+            <Form.Item valuePropName="checked" name="requireCoordinatorApproval" label="Req. Coordinator Approval">
               <Switch onChange={handleSwitchChangeLocal('requireCoordinatorApproval')} />
             </Form.Item>
             <Form.Item valuePropName="checked" name="allowSubmitFile" label="Allow File">
