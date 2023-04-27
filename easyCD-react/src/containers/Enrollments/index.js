@@ -9,6 +9,7 @@ import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 //LOdash
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as enrollmentActions } from '@redux/enrollments';
@@ -20,6 +21,8 @@ import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
 import CreateForm from '@src/components/Enrollment/CreateForm';
 import UpdateForm from '@src/components/Enrollment/UpdateForm';
+import ClassroomFilter from '@src/components/SharedComponents/ClassroomFilter';
+import StudentFilter from '@src/components/SharedComponents/StudentFilter';
 
 //Columns
 import Student from '@src/components/Enrollment/Columns/Student';
@@ -52,6 +55,12 @@ function Enrollments () {
     setEnrollmentBeingUpdated(enrollment);
   };
 
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
+  };
+
   const onDeleteClick = useCallback((enrollment) => {
     Modal.confirm({
       title: 'Are you sure that you want to delete this Enrollment ?',
@@ -76,27 +85,30 @@ function Enrollments () {
     dispatch(peopleActions.listPeople());
   };
 
-  const columns = useMemo(() => [
-    Student({ people }),
-    Classroom({ classrooms }),
-    Observation(),
-    Status(),
-    Actions({ onDeleteClick, onEditClick })
-  ],[classrooms, onDeleteClick, people]);
+  const columns = useMemo(
+    () => [
+      Student({ people }),
+      Classroom({ classrooms }),
+      Observation(),
+      Status(),
+      Actions({ onDeleteClick, onEditClick })
+    ],
+    [classrooms, onDeleteClick, people]
+  );
 
   //Hooks
-  useEffect(()=> {
-    if(!isNil(filters)){
+  useEffect(() => {
+    if (!isNil(filters)) {
       getEnrollments();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[filters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   //Executes every time that this page is open
-  useEffect(()=> {
+  useEffect(() => {
     getPageData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[]);
+  }, []);
 
   //Renders
   const renderCreateModal = () => {
@@ -106,7 +118,8 @@ function Enrollments () {
         onCancel={() => setIsCreateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
+        destroyOnClose={true}
+      >
         <CreateForm closeModal={() => setIsCreateModalVisible(false)} />
       </Modal>
     );
@@ -119,7 +132,8 @@ function Enrollments () {
         onCancel={() => setIsUpdateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
+        destroyOnClose={true}
+      >
         <UpdateForm
           closeModal={() => setIsUpdateModalVisible(false)}
           enrollment={enrollmentBeingUpdated}
@@ -128,7 +142,18 @@ function Enrollments () {
     );
   };
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => (
+    <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Student: <StudentFilter onChange={handleFilter('student')} />
+        </Space>
+        <Space direction="vertical">
+          Classroom: <ClassroomFilter onChange={handleFilter('classroom')} />
+        </Space>
+      </Space>
+    </div>
+  );
 
   const renderActionsButtons = () => {
     return (
@@ -140,11 +165,7 @@ function Enrollments () {
               onClick={() => setIsCreateModalVisible(true)}
               type="primary"
             />
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() => getEnrollments()}
-              type="default"
-            />
+            <Button icon={<ReloadOutlined />} onClick={() => getEnrollments()} type="default" />
           </Space>
         </Space>
       </div>
@@ -177,7 +198,6 @@ function Enrollments () {
       </div>
     );
   };
-
 
   return (
     <div className="container_home">

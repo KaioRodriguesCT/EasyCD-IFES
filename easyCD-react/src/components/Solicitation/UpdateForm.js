@@ -123,14 +123,14 @@ function UpdateForm ({ closeModal, solicitation, student, coordinator, teacher }
             {isUserAdmin || student ? (
               <Form.Item name="status" label="Status:" valuePropName="defaultValue">
                 <StatusSelect
-                  showRestrict={isNil(user)}
+                  showRestrict={!isNil(user)}
                   onChange={handleSelectChangeLocal('status')}
                 />
               </Form.Item>
             ) : null}
             <Space direction="vertical" style={{ width: '100%' }}>
               <Space direction="horizontal" size="large" style={{ width: '100%' }}>
-                {teacher && (
+                {(isUserAdmin || teacher) && (
                   <Form.Item name="teacherNotes" label="T. Notes:">
                     <Input.TextArea
                       onChange={handleInputChange(
@@ -141,7 +141,7 @@ function UpdateForm ({ closeModal, solicitation, student, coordinator, teacher }
                     />
                   </Form.Item>
                 )}
-                {coordinator && (
+                {(isUserAdmin || coordinator) && (
                   <Form.Item name="coordinatorNotes" label="T. Notes:">
                     <Input.TextArea
                       onChange={handleInputChange(
@@ -168,7 +168,7 @@ function UpdateForm ({ closeModal, solicitation, student, coordinator, teacher }
                     </Radio.Group>
                   </Form.Item>
                 )}
-                {coordinator && (
+                {(isUserAdmin || coordinator) && (
                   <Form.Item name="coordinatorApproval" label="C. Approval:">
                     <Radio.Group
                       onChange={handleInputChange(

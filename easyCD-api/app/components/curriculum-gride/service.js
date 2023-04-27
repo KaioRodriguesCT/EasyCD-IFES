@@ -7,6 +7,8 @@ const IoC = require('electrolyte');
 const defaultErrorCreating = 'Error creating Curriculum Gride';
 const defaultErrorUpdating = 'Error updating Curriculum Gride';
 const defaultErrorRemoving = 'Error removing Curriculum Gride';
+const { ObjectId } = mongoose.Types;
+
 exports = module.exports = function initService(
   CurriculumGrideRepository,
   CourseService,
@@ -17,15 +19,33 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
-    findAll,
+    list,
     addSubject,
     removeSubject,
     validateCourse,
     removeByCourse,
   };
 
-  async function findAll({ filters }) {
-    return CurriculumGrideRepository.findAll({ filters });
+  async function list({ filters }) {
+    const pipeline = [{ $match: { deleted: { $ne: true } } }];
+
+    if (filters?.course) {
+      pipeline.push({
+        $match: {
+          course: new ObjectId(filters?.course),
+        },
+      });
+    }
+
+    if (filters?.name && !_.isEmpty(filters?.name)) {
+      pipeline.push({
+        $match: {
+          name: { $regex: new RegExp(`^${filters.name}`) },
+        },
+      });
+    }
+
+    return CurriculumGrideRepository.aggregate(pipeline);
   }
 
   async function findById({ _id }) {

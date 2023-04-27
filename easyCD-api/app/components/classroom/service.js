@@ -22,7 +22,7 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
-    findAll,
+    list,
     addEnrollment,
     removeEnrollment,
     validateSubject,
@@ -32,7 +32,7 @@ exports = module.exports = function initService(
     getTeacherClassrooms,
   };
 
-  async function findAll({ filters }) {
+  async function list({ filters }) {
     const pipeline = [
       {
         $match: {
@@ -82,6 +82,23 @@ exports = module.exports = function initService(
         },
       },
     ];
+
+    if (filters?.name) {
+      pipeline.push({
+        $match: {
+          name: { $regex: new RegExp(`^${filters.name}`) },
+        },
+      });
+    }
+
+    if (filters?.subject) {
+      pipeline.push({
+        $match: {
+          'subject._id': new ObjectId(filters.subject),
+        },
+      });
+    }
+
     return ClassroomRepository.aggregate(pipeline);
   }
 

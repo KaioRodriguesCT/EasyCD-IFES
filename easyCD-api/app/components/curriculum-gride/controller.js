@@ -60,7 +60,7 @@ exports = module.exports = function initController(CurriculumGrideService) {
   async function list(req, res, next) {
     try {
       const { query: { filters } } = req;
-      return res.json({ curriculumGrides: await CurriculumGrideService.findAll({ filters }) });
+      return res.json({ curriculumGrides: await CurriculumGrideService.list({ filters }) });
     } catch (e) {
       return next(e);
     }

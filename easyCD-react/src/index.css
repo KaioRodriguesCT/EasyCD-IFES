@@ -45,6 +45,7 @@ body {
   border-radius: 10px;
   position: unset !important;
   padding: 5px;
+  max-height: 80%;
   height: 75%;
 }
 .container_body_header {
@@ -52,6 +53,6 @@ body {
 }
 
 .table_container {
-  max-height: 100%;
+  max-height: 90%;
   overflow-y: auto;
 }

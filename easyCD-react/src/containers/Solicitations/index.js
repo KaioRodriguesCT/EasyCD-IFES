@@ -9,6 +9,7 @@ import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 //Lodash
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as stActions } from '@redux/solicitation-types';
@@ -22,7 +23,6 @@ import Student from '@src/components/Solicitation/Columns/Student';
 import BooleanColumn from '@src/components/SharedComponents/Columns/BooleanColumn';
 import TeacherNotes from '@src/components/Solicitation/Columns/TeacherNotes';
 import CoordinatorNotes from '@src/components/Solicitation/Columns/CoordinatorNotes';
-//import Meta from '@src/components/Solicitation/Columns/Meta';
 
 //Components
 import ComponentFooter from '@src/components/ComponentFooter';
@@ -32,6 +32,9 @@ import Actions from '@src/components/SharedComponents/Columns/Actions';
 import UpdateForm from '@src/components/Solicitation/UpdateForm';
 import TeacherApproval from '@src/components/Solicitation/Columns/TeacherApproval';
 import CoordinatorApproval from '@src/components/Solicitation/Columns/CoordinatorApproval';
+import SolicitationTypeFilter from '@src/components/SharedComponents/SolicitationTypeFilter';
+import StudentFilter from '@src/components/SharedComponents/StudentFilter';
+import SolicitationStatusFilter from '@src/components/SharedComponents/SolicitationStatusFilter';
 
 // eslint-disable-next-line max-statements
 function Solicitations () {
@@ -48,13 +51,21 @@ function Solicitations () {
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState();
   const [solicitationBeingUpdated, setSolicitationBeingUpdated] = useState();
 
-  const defaultFilters = {};
+  const defaultFilters = {
+    status: 'Pending'
+  };
   const [filters, setFilters] = useState(defaultFilters);
 
   //Handlers
   const onEditClick = (solicitation) => {
     setIsUpdateModalVisible(true);
     setSolicitationBeingUpdated(solicitation);
+  };
+
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
   };
 
   const onDeleteClick = useCallback((solicitation) => {
@@ -72,7 +83,7 @@ function Solicitations () {
 
   //Data
   const getSolicitations = useCallback(
-    () => dispatch(solicitationActions.listSolicitations()),
+    () => dispatch(solicitationActions.listSolicitations({ filters })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [filters]
   );
@@ -95,7 +106,6 @@ function Solicitations () {
         title: 'Processed',
         dataIndex: 'isProcessed'
       }),
-      //Meta(),
       Actions({ onDeleteClick, onEditClick, showEditFn: (record) => !record.isProcessed })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,7 +157,30 @@ function Solicitations () {
     );
   };
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => (
+    <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Type:{' '}
+          <SolicitationTypeFilter
+            onChange={handleFilter('solicitationType')}
+            defaultValue={filters?.solicitationType}
+          />
+        </Space>
+        <Space direction="vertical">
+          Student:{' '}
+          <StudentFilter onChange={handleFilter('student')} defaultValue={filters?.student} />
+        </Space>
+        <Space direction="vertical">
+          Status:{' '}
+          <SolicitationStatusFilter
+            onChange={handleFilter('status')}
+            defaultValue={filters?.status}
+          />
+        </Space>
+      </Space>
+    </div>
+  );
 
   const renderActionsButtons = () => {
     return (

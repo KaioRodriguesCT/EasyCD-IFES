@@ -4,14 +4,14 @@
   justify-content: center;
   width: 80px;
   margin-right: 10px;
+  z-index: 999;
 }
 
-
-.menu-component{
-    height: 100vh;
-    max-height: 100%;
-    position: fixed;
-    top: 0;
-    transition: 200ms;
-    max-width: 200px;
+.menu-component {
+  height: 100vh;
+  max-height: 100%;
+  position: fixed;
+  top: 0;
+  transition: 200ms;
+  max-width: 200px;
 }

@@ -66,7 +66,7 @@ exports = module.exports = function initRepository(
   }
 
   async function aggregate(pipeline) {
-    return ComplementaryActivityModel.aggregate(pipeline);
+    return ComplementaryActivityModel.aggregate(pipeline).exec();
   }
 };
 

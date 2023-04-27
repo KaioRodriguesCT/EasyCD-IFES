@@ -63,7 +63,7 @@ exports = module.exports = function initController(
     try {
       const { query: { filters } } = req;
 
-      return res.json({ solicitationTypes: await SolicitationTypeService.findAll({ filters }) });
+      return res.json({ solicitationTypes: await SolicitationTypeService.list({ filters }) });
     } catch (e) {
       return next(e);
     }

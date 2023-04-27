@@ -9,6 +9,7 @@ import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 //Lodash
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as clasroomActions } from '@redux/classrooms';
@@ -20,6 +21,8 @@ import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
 import CreateForm from '@src/components/Classroom/CreateForm';
 import UpdateForm from '@src/components/Classroom/UpdateForm';
+import NameFilter from '@src/components/SharedComponents/NameFilter';
+import SubjectFilter from '@src/components/SharedComponents/SubjectFilter';
 
 //Columns
 import Subject from '@src/components/Classroom/Columns/Subject';
@@ -27,12 +30,12 @@ import Semester from '@src/components/Classroom/Columns/Semester';
 import ClassTimes from '@src/components/Classroom/Columns/ClassTime';
 import Teacher from '@src/components/Classroom/Columns/Teacher';
 import Actions from '@src/components/SharedComponents/Columns/Actions';
-
-//Style
-import './index.css';
 import BooleanColumn from '@src/components/SharedComponents/Columns/BooleanColumn';
 import IntegerColumn from '@src/components/SharedComponents/Columns/IntegerColumn';
 import Name from '@src/components/Classroom/Columns/Name';
+
+//Style
+import './index.css';
 
 // eslint-disable-next-line max-statements
 function Classrooms () {
@@ -41,7 +44,6 @@ function Classrooms () {
   //Redux state
   const classrooms = useSelector((state) => state.classrooms.classrooms);
   const isLoading = useSelector((state) => state.classrooms.isLoading);
-  const subjects = useSelector((state) => state.subjects.subjects);
   const peopleSlim = useSelector((state) => state.people.peopleSlim);
 
   //Local state
@@ -56,6 +58,12 @@ function Classrooms () {
   const onEditClick = (classroom) => {
     setIsUpdateModalVisible(true);
     setClassroomBeingUpdated(classroom);
+  };
+
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
   };
 
   const onDeleteClick = useCallback((classroom) => {
@@ -85,7 +93,7 @@ function Classrooms () {
   const columns = useMemo(()=> {
     return [
       Name(),
-      Subject({ subjects }),
+      Subject(),
       Semester(),
       ClassTimes(),
       Teacher({ peopleSlim }),
@@ -93,7 +101,7 @@ function Classrooms () {
       IntegerColumn({ title:'Enroll. Limit', dataIndex:'enrollmentsLimit' }),
       Actions({ onDeleteClick, onEditClick })
     ];
-  },[onDeleteClick, peopleSlim, subjects]);
+  },[onDeleteClick, peopleSlim]);
 
   //Hooks
   useEffect(()=> {
@@ -139,7 +147,16 @@ function Classrooms () {
     );
   };
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => <div>
+    <Space direction="horizontal">
+      <Space direction="vertical">
+        Name: <NameFilter onChange={handleFilter('name')}/>
+      </Space>
+      <Space direction="vertical">
+        Subject: <SubjectFilter onChange={handleFilter('subject')}/>
+      </Space>
+    </Space>
+  </div>;
 
   const renderActionsButtons = () => {
     return (

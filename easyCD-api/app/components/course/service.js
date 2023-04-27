@@ -20,15 +20,36 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
-    findAll,
+    list,
     validateCoordinator,
     addCurriculumGride,
     removeCurriculumGride,
     getCoordinatorCourses,
   };
 
-  async function findAll({ filters }) {
-    return CourseRepository.findAll({ filters });
+  async function list({ filters }) {
+    const pipeline = [
+      { $match: { deleted: { $ne: true } } },
+    ];
+
+    // Check coordinator Filter
+    if (filters?.coordinator) {
+      pipeline.push({
+        $match: {
+          coordinator: new ObjectId(filters.coordinator),
+        },
+      });
+    }
+
+    if (filters?.name) {
+      pipeline.push({
+        $match: {
+          name: { $regex: new RegExp(`^${filters.name}`) },
+        },
+      });
+    }
+
+    return CourseRepository.aggregate(pipeline);
   }
 
   async function findById({ _id }) {

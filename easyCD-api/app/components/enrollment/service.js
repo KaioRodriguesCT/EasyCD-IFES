@@ -22,7 +22,7 @@ exports = module.exports = function initService(
     validateClassroom,
     validateStudent,
     findOneByClassroomAndStudent,
-    findAll,
+    list,
     removeByClassroom,
     getStudentEnrollments,
   };
@@ -222,8 +222,25 @@ exports = module.exports = function initService(
     });
   }
 
-  async function findAll({ filters }) {
-    return EnrollmentRepository.findAll({ filters });
+  async function list({ filters }) {
+    const pipeline = [{ $match: { deleted: { $ne: true } } }];
+
+    if (filters?.student) {
+      pipeline.push({
+        $match: {
+          student: new ObjectId(filters.student),
+        },
+      });
+    }
+
+    if (filters?.classroom) {
+      pipeline.push({
+        $match: {
+          classroom: new ObjectId(filters.classroom),
+        },
+      });
+    }
+    return EnrollmentRepository.aggregate(pipeline);
   }
 
   async function removeByClassroom({ classroomId }) {

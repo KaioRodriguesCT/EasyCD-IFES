@@ -22,13 +22,38 @@ exports = module.exports = function initService(
     findById,
     validateStudent,
     validateComplementaryActivityType,
-    findAll,
+    list,
     removeByType,
     getStudentCActivities,
   };
 
-  async function findAll({ filters }) {
-    return ComplementaryActivityRepository.findAll({ filters });
+  async function list({ filters }) {
+    const pipeline = [{ $match: { deleted: { $ne: true } } }];
+
+    if (filters?.student) {
+      pipeline.push({
+        $match: {
+          student: new ObjectId(filters.student),
+        },
+      });
+    }
+
+    if (filters?.course) {
+      pipeline.push({
+        $match: {
+          course: new ObjectId(filters.course),
+        },
+      });
+    }
+
+    if (filters?.complementaryActivityType) {
+      pipeline.push({
+        $match: {
+          complementaryActivityType: new ObjectId(filters.complementaryActivityType),
+        },
+      });
+    }
+    return ComplementaryActivityRepository.aggregate(pipeline);
   }
 
   async function findById({ _id }) {

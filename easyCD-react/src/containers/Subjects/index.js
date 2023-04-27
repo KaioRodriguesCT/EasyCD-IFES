@@ -9,6 +9,7 @@ import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 //Lodash
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as subjectActions } from '@redux/subjects';
@@ -19,6 +20,8 @@ import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
 import CreateForm from '@src/components/Subject/CreateForm';
 import UpdateForm from '@src/components/Subject/UpdateForm';
+import NameFilter from '@src/components/SharedComponents/NameFilter';
+import CurriculumGrideFilter from '@src/components/SharedComponents/CurriculumGrideFilter';
 
 //Columns
 import Name from '@src/components/Subject/Columns/Name';
@@ -52,6 +55,12 @@ function Subjects () {
   const onEditClick = (subject) => {
     setIsUpdateModalVisible(true);
     setSubjectBeingUpdated(subject);
+  };
+
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
   };
 
   const onDeleteClick = (subject) => {
@@ -131,7 +140,16 @@ function Subjects () {
     );
   };
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => <div>
+    <Space direction="horizontal">
+      <Space direction="vertical">
+          Name: <NameFilter onChange={handleFilter('name')}/>
+      </Space>
+      <Space direction="vertical">
+          Curriculum Gride: <CurriculumGrideFilter onChange={handleFilter('curriculumGride')}/>
+      </Space>
+    </Space>
+  </div>;
 
   const renderActionsButtons = () => {
     return (

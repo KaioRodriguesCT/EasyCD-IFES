@@ -10,6 +10,7 @@ exports = module.exports = function initRepository(
     removeById,
     findById,
     findAll,
+    aggregate,
   };
 
   async function findAll({ filters }) {
@@ -55,6 +56,10 @@ exports = module.exports = function initRepository(
       .findById(solicitationTypeId)
       .exec();
     return solicitationType.delete();
+  }
+
+  async function aggregate(pipeline) {
+    return SolicitationTypeModel.aggregate(pipeline).exec();
   }
 };
 exports['@singleton'] = true;

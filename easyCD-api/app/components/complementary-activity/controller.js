@@ -65,7 +65,7 @@ exports = module.exports = function initController(
       const { query: { filters } } = req;
 
       return res.json({
-        complementaryActivities: await ComplementaryActivityService.findAll({ filters }),
+        complementaryActivities: await ComplementaryActivityService.list({ filters }),
       });
     } catch (e) {
       return next(e);

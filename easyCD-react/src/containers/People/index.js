@@ -8,12 +8,15 @@ import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 
 //Lodash
 import isNil from 'lodash/isNil';
+import clone from 'lodash/clone';
 
 //Components
 import CreateForm from '@src/components/Person/CreateForm';
 import UpdateForm from '@src/components/Person/UpdateForm';
 import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
+import NameFilter from '@src/components/SharedComponents/NameFilter';
+import EmailFilter from '@src/components/SharedComponents/EmailFilter';
 
 //Actions
 import { actions as peopleActions } from '@redux/people';
@@ -50,6 +53,12 @@ function People () {
     setPersonBeingUpdated(person);
   };
 
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
+  };
+
   //Data
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getPeople = useCallback(() => dispatch(peopleActions.listPeople({ filters })), [filters]);
@@ -59,20 +68,13 @@ function People () {
     if (!isNil(filters)) {
       getPeople();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   //Data
-  const columns = useMemo(()=> {
-    return [
-      Name(),
-      Email(),
-      Phone(),
-      City(),
-      UF(),
-      Actions({ onEditClick, showDelete: false })
-    ];
-  },[]);
+  const columns = useMemo(() => {
+    return [Name(), Email(), Phone(), City(), UF(), Actions({ onEditClick, showDelete: false })];
+  }, []);
 
   //Renders
   const renderCreateModal = () => {
@@ -82,7 +84,8 @@ function People () {
         onCancel={() => setIsCreateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
+        destroyOnClose={true}
+      >
         <CreateForm closeModal={() => setIsCreateModalVisible(false)} />
       </Modal>
     );
@@ -95,7 +98,8 @@ function People () {
         onCancel={() => setIsUpdateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
+        destroyOnClose={true}
+      >
         <UpdateForm person={personBeingUpdated} closeModal={() => setIsUpdateModalVisible(false)} />
       </Modal>
     );
@@ -111,11 +115,7 @@ function People () {
               onClick={() => setIsCreateModalVisible(true)}
               type="primary"
             />
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={getPeople}
-              type="default"
-            />
+            <Button icon={<ReloadOutlined />} onClick={getPeople} type="default" />
           </Space>
         </Space>
       </div>
@@ -123,7 +123,18 @@ function People () {
   };
 
   const renderFilters = () => {
-    return <div></div>;
+    return (
+      <div>
+        <Space direction="horizontal">
+          <Space direction="vertical">
+            Name: <NameFilter onChange={handleFilter('name')} />
+          </Space>
+          <Space direction="vertical">
+            Email: <EmailFilter onChange={handleFilter('email')} />
+          </Space>
+        </Space>
+      </div>
+    );
   };
 
   const renderTableHeader = () => {
@@ -141,21 +152,20 @@ function People () {
     return (
       <div className="table_container">
         <Spin spinning={isLoading === true}>
-          <Table
-            columns={columns}
-            dataSource={people}
-            pagination={false}
-            bordered={true}
-          />
+          <Table columns={columns} dataSource={people} pagination={false} bordered={true} />
         </Spin>
-      </div>);
+      </div>
+    );
   };
 
   return (
     <div className="container_home">
-      <ComponentHeader title={'People'}/>
-      <div className="container_body">{renderTableHeader()}{renderTable()}</div>
-      <ComponentFooter/>
+      <ComponentHeader title={'People'} />
+      <div className="container_body">
+        {renderTableHeader()}
+        {renderTable()}
+      </div>
+      <ComponentFooter />
       {renderUpdateModal()}
       {renderCreateModal()}
     </div>

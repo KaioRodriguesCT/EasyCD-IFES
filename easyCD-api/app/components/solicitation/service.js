@@ -20,14 +20,39 @@ exports = module.exports = function initService(
     remove,
     validateStudent,
     validateSolicitationType,
-    findAll,
+    list,
     removeByType,
     getStudentSolicitations,
     getTeacherSolicitations,
   };
 
-  async function findAll({ filters }) {
-    return SolicitationRepository.findAll({ filters });
+  async function list({ filters }) {
+    const pipeline = [{ $match: { deleted: { $ne: true } } }];
+
+    if (filters?.student) {
+      pipeline.push({
+        $match: {
+          student: new ObjectId(filters.student),
+        },
+      });
+    }
+
+    if (filters?.solicitationType) {
+      pipeline.push({
+        $match: {
+          solicitationType: new ObjectId(filters.solicitationType),
+        },
+      });
+    }
+
+    if (filters?.status) {
+      pipeline.push({
+        $match: {
+          status: filters.status,
+        },
+      });
+    }
+    return SolicitationRepository.aggregate(pipeline);
   }
 
   async function create(solicitation) {

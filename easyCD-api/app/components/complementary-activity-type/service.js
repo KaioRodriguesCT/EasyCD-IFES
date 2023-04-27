@@ -15,11 +15,28 @@ exports = module.exports = function initService(
     update,
     remove,
     findById,
-    findAll,
+    list,
   };
 
-  async function findAll({ filters }) {
-    return ComplementaryActivityTypeRepository.findAll({ filters });
+  async function list({ filters }) {
+    const pipeline = [{ $match: { deleted: { $ne: true } } }];
+
+    if (filters?.axle) {
+      pipeline.push({
+        $match: {
+          axle: filters.axle,
+        },
+      });
+    }
+
+    if (filters?.name) {
+      pipeline.push({
+        $match: {
+          name: { $regex: new RegExp(`^${filters.name}`) },
+        },
+      });
+    }
+    return ComplementaryActivityTypeRepository.aggregate(pipeline);
   }
 
   async function findById({ _id }) {

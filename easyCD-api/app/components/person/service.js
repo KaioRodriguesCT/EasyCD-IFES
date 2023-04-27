@@ -7,7 +7,7 @@ exports = module.exports = function initService(
   Utils,
 ) {
   return {
-    findAll,
+    list,
     findById,
     create,
     update,
@@ -26,8 +26,25 @@ exports = module.exports = function initService(
     findAllSlimByRole,
   };
 
-  async function findAll({ filters }) {
-    return PersonRepository.findAll({ filters });
+  async function list({ filters }) {
+    const pipeline = [{ $match: { delted: { $ne: true } } }];
+
+    if (filters?.name) {
+      pipeline.push({
+        $match: {
+          name: { $regex: new RegExp(`^${filters.name}`) },
+        },
+      });
+    }
+
+    if (filters?.email) {
+      pipeline.push({
+        $match: {
+          email: { $regex: new RegExp(`^${filters.email}`) },
+        },
+      });
+    }
+    return PersonRepository.aggregate(pipeline);
   }
 
   async function findById({ _id }) {

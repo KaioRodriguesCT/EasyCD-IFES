@@ -9,6 +9,7 @@ import { ExclamationCircleFilled, PlusOutlined, ReloadOutlined } from '@ant-desi
 //Lodash
 import isNil from 'lodash/isNil';
 import get from 'lodash/get';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as stActions } from '@redux/solicitation-types';
@@ -19,6 +20,7 @@ import ComponentFooter from '@src/components/ComponentFooter';
 import CreateForm from '@src/components/SolicitationType/CreateForm';
 import UpdateForm from '@src/components/SolicitationType/UpdateForm';
 import FieldsStructure from '@src/components/SolicitationType/Columns/FieldsStructure';
+import NameFilter from '@src/components/SharedComponents/NameFilter';
 
 //Columns
 import Name from '@src/components/SolicitationType/Columns/Name';
@@ -29,6 +31,7 @@ import Actions from '@src/components/SharedComponents/Columns/Actions';
 //Style
 import './index.less';
 
+// eslint-disable-next-line max-statements
 function SolicitationTypes () {
   const dispatch = useDispatch();
 
@@ -48,6 +51,12 @@ function SolicitationTypes () {
   const onEditClick = (solicitationType) => {
     setIsUpdateModalVisible(true);
     setSolicitationTypeBeingUpdated(solicitationType);
+  };
+
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
   };
 
   const onDeleteClick = useCallback((solicitationType) => {
@@ -108,7 +117,8 @@ function SolicitationTypes () {
         onCancel={() => setIsCreateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
+        destroyOnClose={true}
+      >
         <CreateForm closeModal={() => setIsCreateModalVisible(false)} />
       </Modal>
     );
@@ -121,7 +131,8 @@ function SolicitationTypes () {
         onCancel={() => setIsUpdateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
+        destroyOnClose={true}
+      >
         <UpdateForm
           closeModal={() => setIsUpdateModalVisible(false)}
           solicitationType={solicitationTypeBeingUpdated}
@@ -130,7 +141,15 @@ function SolicitationTypes () {
     );
   };
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => (
+    <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Name: <NameFilter onChange={handleFilter('name')} defaultValue={filters?.name} />
+        </Space>
+      </Space>
+    </div>
+  );
 
   const renderActionsButtons = () => {
     return (

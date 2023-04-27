@@ -9,6 +9,7 @@ import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 //Lodash
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as caActions } from '@redux/complementary-activities';
@@ -19,6 +20,9 @@ import { actions as peopleActions } from '@redux/people';
 //Components
 import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
+import StudentFilter from '@src/components/SharedComponents/StudentFilter';
+import CourseFilter from '@src/components/SharedComponents/CourseFilter';
+import ComplementaryActivityTypeFilter from '@src/components/SharedComponents/ComplementaryActivityTypeFilter';
 
 //Columns
 import ComplementaryActivityType from '@src/components/ComplementaryActivity/Columns/ComplementaryActivityType';
@@ -50,6 +54,12 @@ function ComplementaryActivity () {
   const [filters, setFilters] = useState(defaultFilters);
 
   //Handlers
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
+  };
+
   const onDeleteClick = useCallback((complementaryActivity) => {
     Modal.confirm({
       title: 'Are you sure that you want to delete this Complementary Activity ?',
@@ -75,19 +85,21 @@ function ComplementaryActivity () {
     dispatch(courseActions.listCourses());
   };
 
-  const columns = useMemo(() => [
-    ComplementaryActivityType({ complementaryActivityTypes }),
-    Student({ students }),
-    Course({ courses }),
-    Status(),
-    IntegerColumn({
-      title:'Qty',
-      dataIndex:'quantity'
-    }),
-    Evidence(),
-    Actions({ onDeleteClick, showEdit: false })
-
-  ], [complementaryActivityTypes, courses, onDeleteClick, students]);
+  const columns = useMemo(
+    () => [
+      ComplementaryActivityType({ complementaryActivityTypes }),
+      Student({ students }),
+      Course({ courses }),
+      Status(),
+      IntegerColumn({
+        title: 'Qty',
+        dataIndex: 'quantity'
+      }),
+      Evidence(),
+      Actions({ onDeleteClick, showEdit: false })
+    ],
+    [complementaryActivityTypes, courses, onDeleteClick, students]
+  );
 
   //Hooks
   useEffect(() => {
@@ -99,11 +111,30 @@ function ComplementaryActivity () {
 
   useEffect(() => {
     getPageData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //Renders
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => (
+    <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Type:{' '}
+          <ComplementaryActivityTypeFilter
+            onChange={handleFilter('complementaryActivityType')}
+            defaultValue={filters?.complementaryActivityType}
+          />
+        </Space>
+        <Space direction="vertical">
+          Student:{' '}
+          <StudentFilter onChange={handleFilter('student')} defaultValue={filters?.student} />
+        </Space>
+        <Space direction="vertical">
+          Course: <CourseFilter onChange={handleFilter('course')} defaultValue={filters?.course} />
+        </Space>
+      </Space>
+    </div>
+  );
 
   const renderActionsButtons = () => {
     return (

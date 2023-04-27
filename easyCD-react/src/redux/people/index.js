@@ -13,9 +13,19 @@ import ListSlimPeople from './list-slim-people';
 import ListSlimPeopleByRole from './list-slim-people-by-role';
 import PersonCreate from './person-create';
 import PersonUpdate from './person-update';
+import GetTeachers from './get-teachers';
+import GetStudents from './get-students';
 
 //Modules
-const modules = [ListPeople, ListSlimPeople, ListSlimPeopleByRole, PersonCreate,PersonUpdate];
+const modules = [
+  ListPeople,
+  ListSlimPeople,
+  ListSlimPeopleByRole,
+  PersonCreate,
+  PersonUpdate,
+  GetTeachers,
+  GetStudents
+];
 
 //Initial State
 export const initialState = {

@@ -11,6 +11,7 @@ exports = module.exports = function initRepository(
     removeById,
     findById,
     findAll,
+    aggregate,
   };
 
   async function findAll({ filters, select }) {
@@ -66,6 +67,10 @@ exports = module.exports = function initRepository(
       .findById(curriculumGrideId)
       .exec();
     return curriculumGride.delete();
+  }
+
+  async function aggregate(pipeline) {
+    return CurriculumGrideModel.aggregate(pipeline).exec();
   }
 };
 exports['@singleton'] = true;

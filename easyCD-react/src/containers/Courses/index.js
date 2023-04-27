@@ -11,6 +11,8 @@ import CreateForm from '@src/components/Course/CreateForm';
 import UpdateForm from '@src/components/Course/UpdateForm';
 import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
+import CoordinatorFilter from '@src/components/SharedComponents/CoordinatorFilter';
+import NameFilter from '@src/components/SharedComponents/NameFilter';
 
 //Actions
 import { actions as courseActions } from '@redux/courses';
@@ -19,6 +21,7 @@ import { actions as peopleActions } from '@redux/people';
 //Lodash
 import isNil from 'lodash/isNil';
 import get from 'lodash/get';
+import clone from 'lodash/clone';
 
 //Columns
 import Name from '@components/Course/Columns/Name';
@@ -54,13 +57,20 @@ function Courses () {
 
   const onDeleteClick = (record) => {
     Modal.confirm({
-      title:`Are you sure that you want to delete the course: ${ get(record, 'name') } ?`,
-      content:'Once you delete the course, all data related to that course will be inactivate or lost on database.',
-      icon:<ExclamationCircleFilled/>,
+      title: `Are you sure that you want to delete the course: ${ get(record, 'name') } ?`,
+      content:
+        'Once you delete the course, all data related to that course will be inactivate or lost on database.',
+      icon: <ExclamationCircleFilled />,
       onOk () {
-        dispatch(courseActions.deleteCourse( get(record,'_id') ));
+        dispatch(courseActions.deleteCourse(get(record, '_id')));
       }
     });
+  };
+
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
   };
 
   //Data
@@ -71,15 +81,15 @@ function Courses () {
     dispatch(peopleActions.listSlimPeople());
   };
 
-  const columns = useMemo(()=> {
+  const columns = useMemo(() => {
     return [
       Name(),
       Coordinator({ peopleSlim }),
       Description(),
       Actions({ onDeleteClick, onEditClick })
     ];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[peopleSlim]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [peopleSlim]);
 
   //Hooks
   useEffect(() => {
@@ -89,10 +99,10 @@ function Courses () {
   }, [filters, getCourses]);
 
   //Executes every time that this page is open
-  useEffect(()=> {
+  useEffect(() => {
     getPageData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   //Renders
   const renderCreateModal = () => {
@@ -102,7 +112,8 @@ function Courses () {
         onCancel={() => setIsCreateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
+        destroyOnClose={true}
+      >
         <CreateForm closeModal={() => setIsCreateModalVisible(false)} />
       </Modal>
     );
@@ -115,8 +126,9 @@ function Courses () {
         onCancel={() => setIsUpdateModalVisible(false)}
         footer={null}
         closable={false}
-        destroyOnClose={true}>
-        <UpdateForm closeModal={() => setIsUpdateModalVisible(false)} course={courseBeingUpdated}/>
+        destroyOnClose={true}
+      >
+        <UpdateForm closeModal={() => setIsUpdateModalVisible(false)} course={courseBeingUpdated} />
       </Modal>
     );
   };
@@ -131,11 +143,7 @@ function Courses () {
               onClick={() => setIsCreateModalVisible(true)}
               type="primary"
             />
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() => getCourses()}
-              type="default"
-            />
+            <Button icon={<ReloadOutlined />} onClick={() => getCourses()} type="default" />
           </Space>
         </Space>
       </div>
@@ -143,7 +151,22 @@ function Courses () {
   };
 
   const renderFilters = () => {
-    return <div></div>;
+    return (
+      <div>
+        <Space direction="horizontal">
+          <Space direction="vertical">
+            Name: <NameFilter onChange={handleFilter('name')} defaultValue={filters?.name} />
+          </Space>
+          <Space direction="vertical">
+            Coordinator:{' '}
+            <CoordinatorFilter
+              onChange={handleFilter('coordinator')}
+              defaultValue={filters?.coordinator}
+            />
+          </Space>
+        </Space>
+      </div>
+    );
   };
 
   const renderDataHeader = () => {
@@ -161,7 +184,13 @@ function Courses () {
     return (
       <div className="table_container">
         <Spin spinning={isLoading}>
-          <Table dataSource={courses} columns={columns} pagination={false} bordered={true} size="large"/>
+          <Table
+            dataSource={courses}
+            columns={columns}
+            pagination={false}
+            bordered={true}
+            size="large"
+          />
         </Spin>
       </div>
     );
@@ -169,14 +198,14 @@ function Courses () {
 
   return (
     <div className="container_home">
-      <ComponentHeader title={'Courses'}/>
+      <ComponentHeader title={'Courses'} />
       <div className="container_body">
         {renderDataHeader()}
         {renderCoursesTable()}
       </div>
       {renderCreateModal()}
       {renderUpdateModal()}
-      <ComponentFooter/>
+      <ComponentFooter />
     </div>
   );
 }

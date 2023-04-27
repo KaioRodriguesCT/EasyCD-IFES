@@ -9,6 +9,7 @@ import { ExclamationCircleFilled, PlusOutlined, ReloadOutlined } from '@ant-desi
 //Lodash
 import isNil from 'lodash/isNil';
 import get from 'lodash/get';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as curriculumGrideActions } from '@redux/curriculum-grides';
@@ -19,6 +20,8 @@ import ComponentFooter from '@src/components/ComponentFooter';
 import ComponentHeader from '@src/components/ComponentHeader';
 import CreateForm from '@src/components/CurriculumGride/CreateForm';
 import UpdateForm from '@src/components/CurriculumGride/UpdateForm';
+import NameFilter from '@src/components/SharedComponents/NameFilter';
+import CourseFilter from '@src/components/SharedComponents/CourseFilter';
 
 //Colmuns
 import Name from '@src/components/CurriculumGride/Columns/Name';
@@ -66,6 +69,12 @@ function CurriculumGride () {
         dispatch(curriculumGrideActions.deleteCurriculumGride(get(curriculumGride, '_id')));
       }
     });
+  };
+
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
   };
 
   //Data
@@ -147,7 +156,16 @@ function CurriculumGride () {
     );
   };
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => <div>
+    <Space direction="horizontal">
+      <Space direction="vertical">
+        Name: <NameFilter onChange={handleFilter('name')}/>
+      </Space>
+      <Space direction="vertical">
+        Course: <CourseFilter onChange={handleFilter('course')}/>
+      </Space>
+    </Space>
+  </div>;
 
   const renderActionsButtons = () => {
     return (

@@ -64,7 +64,7 @@ exports = module.exports = function initController(
     try {
       const { query: { filters } } = req;
 
-      return res.json({ enrollments: await EnrollmentService.findAll({ filters }) });
+      return res.json({ enrollments: await EnrollmentService.list({ filters }) });
     } catch (e) {
       return next(e);
     }

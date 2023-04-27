@@ -34,11 +34,21 @@ exports = module.exports = function initService(
     isApproved,
     isReproved,
     findById,
-    findAll,
+    list,
   };
 
-  async function findAll({ filters }) {
-    return SolicitationTypeRepository.findAll({ filters });
+  async function list({ filters }) {
+    const pipeline = [{ $match: { deleted: { $ne: true } } }];
+
+    if (filters?.name) {
+      pipeline.push({
+        $match: {
+          name: { $regex: new RegExp(`^${filters.name}`) },
+        },
+      });
+    }
+
+    return SolicitationTypeRepository.aggregate(pipeline);
   }
 
   async function findById({ _id }) {

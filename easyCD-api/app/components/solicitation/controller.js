@@ -64,7 +64,7 @@ exports = module.exports = function initController(
   async function list(req, res, next) {
     try {
       const { query: { filters } } = req;
-      return res.json({ solicitations: await SolicitationService.findAll({ filters }) });
+      return res.json({ solicitations: await SolicitationService.list({ filters }) });
     } catch (e) {
       return next(e);
     }

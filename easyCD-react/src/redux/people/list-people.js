@@ -61,10 +61,11 @@ export function* watcher () {
 }
 
 //Api
-async function api () {
+async function api ({ filters }) {
   //Return the result of the request here
   return request('people/', {
-    method: 'GET'
+    method: 'GET',
+    query: { filters }
   });
 }
 

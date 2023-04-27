@@ -29,7 +29,7 @@ exports = module.exports = function initController(
   async function list(req, res, next) {
     try {
       const { query: { filters } } = req;
-      const people = await PeopleService.findAll({ filters });
+      const people = await PeopleService.list({ filters });
       return res.json({ people });
     } catch (e) {
       return next(e);

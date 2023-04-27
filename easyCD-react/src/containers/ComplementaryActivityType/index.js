@@ -9,6 +9,7 @@ import { Button, Card, Modal, Space, Spin, Table } from 'antd';
 //Lodash
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as caTypeActions } from '@redux/complementary-activity-types';
@@ -26,7 +27,10 @@ import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
 import CreateForm from '@src/components/ComplementaryActivityTypes/CreateForm';
 import UpdateForm from '@src/components/ComplementaryActivityTypes/UpdateForm';
+import NameFilter from '@src/components/SharedComponents/NameFilter';
+import AxleFilter from '@src/components/SharedComponents/AxleFilter';
 
+// eslint-disable-next-line max-statements
 function ComplementaryActivityType () {
   const dispatch = useDispatch();
 
@@ -48,6 +52,12 @@ function ComplementaryActivityType () {
   const onEditClick = (caType) => {
     setIsUpdateModalVisible(true);
     setCaTypeBeingUpdated(caType);
+  };
+
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
   };
 
   const onDeleteClick = useCallback((caType) => {
@@ -111,8 +121,16 @@ function ComplementaryActivityType () {
       </Modal>
     );
   };
-
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => <div>
+    <Space direction="horizontal">
+      <Space direction="vertical">
+        Name: <NameFilter onChange={handleFilter('name')} defaultValue={filters?.name}/>
+      </Space>
+      <Space direction="vertical">
+        Axle: <AxleFilter onChange={handleFilter('axle')} defaultValue={filters?.axle}/>
+      </Space>
+    </Space>
+  </div>;
 
   const renderActionsButtons = () => {
     return (
