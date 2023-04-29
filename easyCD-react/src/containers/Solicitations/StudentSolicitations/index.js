@@ -12,6 +12,7 @@ import { actions as solicitationActions } from '@redux/solicitations';
 //Lodash
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import clone from 'lodash/clone';
 
 //Columns
 import SolicitationType from '@src/components/Solicitation/StudentSolicitation/Columns/SolicitationType';
@@ -31,6 +32,8 @@ import ComponentFooter from '@src/components/ComponentFooter';
 
 //Style
 import './index.css';
+import SolicitationTypeFilter from '@src/components/SharedComponents/SolicitationTypeFilter';
+import SolicitationStatusFilter from '@src/components/SharedComponents/SolicitationStatusFilter';
 
 // eslint-disable-next-line max-statements
 function StudentSolicitations () {
@@ -46,7 +49,7 @@ function StudentSolicitations () {
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState();
   const [solicitationBeingUpdated, setSolicitationBeingUpdated] = useState();
 
-  const defaultFilters = { student: get(user,'person._id') };
+  const defaultFilters = { student: get(user, 'person._id') };
   const [filters, setFilters] = useState(defaultFilters);
 
   //Handlers
@@ -56,6 +59,12 @@ function StudentSolicitations () {
   };
 
   //Data
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
+  };
+
   const getSolicitations = useCallback(
     () => dispatch(solicitationActions.getStudentSolicitations({ filters })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,7 +128,26 @@ function StudentSolicitations () {
     );
   };
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => (
+    <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Type:{' '}
+          <SolicitationTypeFilter
+            defaultValue={filters?.solicitationType}
+            onChange={handleFilter('solicitationType')}
+          />
+        </Space>
+        <Space direction="vertical">
+          Status:{' '}
+          <SolicitationStatusFilter
+            defaultValue={filters?.status}
+            onChange={handleFilter('status')}
+          />
+        </Space>
+      </Space>
+    </div>
+  );
 
   const renderActionsButtons = () => {
     return (

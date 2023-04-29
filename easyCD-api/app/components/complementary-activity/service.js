@@ -254,6 +254,38 @@ exports = module.exports = function initService(
       },
     ];
 
+    if (filters?.complementaryActivityType) {
+      pipeline.push({
+        $match: {
+          'type._id': new ObjectId(filters?.complementaryActivityType),
+        },
+      });
+    }
+
+    if (filters?.axle) {
+      pipeline.push({
+        $match: {
+          'type.axle': filters?.axle,
+        },
+      });
+    }
+
+    if (filters?.course) {
+      pipeline.push({
+        $match: {
+          'course._id': new ObjectId(filters?.course),
+        },
+      });
+    }
+
+    if (filters?.status) {
+      pipeline.push({
+        $match: {
+          status: filters?.status,
+        },
+      });
+    }
+
     return ComplementaryActivityRepository.aggregate(pipeline);
   }
 };

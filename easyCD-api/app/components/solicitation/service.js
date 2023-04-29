@@ -237,6 +237,22 @@ exports = module.exports = function initService(
       },
     ];
 
+    if (filters?.status) {
+      pipeline.push({
+        $match: {
+          status: filters.status,
+        },
+      });
+    }
+
+    if (filters?.solicitationType) {
+      pipeline.push({
+        $match: {
+          'type._id': new ObjectId(filters.solicitationType),
+        },
+      });
+    }
+
     return SolicitationRepository.aggregate(pipeline);
   }
 

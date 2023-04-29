@@ -9,6 +9,7 @@ import { ReloadOutlined } from '@ant-design/icons';
 ///Lodash
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as caActions } from '@redux/complementary-activities';
@@ -27,6 +28,10 @@ import Axle from '@src/components/ComplementaryActivity/StudentComplementaryActi
 import Unit from '@src/components/ComplementaryActivity/StudentComplementaryActivity/Columns/Unit';
 import Score from '@src/components/ComplementaryActivity/StudentComplementaryActivity/Columns/Score';
 import TotalScore from '@src/components/ComplementaryActivity/StudentComplementaryActivity/Columns/TotalScore';
+import ComplementaryActivityTypeFilter from '@src/components/SharedComponents/ComplementaryActivityTypeFilter';
+import AxleFilter from '@src/components/SharedComponents/AxleFilter';
+import CourseFilter from '@src/components/SharedComponents/CourseFilter';
+import CAStatusFilter from '@src/components/SharedComponents/CAStatusFilter';
 
 function StudentComplementaryActivity () {
   const dispatch = useDispatch();
@@ -48,20 +53,29 @@ function StudentComplementaryActivity () {
     [dispatch, filters]
   );
 
-  const columns = useMemo(() => [
-    Type(),
-    Axle(),
-    Unit(),
-    Score(),
-    Course(),
-    Status(),
-    IntegerColumn({
-      title: 'Qty',
-      dataIndex:'quantity'
-    }),
-    Evidence(),
-    TotalScore()
-  ], []);
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
+  };
+
+  const columns = useMemo(
+    () => [
+      Type(),
+      Axle(),
+      Unit(),
+      Score(),
+      Course(),
+      Status(),
+      IntegerColumn({
+        title: 'Qty',
+        dataIndex: 'quantity'
+      }),
+      Evidence(),
+      TotalScore()
+    ],
+    []
+  );
   //Hooks
   useEffect(() => {
     if (!isNil(filters)) {
@@ -71,7 +85,28 @@ function StudentComplementaryActivity () {
   }, [filters]);
 
   //Renders
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => (
+    <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Type{' '}
+          <ComplementaryActivityTypeFilter
+            defaultValue={filters?.complementaryActivityType}
+            onChange={handleFilter('complementaryActivityType')}
+          />
+        </Space>
+        <Space direction="vertical">
+          Axle <AxleFilter defaultValue={filters?.axle} onChange={handleFilter('axle')} />
+        </Space>
+        <Space direction="vertical">
+          Course <CourseFilter defaultValue={filters?.course} onChange={handleFilter('course')} />
+        </Space>
+        <Space direction="vertical">
+          Status <CAStatusFilter defaultValue={filters?.status} onChange={handleFilter('status')} />
+        </Space>
+      </Space>
+    </div>
+  );
 
   const renderActionsButtons = () => {
     return (

@@ -9,6 +9,7 @@ import { ReloadOutlined } from '@ant-design/icons';
 //Lodash
 import isNil from 'lodash/isNil';
 import get from 'lodash/get';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as enrollmentActions } from '@redux/enrollments';
@@ -30,7 +31,11 @@ import ComponentFooter from '@src/components/ComponentFooter';
 
 //Style
 import './index.css';
-
+import CoordinatorFilter from '@src/components/SharedComponents/CoordinatorFilter';
+import ClassroomFilter from '@src/components/SharedComponents/ClassroomFilter';
+import SubjectFilter from '@src/components/SharedComponents/SubjectFilter';
+import CourseFilter from '@src/components/SharedComponents/CourseFilter';
+import EnrollmentStatusFilter from '@src/components/SharedComponents/EnrollmentStatusFilter';
 
 function StudentEnrollments () {
   const dispatch = useDispatch();
@@ -40,7 +45,7 @@ function StudentEnrollments () {
   const isLoading = useSelector((state) => state.enrollments.isLoading);
   const user = useSelector((state) => state.authentication.user);
 
-  const defaultFilters = { student: get(user, 'person._id') };
+  const defaultFilters = { student: get(user, 'person._id'), status: 'In Progress' };
   const [filters, setFilters] = useState(defaultFilters);
 
   //Data
@@ -64,6 +69,12 @@ function StudentEnrollments () {
     []
   );
 
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
+  };
+
   //Hooks
   useEffect(() => {
     if (!isNil(filters)) {
@@ -72,7 +83,34 @@ function StudentEnrollments () {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => (
+    <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Teacher{' '}
+          <CoordinatorFilter defaultValue={filters?.teacher} onChange={handleFilter('teacher')} />
+        </Space>
+        <Space direction="vertical">
+          Classroom{' '}
+          <ClassroomFilter defaultValue={filters?.classroom} onChange={handleFilter('classroom')} />
+        </Space>
+        <Space direction="vertical">
+          Subject{' '}
+          <SubjectFilter defaultValue={filters?.subject} onChange={handleFilter('subject')} />
+        </Space>
+        <Space direction="vertical">
+          Course <CourseFilter defaultValue={filters?.course} onChange={handleFilter('course')} />
+        </Space>
+        <Space direction="vertical">
+          Status{' '}
+          <EnrollmentStatusFilter
+            defaultValue={filters?.status}
+            onChange={handleFilter('status')}
+          />
+        </Space>
+      </Space>
+    </div>
+  );
 
   const renderActionsButtons = () => {
     return (

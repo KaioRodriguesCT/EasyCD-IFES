@@ -343,6 +343,42 @@ exports = module.exports = function initService(
       },
     ];
 
+    if (filters?.teacher) {
+      pipeline.push({
+        $match: {
+          'teacher._id': new ObjectId(filters.teacher),
+        },
+      });
+    }
+    if (filters?.classroom) {
+      pipeline.push({
+        $match: {
+          'classroom._id': new ObjectId(filters.classroom),
+        },
+      });
+    }
+    if (filters?.subject) {
+      pipeline.push({
+        $match: {
+          'subject._id': new ObjectId(filters.subject),
+        },
+      });
+    }
+    if (filters?.course) {
+      pipeline.push({
+        $match: {
+          'course._id': new ObjectId(filters.course),
+        },
+      });
+    }
+    if (filters?.status) {
+      pipeline.push({
+        $match: {
+          status: filters.status,
+        },
+      });
+    }
+
     return EnrollmentRepository.aggregate(pipeline);
   }
 };
