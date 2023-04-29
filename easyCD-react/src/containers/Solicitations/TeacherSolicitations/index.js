@@ -9,6 +9,7 @@ import { ReloadOutlined } from '@ant-design/icons';
 ///Lodash
 import isNil from 'lodash/isNil';
 import get from 'lodash/get';
+import clone from 'lodash/clone';
 
 //Actions
 import { actions as solicitationActions } from '@redux/solicitations';
@@ -28,6 +29,11 @@ import Student from '@src/components/Solicitation/TeacherSolicitation/Columns/St
 import UpdateForm from '@src/components/Solicitation/UpdateForm';
 import ComponentHeader from '@src/components/ComponentHeader';
 import ComponentFooter from '@src/components/ComponentFooter';
+
+//Filters
+import StudentFilter from '@src/components/SharedComponents/StudentFilter';
+import SolicitationStatusFilter from '@src/components/SharedComponents/SolicitationStatusFilter';
+import SolicitationTypeFilter from '@src/components/SharedComponents/SolicitationTypeFilter';
 
 //Style
 import './index.css';
@@ -53,13 +59,12 @@ function TeacherSolicitations ({ isCoordinator }) {
   );
   const defaultFilters = {};
 
-
   const [filters, setFilters] = useState({ ...defaultFilters, ...coordOrTeacherFilters });
 
   useEffect(() => {
     setFilters({ ...filters, ...coordOrTeacherFilters });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[coordOrTeacherFilters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coordOrTeacherFilters]);
 
   //Handlers
   const onEditClick = (solicitation) => {
@@ -68,6 +73,12 @@ function TeacherSolicitations ({ isCoordinator }) {
   };
 
   //Data
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
+  };
+
   const getSolicitations = useCallback(
     () => dispatch(solicitationActions.getTeacherSolicitations({ filters })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,7 +131,30 @@ function TeacherSolicitations ({ isCoordinator }) {
     );
   };
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => (
+    <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Student:
+          <StudentFilter defaultValue={filters?.student} onChange={handleFilter('student')} />
+        </Space>
+        <Space direction="vertical">
+          Status:
+          <SolicitationStatusFilter
+            defaultValue={filters?.status}
+            onChange={handleFilter('status')}
+          />
+        </Space>
+        <Space direction="vertical">
+          Type:
+          <SolicitationTypeFilter
+            defaultValue={filters?.solicitationType}
+            onChange={handleFilter('solicitationType')}
+          />
+        </Space>
+      </Space>
+    </div>
+  );
 
   const renderActionsButtons = () => {
     return (

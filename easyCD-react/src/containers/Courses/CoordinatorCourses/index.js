@@ -12,6 +12,7 @@ import { actions as courseActions } from '@redux/courses';
 //Lodash
 import isNil from 'lodash/isNil';
 import get from 'lodash/get';
+import clone from 'lodash/clone';
 
 //Components
 import ComponentHeader from '@src/components/ComponentHeader';
@@ -20,6 +21,7 @@ import ComponentFooter from '@src/components/ComponentFooter';
 ///Columns
 import Name from '@src/components/Course/Columns/Name';
 import Description from '@src/components/Course/Columns/Description';
+import NameFilter from '@src/components/SharedComponents/NameFilter';
 
 function CoordinatorCourses () {
   const dispatch = useDispatch();
@@ -38,6 +40,12 @@ function CoordinatorCourses () {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [filters]
   );
+
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
+  };
 
   const columns = useMemo(() => {
     return [
@@ -67,7 +75,13 @@ function CoordinatorCourses () {
   };
 
   const renderFilters = () => {
-    return <div></div>;
+    return <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Name: <NameFilter defaultValue={filters?.name} onChange={handleFilter('name')}/>
+        </Space>
+      </Space>
+    </div>;
   };
 
   const renderDataHeader = () => {

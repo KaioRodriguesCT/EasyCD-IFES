@@ -491,6 +491,22 @@ exports = module.exports = function initService(
       },
     ];
 
+    if (filters?.course) {
+      pipeline.push({
+        $match: {
+          'course._id': new ObjectId(filters.course),
+        },
+      });
+    }
+
+    if (filters?.subject) {
+      pipeline.push({
+        $match: {
+          'subject._id': new ObjectId(filters.subject),
+        },
+      });
+    }
+
     return ClassroomRepository.aggregate(pipeline);
   }
 };

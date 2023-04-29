@@ -12,6 +12,7 @@ import { actions as clasroomActions } from '@redux/classrooms';
 //Lodash
 import isNil from 'lodash/isNil';
 import get from 'lodash/get';
+import clone from 'lodash/clone';
 
 //Components
 import ComponentHeader from '@src/components/ComponentHeader';
@@ -25,6 +26,8 @@ import BooleanColumn from '@src/components/SharedComponents/Columns/BooleanColum
 import ClassTimes from '@src/components/Classroom/Columns/ClassTime';
 import Subject from '@src/components/Classroom/TeacherClassroom/Columns/Subject';
 import Course from '@src/components/Classroom/TeacherClassroom/Columns/Course';
+import SubjectFilter from '@src/components/SharedComponents/SubjectFilter';
+import CourseFilter from '@src/components/SharedComponents/CourseFilter';
 
 function TeacherClassrooms () {
   const dispatch = useDispatch();
@@ -39,6 +42,13 @@ function TeacherClassrooms () {
   const [filters, setFilters] = useState(defaultFilters);
 
   //Data
+
+  const handleFilter = (filterField) => (value) => {
+    const actualFilters = clone(filters) || {};
+    actualFilters[ filterField ] = value;
+    setFilters(actualFilters);
+  };
+
   const getClassrooms = useCallback(
     () => dispatch(clasroomActions.getTeacherClassrooms({ filters })),
     [dispatch, filters]
@@ -70,7 +80,19 @@ function TeacherClassrooms () {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
-  const renderFilters = () => <div></div>;
+  const renderFilters = () => (
+    <div>
+      <Space direction="horizontal">
+        <Space direction="vertical">
+          Subject:{' '}
+          <SubjectFilter defaultValue={filters?.subject} onChange={handleFilter('subject')} />
+        </Space>
+        <Space direction="vertical">
+          Course: <CourseFilter defaultValue={filters?.course} onChange={handleFilter('course')} />
+        </Space>
+      </Space>
+    </div>
+  );
 
   const renderActionsButtons = () => {
     return (

@@ -298,6 +298,31 @@ exports = module.exports = function initService(
         },
       },
     ];
+    const filtersPipeline = [];
+
+    if (filters?.student) {
+      filtersPipeline.push({
+        $match: {
+          'student._id': new ObjectId(filters.student),
+        },
+      });
+    }
+
+    if (filters?.solicitationType) {
+      filtersPipeline.push({
+        $match: {
+          'type._id': new ObjectId(filters.solicitationType),
+        },
+      });
+    }
+
+    if (filters?.status) {
+      filtersPipeline.push({
+        $match: {
+          status: filters.status,
+        },
+      });
+    }
 
     if (filters?.coordinator) {
       const coordinatorPipeline = [
@@ -336,7 +361,9 @@ exports = module.exports = function initService(
         },
       ];
 
-      return SolicitationRepository.aggregate([...pipeline, ...coordinatorPipeline]);
+      return SolicitationRepository.aggregate(
+        [...pipeline, ...coordinatorPipeline, ...filtersPipeline],
+      );
     }
 
     const teacherPipeline = [
@@ -372,7 +399,7 @@ exports = module.exports = function initService(
       },
     ];
 
-    return SolicitationRepository.aggregate([...pipeline, ...teacherPipeline]);
+    return SolicitationRepository.aggregate([...pipeline, ...teacherPipeline, ...filtersPipeline]);
   }
 };
 

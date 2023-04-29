@@ -272,6 +272,13 @@ exports = module.exports = function initService(
       },
     ];
 
+    if (filters?.name) {
+      pipeline.push({
+        $match: { name: { $regex: new RegExp(`^${filters.name}`) } },
+
+      });
+    }
+
     return CourseRepository.aggregate(pipeline);
   }
 };
