@@ -142,7 +142,7 @@ function UpdateForm ({ closeModal, solicitation, student, coordinator, teacher }
                   </Form.Item>
                 )}
                 {(isUserAdmin || coordinator) && (
-                  <Form.Item name="coordinatorNotes" label="T. Notes:">
+                  <Form.Item name="coordinatorNotes" label="C. Notes:">
                     <Input.TextArea
                       onChange={handleInputChange(
                         newSolicitation,
@@ -154,7 +154,7 @@ function UpdateForm ({ closeModal, solicitation, student, coordinator, teacher }
                 )}
               </Space>
               <Space direction="horizontal" size="large">
-                {teacher && (
+                {(isUserAdmin || teacher) && (
                   <Form.Item name="teacherApproval" label="T. Approval:">
                     <Radio.Group
                       onChange={handleInputChange(

@@ -59,7 +59,6 @@ exports = module.exports = function initService(
         enrollmentId: _id,
       })],
     });
-    console.log('Here');
     return createdEnrollment;
   }
 
