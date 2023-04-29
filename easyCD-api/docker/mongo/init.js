@@ -1,9 +1,24 @@
 use easyCD;
+
+db.people.insert({
+  _id : ObjectId('644da69110f2c5bfc100c945'),
+  name : 'Student Student',
+  email : 'Student@Student.com',
+  firstname : 'Student',
+  surname : 'Student',
+  phone : 'Student',
+  city : 'Student',
+  uf : 'Student',
+  address : 'Student'
+})
+
 db.users.insert({
   username: 'admin',
   password: '$2a$10$GoaqLTxtMtjsB.MFPa5IRu4ofVl95RsT30LyDQjUbZEY52YAM4wjm',
-  role: 'admin'
+  role: 'admin',
+  person: ObjectId('644da69110f2c5bfc100c945')
 });
+
 db.solicitationtypes.insertMany([
   {
     name: 'Complementary Activity',

@@ -123,7 +123,7 @@ function UpdateForm ({ closeModal, solicitation, student, coordinator, teacher }
             {isUserAdmin || student ? (
               <Form.Item name="status" label="Status:" valuePropName="defaultValue">
                 <StatusSelect
-                  showRestrict={!isNil(user)}
+                  showRestrict={isNil(user)}
                   onChange={handleSelectChangeLocal('status')}
                 />
               </Form.Item>

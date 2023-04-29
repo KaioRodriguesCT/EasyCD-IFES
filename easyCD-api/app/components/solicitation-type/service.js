@@ -16,6 +16,7 @@ exports = module.exports = function initService(
   CourseService,
   EnrollmentService,
   Utils,
+  EmailHandler,
 ) {
   return {
     create,
@@ -498,8 +499,14 @@ exports = module.exports = function initService(
                 return null;
             }
           },
-          // TODO
-          sendEmail: async () => {},
+          sendEmail: async () => {
+            const person = await PersonService.findById({ _id: teacher });
+            EmailHandler.sendEmail({
+              to: person?.email,
+              subject: 'New solicitation',
+              text: 'Hey, there is a new solicitation that should be process for you as an teacher, please take an time and check it',
+            });
+          },
         });
         return updatedTeacher;
       },
@@ -524,8 +531,14 @@ exports = module.exports = function initService(
                 return null;
             }
           },
-          // TODO
-          sendEmail: async () => {},
+          sendEmail: async () => {
+            const person = await PersonService.findById({ _id: coordinator });
+            EmailHandler.sendEmail({
+              to: person?.email,
+              subject: 'New solicitation',
+              text: 'Hey, there is a new solicitation that should be process for you as an coordinator, please take an time and check it',
+            });
+          },
         });
         return updatedCoordinator;
       }],
@@ -570,4 +583,5 @@ exports['@require'] = [
   'components/course/service',
   'components/enrollment/service',
   'lib/utils',
+  'lib/email-handler',
 ];

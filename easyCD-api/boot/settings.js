@@ -12,6 +12,10 @@ exports = module.exports = function initSettings() {
         lifeTime: '60m',
         secret: process.env.REFRESH_TOKEN_SECRET,
       },
+      email: {
+        user: 'easycd.notification@gmail.com',
+        password: 'rbkezjkkhfgdjyml',
+      },
     },
     development: {
       database: {
